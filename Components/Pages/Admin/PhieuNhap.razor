@@ -1,4 +1,75 @@
-﻿<h3>PhieuNhap</h3>
+﻿@attribute [StreamRendering]
+@rendermode InteractiveServer
+@page "/admin/phieunhap"
+
+<!-- HEADER -->
+<div class="content-header">
+    <h2>
+        <i class="fas fa-file-import"></i>
+        Quản lý Phiếu nhập
+    </h2>
+</div>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addPhieuNhapModal">
+        <i class="fas fa-plus"></i>
+        Thêm mới
+    </button>
+
+    <div class="search-group w-100">
+        <input type="text" placeholder="Tìm kiếm phiếu nhập..." class="form-control">
+        <button class="btn-search">
+            <i class="fas fa-search"></i>
+            Tìm kiếm
+        </button>
+    </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã phiếu</th>
+                <th>Nhà cung cấp</th>
+                <th class="text-center">Ngày nhập</th>
+                <th class="text-center">Tổng tiền</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center">Tùy chỉnh</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>#PN001</td>
+                <td>Nhà cung cấp A</td>
+                <td class="text-center">2025-12-01</td>
+                <td class="text-center">5,000,000 VND</td>
+                <td class="text-center"><span class="status-badge status-active">Hoàn thành</span></td>
+                <td class="text-center">
+                    <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#addPhieuNhapModal">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>#PN002</td>
+                <td>Nhà cung cấp B</td>
+                <td class="text-center">2025-12-02</td>
+                <td class="text-center">3,200,000 VND</td>
+                <td class="text-center"><span class="status-badge status-inactive">Chờ duyệt</span></td>
+                <td class="text-center">
+                    <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#addPhieuNhapModal">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Form -->
+<PhieuNhapForm />
 
 @code {
 
