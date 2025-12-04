@@ -1,5 +1,86 @@
-﻿<h3>NhaCungCap</h3>
+﻿@page "/admin/nhacungcap"
+@using BlazorStoreManagementWebApp.Components.Forms.Admin
+@using BlazorStoreManagementWebApp.DTOs.Admin.NhaCungCap
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<div class="content-header">
+    <h2>
+        <i class="fas fa-truck-moving"></i>
+        Quản lý Nhà cung cấp
+    </h2>
+</div>
+
+<div class="action-bar">
+    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+        <i class="fas fa-plus"></i>
+        Thêm mới
+    </button>
+    
+    <div class="search-group w-100">
+        <input type="text" placeholder="Tìm tên nhà cung cấp..." class="form-control">
+        <button class="btn-search">
+            <i class="fas fa-search"></i>
+            Tìm kiếm
+        </button>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã NCC</th>
+                <th>Tên nhà cung cấp</th>
+                <th>Liên hệ</th>
+                <th>Địa chỉ</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center">Tùy chỉnh</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Giả lập dữ liệu *@
+            <tr>
+                <td>#NCC001</td>
+                <td>Công ty ABC</td>
+                <td>
+                    <div><i class="fas fa-phone small text-muted"></i> 0909123456</div>
+                    <div><i class="fas fa-envelope small text-muted"></i> abc@gmail.com</div>
+                </td>
+                <td>Hà Nội</td>
+                <td class="text-center"><span class="status-badge status-active">Hoạt động</span></td>
+                <td class="text-center">
+                    <button class="btn-action btn-edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action btn-delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>#NCC002</td>
+                <td>Công ty XYZ</td>
+                <td>
+                    <div><i class="fas fa-phone small text-muted"></i> 0912123456</div>
+                </td>
+                <td>TP HCM</td>
+                <td class="text-center"><span class="status-badge status-inactive" style="background-color: #fee2e2; color: #991b1b;">Tạm ngưng</span></td>
+                <td class="text-center">
+                    <button class="btn-action btn-edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action btn-delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<NhaCungCapForm />
 
 @code {
-
+    // Code C# gọi Service lấy list nhà cung cấp sẽ đặt ở đây
 }

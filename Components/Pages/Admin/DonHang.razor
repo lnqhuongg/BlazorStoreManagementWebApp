@@ -1,4 +1,76 @@
-﻿<h3>DonHang</h3>
+﻿@page "/admin/donhang"
+@using BlazorStoreManagementWebApp.Components.Forms.Admin
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<div class="content-header">
+    <h2>
+        <i class="fas fa-shopping-cart"></i>
+        Quản lý Đơn hàng
+    </h2>
+</div>
+
+<div class="action-bar">
+    <button class="btn-add" style="opacity: 0.5; cursor: not-allowed;" title="Chức năng đang phát triển">
+        <i class="fas fa-plus"></i>
+        Tạo đơn
+    </button>
+    
+    <div class="search-group w-100">
+        <input type="text" placeholder="Tìm mã đơn, tên khách hàng..." class="form-control">
+        <button class="btn-search">
+            <i class="fas fa-search"></i>
+            Tìm kiếm
+        </button>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>Ngày đặt</th>
+                <th class="text-end">Tổng tiền</th>
+                <th class="text-center">Thanh toán</th>
+                <th class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>#ORD001</td>
+                <td>Nguyễn Văn A</td>
+                <td>16/10/2025</td>
+                <td class="text-end" style="font-weight: 600; color: #059669;">380,243 đ</td>
+                <td class="text-center">
+                    <span class="status-badge" style="background-color: #d1fae5; color: #065f46;">Đã thanh toán</span>
+                </td>
+                <td class="text-center">
+                    <button class="btn-action" style="color: #3b82f6;" data-bs-toggle="modal" data-bs-target="#orderDetailModal">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+             <tr>
+                <td>#ORD002</td>
+                <td>Khách hàng 8</td>
+                <td>16/10/2025</td>
+                <td class="text-end" style="font-weight: 600; color: #059669;">1,500,000 đ</td>
+                <td class="text-center">
+                    <span class="status-badge" style="background-color: #fee2e2; color: #991b1b;">Chờ thanh toán</span>
+                </td>
+                <td class="text-center">
+                    <button class="btn-action" style="color: #3b82f6;" data-bs-toggle="modal" data-bs-target="#orderDetailModal">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<ChiTietDonHangForm />
 
 @code {
 
