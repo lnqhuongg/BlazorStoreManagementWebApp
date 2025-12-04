@@ -1,0 +1,22 @@
+﻿@using AdminLayout = BlazorStoreManagementWebApp.Components.Layout.Admin.MainLayout
+@using ClientLayout = BlazorStoreManagementWebApp.Components.Layout.Client.MainLayout
+@inject NavigationManager NavigationManager
+
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <LayoutView Layout="@SelectLayout">
+            <RouteView RouteData="@routeData" />
+        </LayoutView>
+    </Found>
+
+    <NotFound>
+        <p class="text-danger fw-bold">❌ Trang không tồn tại.</p>
+    </NotFound>
+</Router>
+
+@code {
+    private Type SelectLayout =>
+        NavigationManager.Uri.Contains("/admin")
+            ? typeof(AdminLayout)
+            : typeof(ClientLayout);
+}
