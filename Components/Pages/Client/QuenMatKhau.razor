@@ -1,0 +1,27 @@
+﻿@page "/quenmatkhau"
+
+<section id="">
+	<!--form-->
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-8 col-sm-offset-1">
+				<div class="login-form">
+					<h2>Quên mật khẩu</h2>
+					<form style="margin-bottom: 30px;">
+						<div class="form-group">
+							<label>Email</label>
+							<input class="form-control" placeholder="Nhập email của tài khoản" />
+							<span asp-validation-for="Email" class="text-danger" />
+						</div>
+
+						<a class="btn btn-warning btn-sm" href="/matkhaumoi">Tìm kiếm</a>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</section><!--/form-->
+
+@code {
+
+}

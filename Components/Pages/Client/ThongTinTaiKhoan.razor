@@ -1,0 +1,50 @@
+﻿@page "/thongtintaikhoan"
+
+<section id="">
+	<!--form-->
+	<div class="container">
+		<div class="breadcrumbs">
+			<ol class="breadcrumb">
+				<li><a>Home</a></li>
+				<li class="active">Cập nhập thông tin</li>
+			</ol>
+		</div>
+		<div class="row">
+			<div class="col-sm-8 col-sm-offset-1">
+				<div class="signup-form">
+					<!--sign up form-->
+					<h2>Cập nhật thông tin</h2>
+					<div class="text-danger"></div>
+					<form method="post">
+						<input type="hidden"/>
+						<div class="form-group">
+							<label>Username</label>
+							<input required readonly class="form-control" />
+							<span class="text-danger" />
+						</div>
+						<div class="form-group">
+							<label>Email</label>
+							<input required readonly class="form-control" />
+							<span class="text-danger" />
+						</div>
+						<div class="form-group">
+							<label>SĐT</label>
+							<input type="number" required class="form-control" />
+							<span class="text-danger" />
+						</div>
+						<div class="form-group">
+							<label>Địa chỉ giao hàng</label>
+							<input required class="form-control" />
+							<span class="text-danger" />
+						</div>
+						<button class="btn btn-default" style="margin-bottom:30px;">Cập nhật</button>
+					</form>
+				</div><!--/sign up form-->
+			</div>
+		</div>
+	</div>
+</section><!--/form-->
+
+@code {
+
+}
