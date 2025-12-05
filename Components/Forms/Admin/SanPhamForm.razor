@@ -1,0 +1,122 @@
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
+                <h1 class="modal-title fs-5" id="addProductLabel" style="color: white; font-weight: 700;">
+                    Thêm mới sản phẩm
+                </h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body" style="padding: 2rem;">
+                <div class="row g-3">
+                    <!-- Tên sản phẩm -->
+                    <div class="col-md-6">
+                        <label for="productName" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
+                            Tên sản phẩm <span style="color:#ef4444;">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="productName" placeholder="Nhập tên sản phẩm..."
+                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
+                        <small class="form-text" style="color:#6b7280;">Tên sản phẩm không được để trống</small>
+                    </div>
+
+                    <!-- Barcode -->
+                    <div class="col-md-6">
+                        <label for="barcode" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
+                            Barcode <span style="color:#ef4444;">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="barcode" placeholder="Nhập mã barcode..."
+                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
+                        <small class="form-text" style="color:#6b7280;">Mã vạch duy nhất</small>
+                    </div>
+
+                    <!-- Loại sản phẩm -->
+                    <div class="col-md-6">
+                        <label for="categoryId" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
+                            Loại sản phẩm <span style="color:#ef4444;">*</span>
+                        </label>
+                        <select class="form-select" id="categoryId"
+                                style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem; color:#065f46;">
+                            <option value="">-- Chọn loại --</option>
+                            <option value="1">Chai nước</option>
+                            <option value="2">Đồ ăn nhanh</option>
+                            <option value="3">Bánh kẹo</option>
+                        </select>
+                    </div>
+
+                    <!-- Nhà cung cấp -->
+                    <div class="col-md-6">
+                        <label for="supplierId" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
+                            Nhà cung cấp
+                        </label>
+                        <select class="form-select" id="supplierId"
+                                style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem; color:#065f46;">
+                            <option value="">-- Chọn nhà cung cấp --</option>
+                            <option value="1">Công ty Lavie</option>
+                            <option value="2">Coca Cola</option>
+                            <option value="3">Pepsi</option>
+                        </select>
+                    </div>
+
+                    <!-- Giá bán -->
+                    <div class="col-md-6">
+                        <label for="price" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
+                            Giá bán <span style="color:#ef4444;">*</span>
+                        </label>
+                        <input type="number" class="form-control" id="price" min="0" step="1000" placeholder="0"
+                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
+                        <small class="form-text" style="color:#6b7280;">Đơn vị VNĐ</small>
+                    </div>
+
+                    <!-- Đơn vị tính -->
+                    <div class="col-md-6">
+                        <label for="unit" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
+                            Đơn vị tính <span style="color:#ef4444;">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="unit" placeholder="Chai, Hộp, Gói..."
+                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
+                    </div>
+
+                    <!-- URL hình ảnh -->
+                    <div class="col-md-12">
+                        <label for="imageUrl" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
+                            URL Hình ảnh
+                        </label>
+                        <input type="text" class="form-control" id="imageUrl" placeholder="Dán link ảnh..."
+                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
+                        <small class="form-text" style="color:#6b7280;">Để trống sẽ dùng ảnh mặc định</small>
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="col-md-12">
+                        <label for="productStatus" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
+                            Trạng thái <span style="color:#ef4444;">*</span>
+                        </label>
+                        <select class="form-select" id="productStatus"
+                                style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem; color:#065f46;">
+                            <option value="">-- Chọn trạng thái --</option>
+                            <option value="1" selected>Hoạt động</option>
+                            <option value="0">Tạm ngưng</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer" style="border-top:1px solid #e5e7eb; padding:1.5rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal"
+                        style="background:#e5e7eb; color:#374151; border:none; padding:0.75rem 1.5rem; border-radius:8px; font-weight:600;">
+                    Hủy
+                </button>
+                <button type="button" class="btn btn-add"
+                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; padding:0.75rem 1.5rem; border-radius:8px; font-weight:600;">
+                    Thêm mới
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code { }
