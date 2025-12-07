@@ -1,0 +1,31 @@
+﻿@page "/mat-khau-moi"
+
+<section id="">
+	<!--form-->
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-8 col-sm-offset-1">
+				<div class="login-form">
+					<h2>Nhập mật khẩu mới</h2>
+					<form>
+						<div class="form-group">
+							<label>Nhập mật khẩu mới</label>
+							<input class="form-control"  placeholder="Nhập mật khẩu mới" />
+							<span asp-validation-for="Email" class="text-danger" />
+						</div>
+						<div class="form-group">
+							<label>Confirm mật khẩu mới</label>
+							<input class="form-control" placeholder="Nhập lại mật khẩu" />
+							<span asp-validation-for="Email" class="text-danger" />
+						</div>
+						<button class="btn btn-default" style="margin-bottom: 30px;">Đổi mật khẩu</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</section><!--/form-->
+
+@code {
+
+}
