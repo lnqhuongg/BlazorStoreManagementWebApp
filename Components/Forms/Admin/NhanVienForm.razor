@@ -1,0 +1,84 @@
+<div class="modal fade" id="addNhanVienModal" tabindex="-1" aria-labelledby="addNhanVienLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
+            <!-- Header -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none;">
+                <h1 class="modal-title fs-5" id="addNhanVienLabel" style="color: white; font-weight: 700;">
+                    <i class="fas fa-user-plus" style="margin-right: 0.5rem;"></i>
+                    Thêm mới nhân viên
+                </h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body" style="padding: 2rem;">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                            Họ và tên <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="text" class="form-control" placeholder="Nhập họ và tên..."
+                               style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                            Email <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="email" class="form-control" placeholder="example@domain.com"
+                               style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                            Số điện thoại <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="text" class="form-control" placeholder="0901234567"
+                               style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                            Chức vụ <span style="color: #ef4444;">*</span>
+                        </label>
+                        <select class="form-select" style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <option value="">-- Chọn chức vụ --</option>
+                            <option value="admin">Quản trị viên</option>
+                            <option value="manager">Quản lý</option>
+                            <option value="staff">Nhân viên bán hàng</option>
+                            <option value="warehouse">Nhân viên kho</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                        Trạng thái <span style="color: #ef4444;">*</span>
+                    </label>
+                    <select class="form-select" style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;">
+                        <option value="">-- Chọn trạng thái --</option>
+                        <option value="1" selected>Hoạt động</option>
+                        <option value="0">Tạm ngưng</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1.5rem;">
+                <button type="button" class="btn" data-bs-dismiss="modal"
+                        style="background-color: #e5e7eb; color: #374151; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                    Hủy
+                </button>
+                <button type="button" class="btn btn-add"
+                        style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                    <i class="fas fa-check"></i>
+                    Thêm mới
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

@@ -1,4 +1,78 @@
-﻿<h3>NhanVien</h3>
+﻿@attribute [StreamRendering]
+@rendermode InteractiveServer
+@page "/admin/nhanvien"
+
+<!-- HEADER -->
+<div class="content-header">
+    <h2>
+        <i class="fas fa-users"></i>
+        Quản lý Nhân viên
+    </h2>
+</div>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addNhanVienModal">
+        <i class="fas fa-plus"></i>
+        Thêm mới
+    </button>
+
+    <div class="search-group w-100">
+        <input type="text" placeholder="Tìm kiếm nhân viên..." class="form-control">
+        <button class="btn-search">
+            <i class="fas fa-search"></i>
+            Tìm kiếm
+        </button>
+    </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã NV</th>
+                <th>Họ tên</th>
+                <th class="text-center">Email</th>
+                <th class="text-center">Số điện thoại</th>
+                <th class="text-center">Chức vụ</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center">Tùy chỉnh</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>#NV001</td>
+                <td>Nguyễn Văn A</td>
+                <td class="text-center">nva@example.com</td>
+                <td class="text-center">0901234567</td>
+                <td class="text-center">Quản lý</td>
+                <td class="text-center"><span class="status-badge status-active">Hoạt động</span></td>
+                <td class="text-center">
+                    <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#addNhanVienModal">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>#NV002</td>
+                <td>Trần Thị B</td>
+                <td class="text-center">ttb@example.com</td>
+                <td class="text-center">0909876543</td>
+                <td class="text-center">Nhân viên bán hàng</td>
+                <td class="text-center"><span class="status-badge status-inactive">Tạm ngưng</span></td>
+                <td class="text-center">
+                    <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#addNhanVienModal">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Form -->
+<NhanVienForm />
 
 @code {
 
