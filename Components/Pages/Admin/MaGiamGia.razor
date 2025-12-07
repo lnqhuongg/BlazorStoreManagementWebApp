@@ -1,4 +1,81 @@
-﻿<h3>MaGiamGia</h3>
+﻿@attribute [StreamRendering]
+@rendermode InteractiveServer
+@page "/admin/magiamgia"
+
+<!-- HEADER -->
+<div class="content-header">
+    <h2>
+        <i class="fas fa-list"></i>
+        Quản lý Mã Giảm Giá
+    </h2>
+</div>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+    @* không chia component *@
+    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addProductCategoryModal">
+        <i class="fas fa-plus"></i>
+        Thêm mới
+    </button>
+    @* không chia component (tìm kiếm & lọc mỗi chỗ mỗi khác nên thôi) *@
+    <div class="search-group w-100">
+        <input type="text" placeholder="Tìm kiếm..." class="form-control">
+        <button class="btn-search">
+            <i class="fas fa-search"></i>
+            Tìm kiếm
+        </button>
+    </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã khuyến mãi (ID)</th>
+                <th class="text-center">Mã giảm giá</th>
+                <th class="text-center">Mô tả</th>
+                <th class="text-center">Loại giảm giá</th>
+                <th class="text-center">Giá trị giảm</th>
+                <th class="text-center">Ngày bắt đầu</th>
+                <th class="text-center">Ngày kết thúc</th>
+                <th class="text-center">Đơn tối thiểu</th>
+                <th class="text-center">Giới hạn sử dụng</th>
+                <th class="text-center">Đã sử dụng</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center">Tùy chỉnh</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>#001</td>
+                <td class="text-center">SALE50</td>
+                <td class="text-center">Giảm 50% cho đơn đầu</td>
+                <td class="text-center">percent</td>
+                <td class="text-center">50</td>
+                <td class="text-center">2025-01-01</td>
+                <td class="text-center">2025-01-31</td>
+                <td class="text-center">100000</td>
+                <td class="text-center">100</td>
+                <td class="text-center">20</td>
+                <td class="text-center"><span class="status-badge status-active">Hoạt động</span></td>
+
+                <td class="text-center">
+                    <button class="btn-action btn-edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action btn-delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<MaGiamGiaForm />
 
 @code {
 
