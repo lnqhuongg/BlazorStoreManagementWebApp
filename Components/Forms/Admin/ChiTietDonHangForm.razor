@@ -1,0 +1,73 @@
+﻿<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
+
+            <div class="modal-header" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none;">
+                <h1 class="modal-title fs-5" style="color: white; font-weight: 700;">
+                    <i class="fas fa-file-invoice" style="margin-right: 0.5rem;"></i>
+                    Chi tiết đơn hàng #ORD001
+                </h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" style="padding: 2rem;">
+                <div class="row mb-4" style="background-color: #f3f4f6; padding: 1rem; border-radius: 8px;">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Khách hàng:</strong> Nguyễn Văn A</p>
+                        <p class="mb-1"><strong>SĐT:</strong> 0909123456</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-1"><strong>Ngày đặt:</strong> 16/10/2025 07:24</p>
+                        <p class="mb-1"><strong>Trạng thái:</strong> <span class="text-success fw-bold">Đã thanh toán</span></p>
+                    </div>
+                </div>
+
+                <h6 style="color: #1f2937; font-weight: 700; margin-bottom: 1rem;">Danh sách sản phẩm</h6>
+                <table class="table table-bordered">
+                    <thead style="background-color: #f9fafb;">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Coca Cola lon</td>
+                            <td class="text-center">2</td>
+                            <td class="text-end">10,000</td>
+                            <td class="text-end">20,000</td>
+                        </tr>
+                        <tr>
+                            <td>Bánh Snack</td>
+                            <td class="text-center">1</td>
+                            <td class="text-end">5,000</td>
+                            <td class="text-end">5,000</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
+                            <td class="text-end fw-bold" style="color: #dc2626;">25,000 đ</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="modal-footer" style="border-top: 1px solid #e5e7eb;">
+                <button type="button" class="btn" data-bs-dismiss="modal"
+                        style="background-color: #e5e7eb; color: #374151; border: none; font-weight: 600;">
+                    Đóng
+                </button>
+                <button type="button" class="btn" style="background-color: #3b82f6; color: white; border: none; font-weight: 600;">
+                    <i class="fas fa-print"></i> In hóa đơn
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Code nhận Parameter là OrderId để load data
+}
