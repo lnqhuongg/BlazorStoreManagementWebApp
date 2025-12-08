@@ -15,8 +15,22 @@
 </Router>
 
 @code {
-    private Type SelectLayout =>
-        NavigationManager.Uri.Contains("/admin")
-            ? typeof(AdminLayout)
-            : typeof(ClientLayout);
+    private Type SelectLayout
+    {
+        get
+        {
+            var uri = NavigationManager.Uri.ToLower();
+
+            // đăng nhập admin → dùng layout login
+            if (uri.Contains("/admin/dangnhap"))
+                return typeof(BlazorStoreManagementWebApp.Components.Layout.Admin.AdminLoginLayout);
+
+            // Trang admin bình thường
+            if (uri.Contains("/admin"))
+                return typeof(AdminLayout);
+
+            // Trang client
+            return typeof(ClientLayout);
+        }
+    }
 }

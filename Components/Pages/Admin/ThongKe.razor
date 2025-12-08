@@ -1,5 +1,187 @@
-﻿<h3>ThongKe</h3>
+﻿@page "/admin/thongke"
+@using BlazorStoreManagementWebApp.Components.Forms.Admin
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+
+<!-- Page Title -->
+<div class="content-header">
+    <h2>
+        <i class="fas fa-chart-pie"></i>
+        Thống kê doanh thu
+    </h2>
+</div>
+
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="filter-group">
+        <label>Chọn tháng</label>
+        <select>
+            <option>Tháng 1</option>
+            <option>Tháng 2</option>
+            <option>Tháng 3</option>
+            <option selected>Tháng 12</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>Chọn năm</label>
+        <select>
+            <option>2022</option>
+            <option>2023</option>
+            <option selected>2024</option>
+            <option>2025</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>Xem theo ngày</label>
+        <select>
+            <option>01/12/2024</option>
+            <option>02/12/2024</option>
+            <option>03/12/2024</option>
+            <option selected>08/12/2024</option>
+        </select>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-container">
+    <!-- Revenue Card -->
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">Tổng doanh thu</span>
+            <div class="kpi-icon revenue">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+        </div>
+        <div class="kpi-value">₫ 125.450.000</div>
+        <div class="kpi-change up">
+            <i class="fas fa-arrow-up"></i> 15% so với tháng trước
+        </div>
+    </div>
+
+    <!-- Cost Card -->
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">Tổng vốn nhập hàng</span>
+            <div class="kpi-icon cost">
+                <i class="fas fa-box"></i>
+            </div>
+        </div>
+        <div class="kpi-value">₫ 75.200.000</div>
+        <div class="kpi-change down">
+            <i class="fas fa-arrow-down"></i> 5% so với tháng trước
+        </div>
+    </div>
+
+    <!-- Profit Card -->
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">Tổng lãi</span>
+            <div class="kpi-icon profit">
+                <i class="fas fa-chart-line"></i>
+            </div>
+        </div>
+        <div class="kpi-value">₫ 50.250.000</div>
+        <div class="kpi-change up">
+            <i class="fas fa-arrow-up"></i> 25% so với tháng trước
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard container -->
+<div class="dashboard-container">
+    <!-- Chart Section -->
+    <div class="chart-section">
+        <h3 class="chart-title">Doanh thu theo ngày</h3>
+        <!-- Replaced placeholder with canvas for Chart.js bar chart -->
+        <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Orders List Section -->
+    <div class="orders-section">
+        <h3 class="orders-title">Đơn hàng hôm nay</h3>
+        <div class="orders-list">
+            <div class="order-item">
+                <div class="order-header">
+                    <span class="order-id">#ORD001</span>
+                    <span class="order-amount">₫ 2.500.000</span>
+                </div>
+                <div class="order-details">
+                    <div class="order-info">
+                        <span class="customer-name">Nguyễn Văn A</span>
+                        <span class="order-time">08:30</span>
+                    </div>
+                    <span class="status-badge status-success">Đã giao</span>
+                </div>
+            </div>
+            <div class="order-item">
+                <div class="order-header">
+                    <span class="order-id">#ORD002</span>
+                    <span class="order-amount">₫ 3.750.000</span>
+                </div>
+                <div class="order-details">
+                    <span>Trần Thị B</span>
+                    <span class="status-badge status-success">Đã giao</span>
+                    <span>09:15</span>
+                </div>
+            </div>
+            <div class="order-item">
+                <div class="order-header">
+                    <span class="order-id">#ORD003</span>
+                    <span class="order-amount">₫ 1.800.000</span>
+                </div>
+                <div class="order-details">
+                    <span>Lê Văn C</span>
+                    <span class="status-badge status-pending">Đang xử lý</span>
+                    <span>10:45</span>
+                </div>
+            </div>
+            <div class="order-item">
+                <div class="order-header">
+                    <span class="order-id">#ORD004</span>
+                    <span class="order-amount">₫ 4.200.000</span>
+                </div>
+                <div class="order-details">
+                    <span>Phạm Thị D</span>
+                    <span class="status-badge status-success">Đã giao</span>
+                    <span>11:20</span>
+                </div>
+            </div>
+            <div class="order-item">
+                <div class="order-header">
+                    <span class="order-id">#ORD005</span>
+                    <span class="order-amount">₫ 2.900.000</span>
+                </div>
+                <div class="order-details">
+                    <span>Hoàng Văn E</span>
+                    <span class="status-badge status-failed">Hủy</span>
+                    <span>12:00</span>
+                </div>
+            </div>
+            <div class="order-item">
+                <div class="order-header">
+                    <span class="order-id">#ORD006</span>
+                    <span class="order-amount">₫ 3.100.000</span>
+                </div>
+                <div class="order-details">
+                    <span>Võ Thị F</span>
+                    <span class="status-badge status-success">Đã giao</span>
+                    <span>14:30</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
-
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("renderRevenueChart");
+        }
+    }
 }
