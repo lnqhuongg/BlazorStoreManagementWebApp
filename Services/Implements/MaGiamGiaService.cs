@@ -68,64 +68,41 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             return entity == null ? null : _mapper.Map<MaGiamGiaDTO>(entity);
         }
 
-        public async Task<ApiResponse<MaGiamGiaDTO>> Create(MaGiamGiaDTO dto)
+        public async Task<MaGiamGiaDTO> Create(MaGiamGiaDTO dto)
         {
             try
             {
                 var exists = await _context.MaGiamGias.AnyAsync(x => x.PromoCode == dto.PromoCode);
                 if (exists)
                 {
-                    return new ApiResponse<MaGiamGiaDTO>
-                    {
-                        Success = false,
-                        Message = "Mã giảm giá đã tồn tại!"
-                    };
+                    throw new Exception("Mã giảm giá đã tồn tại!");
                 }
 
                 var entity = _mapper.Map<MaGiamGia>(dto);
                 _context.MaGiamGias.Add(entity);
                 await _context.SaveChangesAsync();
 
-                var resultDto = _mapper.Map<MaGiamGiaDTO>(entity);
-
-                return new ApiResponse<MaGiamGiaDTO>
-                {
-                    Success = true,
-                    Message = "Thêm mã giảm giá thành công!",
-                    DataDTO = resultDto
-                };
+                return _mapper.Map<MaGiamGiaDTO>(entity);
             }
             catch (Exception ex)
             {
-                return new ApiResponse<MaGiamGiaDTO>
-                {
-                    Success = false,
-                    Message = ex.Message
-                };
+                throw new Exception("Lỗi khi thêm mã giảm giá: " + ex.Message);
             }
         }
 
-        public async Task<ApiResponse<MaGiamGiaDTO>> Update(int id, MaGiamGiaDTO dto)
+        public async Task<MaGiamGiaDTO?> Update(int id, MaGiamGiaDTO dto)
         {
             try
             {
                 var existing = await _context.MaGiamGias.FindAsync(id);
                 if (existing == null)
                 {
-                    return new ApiResponse<MaGiamGiaDTO>
-                    {
-                        Success = false,
-                        Message = "Không tìm thấy mã giảm giá để cập nhật!"
-                    };
+                    return null;
                 }
 
                 if (dto.PromoCode != existing.PromoCode && await _context.MaGiamGias.AnyAsync(x => x.PromoCode == dto.PromoCode))
                 {
-                    return new ApiResponse<MaGiamGiaDTO>
-                    {
-                        Success = false,
-                        Message = "Mã giảm giá đã được sử dụng bởi mã khác!"
-                    };
+                    throw new Exception("Mã giảm giá đã được sử dụng bởi mã khác!");
                 }
 
                 existing.PromoCode = dto.PromoCode;
@@ -141,58 +118,30 @@ namespace BlazorStoreManagementWebApp.Services.Implements
 
                 await _context.SaveChangesAsync();
 
-                var resultDto = _mapper.Map<MaGiamGiaDTO>(existing);
-
-                return new ApiResponse<MaGiamGiaDTO>
-                {
-                    Success = true,
-                    Message = "Cập nhật mã giảm giá thành công!",
-                    DataDTO = resultDto
-                };
+                return _mapper.Map<MaGiamGiaDTO>(existing);
             }
             catch (Exception ex)
             {
-                return new ApiResponse<MaGiamGiaDTO>
-                {
-                    Success = false,
-                    Message = ex.Message
-                };
+                throw new Exception("Lỗi khi cập nhật mã giảm giá: " + ex.Message);
             }
         }
 
-        public async Task<ApiResponse<bool>> Delete(int id)
+        public async Task<bool> Delete(int id)
         {
             try
             {
                 var existing = await _context.MaGiamGias.FindAsync(id);
                 if (existing == null)
-                {
-                    return new ApiResponse<bool>
-                    {
-                        Success = false,
-                        Message = "Không tìm thấy mã giảm giá để xóa!",
-                        DataDTO = false
-                    };
-                }
+                    return false;
 
                 _context.MaGiamGias.Remove(existing);
                 await _context.SaveChangesAsync();
 
-                return new ApiResponse<bool>
-                {
-                    Success = true,
-                    Message = "Xóa mã giảm giá thành công!",
-                    DataDTO = true
-                };
+                return true;
             }
             catch (Exception ex)
             {
-                return new ApiResponse<bool>
-                {
-                    Success = false,
-                    Message = ex.Message,
-                    DataDTO = false
-                };
+                throw new Exception("Lỗi khi xóa mã giảm giá: " + ex.Message);
             }
         }
 
@@ -226,6 +175,4 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             return _mapper.Map<MaGiamGiaDTO>(maGiamGia);
         }
     }
-
-
 }
