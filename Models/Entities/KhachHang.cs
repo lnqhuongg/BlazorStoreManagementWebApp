@@ -20,6 +20,9 @@ namespace BlazorStoreManagementWebApp.Models.Entities
         [Column("email", TypeName = "varchar(100)")]
         public string? Email { get; set; }
 
+        [Column("password", TypeName = "varchar(100)")]
+        public string? Password { get; set; }
+
         [Column("address")]
         public string? Address { get; set; }
 

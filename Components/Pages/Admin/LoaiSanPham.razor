@@ -13,7 +13,7 @@
 <!-- ACTION BAR -->
 <div class="action-bar">
     @* không chia component *@
-    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addProductCategoryModal">
+    <button class="btn-add" @onclick="() => LoaiSanPhamFormRef.OpenCreate()">
         <i class="fas fa-plus"></i>
         Thêm mới
     </button>
@@ -55,7 +55,8 @@
                         <td>@item.CategoryId</td>
                         <td class="text-center">@item.CategoryName</td>
                         <td class="text-center">
-                            <button class="btn-action btn-edit">
+                            <button class="btn-action btn-edit"
+                                    @onclick="() => LoaiSanPhamFormRef.OpenUpdate(item)">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn-action btn-delete">
@@ -78,6 +79,6 @@
 }
 
 
-<LoaiSanPhamForm />
+<LoaiSanPhamForm @ref="LoaiSanPhamFormRef" OnSuccess="LoadData" />  
 
 @* tụi mình sẽ không viết code phần logic (@code {}) ở đây vì phần này khá dài và phức tạp, nên sẽ tạo 1 file partial class để chứa logic *@

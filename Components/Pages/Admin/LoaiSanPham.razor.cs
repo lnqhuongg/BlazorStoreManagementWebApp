@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
-using BlazorStoreManagementWebApp.Services.Interfaces;
+﻿using BlazorStoreManagementWebApp.Components.Forms.Admin;
 using BlazorStoreManagementWebApp.DTOs.Admin.LoaiSanPham;
 using BlazorStoreManagementWebApp.Helpers;
+using BlazorStoreManagementWebApp.Services.Interfaces;
+using Microsoft.AspNetCore.Components;
 
 namespace BlazorStoreManagementWebApp.Components.Pages.Admin
 {
@@ -14,6 +15,8 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
         protected int Page = 1;
         protected int PageSize = 2;
         protected string Keyword = "";
+
+        private LoaiSanPhamForm LoaiSanPhamFormRef;
 
         protected override async Task OnInitializedAsync()
         {
@@ -38,22 +41,6 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
         {
             Page = 1;
             await LoadData();
-        }
-
-        protected void Edit(LoaiSanPhamDTO dto)
-        {
-            // xử lý mở modal
-        }
-
-        protected async Task Delete(int id)
-        {
-            await LoaiSanPhamService.Delete(id);
-            await LoadData();
-        }
-
-        protected void OpenAddModal()
-        {
-            // mở modal thêm
         }
     }
 }
