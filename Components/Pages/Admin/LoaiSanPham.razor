@@ -19,8 +19,8 @@
     </button>
     @* không chia component (tìm kiếm & lọc mỗi chỗ mỗi khác nên thôi) *@
     <div class="search-group w-100">
-        <input type="text" placeholder="Tìm kiếm..." class="form-control">
-        <button class="btn-search">
+        <input @bind="Keyword" type="text" placeholder="Tìm kiếm..." class="form-control">
+        <button class="btn-search" @onclick="Search">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
@@ -34,30 +34,50 @@
             <tr>
                 <th>Mã loại</th>
                 <th class="text-center">Tên loại</th>
-                <th class="text-center">Trạng thái</th>
                 <th class="text-center">Tùy chỉnh</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>#001</td>
-                <td class="text-center">Chai nước</td>
-                <td class="text-center"><span class="status-badge status-active">Hoạt động</span></td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-action btn-delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
+            @if (LoaiData?.Data == null || !LoaiData.Data.Any())
+            {
+                <tr>
+                    <td colspan="3" class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                        Không có dữ liệu
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in LoaiData.Data)
+                {
+                    <tr>
+                        <td>@item.CategoryId</td>
+                        <td class="text-center">@item.CategoryName</td>
+                        <td class="text-center">
+                            <button class="btn-action btn-edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
 </div>
+@* truyền vào các tham số xuống component phân trang (tương tự như cái nextjs mình từng làm) *@
+@if (LoaiData?.Data != null && LoaiData.Data.Any())
+{
+    <PaginationAdmin Total="LoaiData.Total"
+                     Page="@Page"
+                     PageChanged="ChangePage"
+                     PageSize="@PageSize" />
+}
+
 
 <LoaiSanPhamForm />
 
-@code {
-
-}
+@* tụi mình sẽ không viết code phần logic (@code {}) ở đây vì phần này khá dài và phức tạp, nên sẽ tạo 1 file partial class để chứa logic *@

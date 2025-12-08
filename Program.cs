@@ -1,7 +1,24 @@
 using BlazorStoreManagementWebApp.Components;
+using BlazorStoreManagementWebApp.Mappings;
+using BlazorStoreManagementWebApp.Models;
+using Microsoft.EntityFrameworkCore;
+using StoreManagementBE.BackendServer.Infrastructure.DI;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(8, 0, 29))
+    )
+);
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+builder.Services.AddApplicationServices();
+
+
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

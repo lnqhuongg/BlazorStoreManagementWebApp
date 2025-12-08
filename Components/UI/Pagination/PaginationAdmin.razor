@@ -1,0 +1,48 @@
+﻿<div class="pagination-container">
+    <ul class="pagination">
+        <!-- Prev -->
+        <li class="@(Page == 1 ? "pag-disabled" : "")">
+            <a href="javascript:void(0)" @onclick="(() => Change(Page - 1))">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+
+        <!-- Page numbers -->
+        @foreach (var i in Enumerable.Range(1, _totalPages))
+        {
+            var pageNumber = i;
+            <li class="@(Page == pageNumber ? "active" : "")">
+                <a href="javascript:void(0)" @onclick="(() => Change(pageNumber))">@pageNumber</a>
+            </li>
+        }
+
+        <!-- Next -->
+        <li class="@(Page >= _totalPages ? "pag-disabled" : "")">
+            <a href="javascript:void(0)" @onclick="(() => Change(Page + 1))">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+@code {
+    [Parameter] public int Total { get; set; }
+    [Parameter] public int Page { get; set; }
+    [Parameter] public EventCallback<int> PageChanged { get; set; }
+    [Parameter] public int PageSize { get; set; } = 10;
+
+    private int _totalPages;
+
+    //cập nhật lại _totalPages mỗi khi Total hoặc PageSize thay đổi
+    protected override void OnParametersSet()
+    {
+        _totalPages = Total <= 0 ? 1 : (int)Math.Ceiling((double)Total / PageSize);
+    }
+
+    private async Task Change(int newPage)
+    {
+        if (newPage < 1 || newPage > _totalPages || newPage == Page) return;
+        await PageChanged.InvokeAsync(newPage);
+        StateHasChanged();
+    }
+}
