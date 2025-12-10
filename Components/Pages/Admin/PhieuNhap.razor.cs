@@ -61,6 +61,7 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
 
         public async Task PrintPdf(PhieuNhapDTO phieu)
         {
+            Console.WriteLine("Print PDF for PhieuNhap ID: " + phieu.ImportId);
             var bytes = PdfService.ExportPhieuNhap(phieu);
             var base64 = Convert.ToBase64String(bytes);
 

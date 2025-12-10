@@ -3,7 +3,7 @@ using BlazorStoreManagementWebApp.Mappings;
 using BlazorStoreManagementWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 using StoreManagementBE.BackendServer.Infrastructure.DI;
-
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +23,8 @@ builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 
