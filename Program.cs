@@ -18,7 +18,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddApplicationServices();
 
-
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

@@ -20,6 +20,7 @@ namespace StoreManagementBE.BackendServer.Infrastructure.DI
             services.AddScoped<IMaGiamGiaService, MaGiamGiaService>();
             services.AddScoped<IKhachHangService, KhachHangService>();
             services.AddScoped<IDonHangService, DonHangService>();
+            services.AddScoped<PdfService>();
 
             return services;
         }
