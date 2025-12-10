@@ -26,12 +26,10 @@ namespace BlazorStoreManagementWebApp.Models.Entities
         [Column("address", TypeName = "text")]
         public string Address { get; set; } = "";
 
-        // 0 = Ngừng hoạt động, 1 = Hoạt động
         [Required]
         [Column("status", TypeName = "bit(1)")]
         public int Status { get; set; }
-
-        // 1 nhà cung cấp có thể có nhiều sản phẩm
         public ICollection<SanPham> SanPhams { get; set; } = new List<SanPham>();
     }
+
 }
