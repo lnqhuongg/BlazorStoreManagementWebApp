@@ -1,78 +1,113 @@
 ﻿@page "/admin/donhang"
+@using BlazorStoreManagementWebApp.DTOs.Admin.DonHang
 @using BlazorStoreManagementWebApp.Components.Forms.Admin
-@attribute [StreamRendering]
+@* Import namespace chứa PaginationAdmin *@
+@using BlazorStoreManagementWebApp.Components.UI.Pagination
+
 @rendermode InteractiveServer
 
-<div class="content-header">
-    <h2>
-        <i class="fas fa-shopping-cart"></i>
-        Quản lý Đơn hàng
-    </h2>
-</div>
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-white border-0 py-3">
+        <h3 class="mb-0 text-primary fw-bold">
+            <i class="fas fa-shopping-cart me-2"></i>Quản lý Đơn hàng
+        </h3>
+    </div>
 
-<div class="action-bar">
-    <button class="btn-add" style="opacity: 0.5; cursor: not-allowed;" title="Chức năng đang phát triển">
-        <i class="fas fa-plus"></i>
-        Tạo đơn
-    </button>
-    
-    <div class="search-group w-100">
-        <input type="text" placeholder="Tìm mã đơn, tên khách hàng..." class="form-control">
-        <button class="btn-search">
-            <i class="fas fa-search"></i>
-            Tìm kiếm
-        </button>
+    <div class="card-body">
+        <div class="row mb-4 g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control"
+                           placeholder="Nhập mã đơn hoặc tên khách..."
+                           @bind="Keyword" />
+                    <button class="btn btn-primary" @onclick="HandleSearch">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <select class="form-select" @onchange="HandleStatusFilter">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="Pending">Chờ thanh toán (Pending)</option>
+                    <option value="Completed">Đã thanh toán (Completed)</option>
+                </select>
+            </div>
+
+            <div class="col-md-5 text-end align-self-center">
+                <span class="text-muted fst-italic">Tổng cộng: <b>@TotalItems</b> đơn hàng</span>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">#ID</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (DonHangs != null && DonHangs.Any())
+                    {
+                        @foreach (var item in DonHangs)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold">@item.OrderId</td>
+                                <td>
+                                    <div class="fw-semibold">@item.CustomerName</div>
+                                    <small class="text-muted">@item.Phone</small>
+                                </td>
+                                <td>@item.OrderDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-success fw-bold">
+                                    @string.Format("{0:N0} đ", item.TotalAmount)
+                                </td>
+                                <td class="text-center">
+                                    @if (item.Status == "Completed")
+                                    {
+                                        <span class="badge bg-success">Đã thanh toán</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Chờ thanh toán</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => OpenModal(item.OrderId)"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#orderDetailModal">
+                                        <i class="fas fa-eye"></i> Xem
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-box-open fs-1 d-block mb-2"></i>
+                                Không tìm thấy dữ liệu nào phù hợp.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (TotalItems > 0)
+        {
+            <PaginationAdmin Total="TotalItems"
+                             Page="CurrentPage"
+                             PageSize="PageSize"
+                             PageChanged="ChangePage" />
+        }
     </div>
 </div>
 
-<div class="table-container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Ngày đặt</th>
-                <th class="text-end">Tổng tiền</th>
-                <th class="text-center">Thanh toán</th>
-                <th class="text-center">Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>#ORD001</td>
-                <td>Nguyễn Văn A</td>
-                <td>16/10/2025</td>
-                <td class="text-end" style="font-weight: 600; color: #059669;">380,243 đ</td>
-                <td class="text-center">
-                    <span class="status-badge" style="background-color: #d1fae5; color: #065f46;">Đã thanh toán</span>
-                </td>
-                <td class="text-center">
-                    <button class="btn-action" style="color: #3b82f6;" data-bs-toggle="modal" data-bs-target="#orderDetailModal">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </td>
-            </tr>
-             <tr>
-                <td>#ORD002</td>
-                <td>Khách hàng 8</td>
-                <td>16/10/2025</td>
-                <td class="text-end" style="font-weight: 600; color: #059669;">1,500,000 đ</td>
-                <td class="text-center">
-                    <span class="status-badge" style="background-color: #fee2e2; color: #991b1b;">Chờ thanh toán</span>
-                </td>
-                <td class="text-center">
-                    <button class="btn-action" style="color: #3b82f6;" data-bs-toggle="modal" data-bs-target="#orderDetailModal">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<PaginationAdmin />
-
-<ChiTietDonHangForm />
-
-@code {
-
-}
+<ChiTietDonHangForm @ref="donHangForm" OnSaved="LoadData" />
