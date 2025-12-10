@@ -1,59 +1,68 @@
-﻿<div class="modal fade" id="addProductCategoryModal" tabindex="-1" aria-labelledby="addProductCategoryLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
-            <!-- Modal Header -->
-            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
-                <h1 class="modal-title fs-5" id="addProductCategoryLabel" style="color: white; font-weight: 700;">
-                    <i class="fas fa-plus-circle" style="margin-right: 0.5rem;"></i>
-                    Thêm mới loại sản phẩm
-                </h1>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+﻿@code {
+    // Logic is in MaGiamGiaForm.razor.cs
+}
 
-            <!-- Modal Body -->
-            <div class="modal-body" style="padding: 2rem;">
-                <div class="mb-3">
-                    <label for="categoryName" class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
-                        Tên loại sản phẩm <span style="color: #ef4444;">*</span>
-                    </label>
-                    <input type="text"
-                           class="form-control"
-                           id="categoryName"
-                           placeholder="Nhập tên loại sản phẩm..."
-                           style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.95rem;">
-                    <small class="form-text" style="color: #6b7280;">Tên loại sản phẩm không được để trống</small>
+<div class="modal fade" id="PromoModal" tabindex="-1" aria-labelledby="PromoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form @onsubmit="HandleSubmit">
+                <div class="modal-header">
+                    <h5 class="modal-title">@ModalTitle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
-
-                <!-- Added status select dropdown with two options: active and inactive -->
-                <div class="mb-3">
-                    <label for="categoryStatus" class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
-                        Trạng thái <span style="color: #ef4444;">*</span>
-                    </label>
-                    <select class="form-select"
-                            id="categoryStatus"
-                            style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.95rem; color: #065f46;">
-                        <option value="">-- Chọn trạng thái --</option>
-                        <option value="1" selected>Hoạt động</option>
-                        <option value="0">Tạm ngưng</option>
-                    </select>
-                    <small class="form-text" style="color: #6b7280;">Vui lòng chọn trạng thái loại sản phẩm</small>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Mã giảm giá</label>
+                        <input class="form-control" @bind="promoDTO.PromoCode" />
+                        @if (!string.IsNullOrEmpty(CodeErrorMessage))
+                        {
+                            <div class="text-danger">@CodeErrorMessage</div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label>Mô tả</label>
+                        <input class="form-control" @bind="promoDTO.Description" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Loại giảm</label>
+                        <select class="form-control" @bind="promoDTO.DiscountType">
+                            <option value="percent">Phần trăm</option>
+                            <option value="fixed">Số tiền</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Giá trị giảm</label>
+                        <input type="number" class="form-control" @bind="promoDTO.DiscountValue" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Ngày bắt đầu</label>
+                        <input type="date" class="form-control" @bind="promoDTO.StartDate" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Ngày kết thúc</label>
+                        <input type="date" class="form-control" @bind="promoDTO.EndDate" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Giới hạn sử dụng</label>
+                        <input type="number" class="form-control" @bind="promoDTO.UsageLimit" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Đã dùng</label>
+                        <input type="number" class="form-control" @bind="promoDTO.UsedCount" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Trạng thái</label>
+                        <select class="form-control" @bind="promoDTO.Status">
+                            <option value="active">Hoạt động</option>
+                            <option value="inactive">Tạm ngưng</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1.5rem;">
-                <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #e5e7eb; color: #374151; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                    Hủy
-                </button>
-                <button type="button" class="btn btn-add" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                    <i class="fas fa-check"></i>
-                    Thêm mới
-                </button>
-            </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
-@code {
-
-}
