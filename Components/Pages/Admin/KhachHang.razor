@@ -12,13 +12,9 @@
 
 <!-- ACTION BAR -->
 <div class="action-bar">
-    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
-        <i class="fas fa-plus"></i>
-        Thêm mới
-    </button>
     <div class="search-group w-100">
-        <input type="text" placeholder="Tìm kiếm..." class="form-control">
-        <button class="btn-search">
+        <input @bind="Keyword" @bind:event="oninput" @onkeyup="OnKeyUp" type="text" placeholder="Tìm kiếm khách hàng..." class="form-control">
+        <button class="btn-search" @onclick="Search">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
@@ -34,35 +30,49 @@
                 <th>Tên khách hàng</th>
                 <th class="text-center">Số điện thoại</th>
                 <th class="text-center">Email</th>
-                <th class="text-center">Địa chỉ</th>
                 <th class="text-center">Điểm thưởng</th>
                 <th class="text-center">Tùy chỉnh</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>#001</td>
-                <td>Nguyễn Văn A</td>
-                <td class="text-center">0901234567</td>
-                <td class="text-center">nguyenvana@email.com</td>
-                <td class="text-center">123 Đường ABC, Quận 1</td>
-                <td class="text-center">150</td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-action btn-delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
+            @if (KhachHangData?.Data == null || !KhachHangData.Data.Any())
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                        @* Không có dữ liệu *@
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in KhachHangData.Data)
+                {
+                    <tr>
+                        <td>@item.CustomerId</td>
+                        <td>@item.Name</td>
+                        <td class="text-center">@item.Phone</td>
+                        <td class="text-center">@item.Email</td>
+                        <td class="text-center">@item.RewardPoints</td>
+                        <td class="text-center">
+                            <button class="btn-action btn-edit"
+                                    @onclick="() => KhachHangFormRef.OpenUpdate(item)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
 </div>
-<PaginationAdmin />
 
-<KhachHangForm />
-
-@code {
-
+@if (KhachHangData?.Data != null && KhachHangData.Data.Any())
+{
+    <PaginationAdmin Total="KhachHangData.Total"
+                     Page="@Page"
+                     PageChanged="ChangePage"
+                     PageSize="@PageSize" />
 }
+
+<KhachHangForm @ref="KhachHangFormRef" OnSuccess="LoadData" />
