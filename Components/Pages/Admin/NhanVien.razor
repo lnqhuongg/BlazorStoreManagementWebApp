@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @page "/admin/nhanvien"
 @using Components.Layout.Admin;
+@using BlazorStoreManagementWebApp.Components.Forms.Admin;
 @layout MainLayout
 
 <!-- HEADER -->
@@ -14,18 +15,24 @@
 
 <!-- ACTION BAR -->
 <div class="action-bar">
-    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addNhanVienModal">
+    <button class="btn-add" @onclick="() => NhanVienFormRef.OpenCreate()">
         <i class="fas fa-plus"></i>
         Thêm mới
     </button>
 
     <div class="search-group w-100">
-        <input type="text" placeholder="Tìm kiếm nhân viên..." class="form-control">
-        <button class="btn-search">
+        <input @bind="Filter.Keyword" type="text" placeholder="Tìm kiếm nhân viên..." class="form-control">
+        <button class="btn-search" @onclick="Search">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
     </div>
+
+    <select @bind="Filter.Role" class="form-control ms-2" style="width: auto;">
+        <option value="">Tất cả chức vụ</option>
+        <option value="admin">Quản trị viên</option>
+        <option value="staff">Nhân viên</option>
+    </select>
 </div>
 
 <!-- TABLE -->
@@ -35,48 +42,59 @@
             <tr>
                 <th>Mã NV</th>
                 <th>Họ tên</th>
-                <th class="text-center">Email</th>
-                <th class="text-center">Số điện thoại</th>
+                <th class="text-center">Tên đăng nhập</th>
                 <th class="text-center">Chức vụ</th>
                 <th class="text-center">Trạng thái</th>
+                <th class="text-center">Ngày tạo</th>
                 <th class="text-center">Tùy chỉnh</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>#NV001</td>
-                <td>Nguyễn Văn A</td>
-                <td class="text-center">nva@example.com</td>
-                <td class="text-center">0901234567</td>
-                <td class="text-center">Quản lý</td>
-                <td class="text-center"><span class="status-badge status-active">Hoạt động</span></td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#addNhanVienModal">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-            </tr>
-            <tr>
-                <td>#NV002</td>
-                <td>Trần Thị B</td>
-                <td class="text-center">ttb@example.com</td>
-                <td class="text-center">0909876543</td>
-                <td class="text-center">Nhân viên bán hàng</td>
-                <td class="text-center"><span class="status-badge status-inactive">Tạm ngưng</span></td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#addNhanVienModal">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-            </tr>
+            @if (NhanVienData?.Data == null || !NhanVienData.Data.Any())
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                        Không có dữ liệu
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in NhanVienData.Data)
+                {
+                    <tr>
+                        <td>@item.UserId</td>
+                        <td>@item.FullName</td>
+                        <td class="text-center">@item.Username</td>
+                        <td class="text-center">@(item.Role == "admin" ? "Quản trị viên" : "Nhân viên")</td>
+                        <td class="text-center">
+                            <span class="status-badge @(item.Status == 1 ? "status-active" : "status-inactive")">
+                                @(item.Status == 1 ? "Hoạt động" : "Tạm ngưng")
+                            </span>
+                        </td>
+                        <td class="text-center">@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">
+                            <button class="btn-action btn-edit" @onclick="() => NhanVienFormRef.OpenUpdate(item)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
 </div>
-<PaginationAdmin />
 
-<!-- Modal Form -->
-<NhanVienForm />
-
-@code {
-
+@if (NhanVienData?.Data != null && NhanVienData.Data.Any())
+{
+    <PaginationAdmin Total="NhanVienData.Total"
+                     Page="@Page"
+                     PageChanged="ChangePage"
+                     PageSize="@PageSize" />
 }
+
+<NhanVienForm @ref="NhanVienFormRef" OnSuccess="LoadData" />
