@@ -23,8 +23,9 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
 
         private PhieuNhapForm PhieuNhapFormRef;
 
-
-
+        private bool ShowPdfModal = false;
+        private string Base64Pdf = "";
+        private PhieuNhapDTO selected = new PhieuNhapDTO();
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
@@ -59,16 +60,35 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
             await LoadData();
         }
 
-        public async Task PrintPdf(PhieuNhapDTO phieu)
+        private async Task PreviewPdf(PhieuNhapDTO phieu)
         {
-            Console.WriteLine("Print PDF for PhieuNhap ID: " + phieu.ImportId);
-            var bytes = PdfService.ExportPhieuNhap(phieu);
-            var base64 = Convert.ToBase64String(bytes);
+            selected = phieu;
+            // 1. Gọi service để lấy mảng byte[]
+            byte[] pdfBytes = PdfService.ExportPhieuNhap(phieu);
 
-            await JS.InvokeVoidAsync("downloadFileFromBase64",
-                $"PhieuNhap_{phieu.ImportId}.pdf",
-                base64);
+            // 2. Convert sang Base64 để nhét vào iframe
+            Base64Pdf = Convert.ToBase64String(pdfBytes);
+
+            // 3. Hiện modal preview
+            ShowPdfModal = true;
+            await Task.Delay(50);
+            // 4. Gọi JS để load PDF vào iframe
+            await JS.InvokeVoidAsync("showPdfPreview", Base64Pdf);
         }
+
+
+        private async Task PrintPdf()
+        {
+            await JS.InvokeVoidAsync("downloadFileFromBase64",
+                $"PhieuNhap_{selected.ImportId}.pdf", Base64Pdf);
+        }
+
+
+        private void ClosePreview()
+        {
+            ShowPdfModal = false;
+        }
+
 
     }
 }

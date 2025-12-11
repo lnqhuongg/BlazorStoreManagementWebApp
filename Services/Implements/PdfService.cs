@@ -66,7 +66,7 @@ public class PdfService
                         {
                             header.Cell().Text("Sản phẩm").SemiBold();
                             header.Cell().Text("Số lượng").SemiBold();
-                            header.Cell().Text("Giá").SemiBold();
+                            header.Cell().Text("Đơn giá").SemiBold();
                         });
 
                         // Dữ liệu bảng
