@@ -3140,71 +3140,152 @@ overflow: hidden;
 }
 
 .login-form {
+    background: #fff;
+    padding: 40px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-.signup-form {
+    .login-form h2 {
+        color: #333;
+        font-size: 24px;
+        font-weight: 300;
+        margin-bottom: 30px;
+        text-align: center;
+        letter-spacing: 0.5px;
+    }
+
+    .login-form .form-group {
+        margin-bottom: 20px;
+    }
+
+        .login-form .form-group label {
+            color: #666;
+            font-size: 13px;
+            font-weight: 400;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+    .login-form .form-control {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        color: #666;
+        font-size: 14px;
+        font-weight: 300;
+        height: 40px;
+        padding: 10px 12px;
+        border-radius: 0;
+        box-shadow: none;
+        transition: all 0.3s ease;
+    }
+
+        .login-form .form-control:focus {
+            background: #fff;
+            border-color: #fe980f;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(254, 152, 15, 0.3);
+            color: #333;
+        }
+
+        .login-form .form-control::placeholder {
+            color: #999;
+        }
+
+    .login-form .btn-login {
+        background: #fe980f;
+        border: none;
+        color: #fff;
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        height: 40px;
+        padding: 8px 25px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        border-radius: 0;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+
+        .login-form .btn-login:hover {
+            background: #e08a0a;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .login-form .btn-login:active {
+            background: #cc7a09;
+        }
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.login-form h2, .signup-form h2 {
-color: #696763;
-font-family: 'Roboto', sans-serif;
-font-size: 20px;
-font-weight: 300;
-margin-bottom: 30px;
-}
+    .form-actions .links-group {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
+        .form-actions .links-group li {
+            display: inline-block;
+            margin-right: 20px;
+        }
 
-.login-form form input, .signup-form form input {
-background: #F0F0E9;
-border: medium none;
-color: #696763;
-display: block;
-font-family: 'Roboto', sans-serif;
-font-size: 14px;
-font-weight: 300;
-height: 40px;
-margin-bottom: 10px;
-outline: medium none;
-padding-left: 10px;
-width: 100%;
-}
+            .form-actions .links-group li:last-child {
+                margin-right: 0;
+            }
 
-.login-form form span {
-line-height: 25px;
-}
+        .form-actions .links-group a {
+            color: #fe980f;
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
 
-.login-form form span input {
-width: 15px;
-float: left;
-height: 15px;
-margin-right: 5px;
-}
+            .form-actions .links-group a:hover {
+                color: #e08a0a;
+                text-decoration: underline;
+            }
 
-.login-form form button {
-margin-top: 23px;
-}
+/* Responsive */
+@media (max-width: 576px) {
+    .login-form {
+        padding: 25px 20px;
+    }
 
-.login-form form button, .signup-form form button {
-background: #FE980F;
-border: medium none;
-border-radius: 0;
-color: #FFFFFF;
-display: block;
-font-family: 'Roboto', sans-serif;
-padding: 6px 25px;
-}
+        .login-form h2 {
+            font-size: 20px;
+            margin-bottom: 25px;
+        }
 
-.login-form label {
-}
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
+        .form-actions .btn-login {
+            width: 100%;
+            margin-top: 0;
+        }
 
-.login-form label input {
-border: medium none;
-display: inline-block;
-height: 0;
-margin-bottom: 0;
-outline: medium none;
-padding-left: 0;
+        .form-actions .links-group {
+            order: -1;
+            text-align: center;
+        }
+
+            .form-actions .links-group li {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 8px;
+            }
 }
 
 

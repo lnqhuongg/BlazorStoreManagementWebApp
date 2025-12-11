@@ -1,0 +1,32 @@
+﻿::deep .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+::deep .dropdown-item:first-child {
+    border-radius: 8px 8px 0 0;
+}
+
+::deep .dropdown-item:last-child {
+    border-radius: 0 0 8px 8px;
+}
+
+::deep .dropdown-item:hover {
+    background-color: #f0fdf4;
+    color: #10b981;
+    padding-left: 1.75rem;
+}
+
+::deep .dropdown-item i {
+    font-size: 1rem;
+}

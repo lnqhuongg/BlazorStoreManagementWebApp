@@ -1,39 +1,120 @@
 ﻿@page "/dangnhap"
+@using Components.Layout.Client;
+@layout MainLayout
+@inject BlazorStoreManagementWebApp.Services.Interfaces.IAuthService AuthService
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
-<section id="">
-	<!--form-->
+<section>
 	<div class="container">
-		<div class="row">
-			<div class="col-sm-8 col-sm-offset-1">
+		<div class="row" style="padding: 50px 0px;">
+			<div class="col-sm-6 col-sm-offset-3">
 				<div class="login-form">
-					<!--login form-->
-					<h2>Đăng nhập đi bạn</h2>
-					<form>
+					<h2>Đăng nhập</h2>
+                    <form @onkeydown="HandleKeyDown">
 						<div class="form-group">
-							<label>Username</label>
-							<input class="form-control" />
+							<label for="email">Tên đăng nhập</label>
+							<input type="text" 
+                                   id="email"
+                                   class="form-control"  
+                                   placeholder="Nhập tên đăng nhập"
+                                   @bind="Email" @bind:event="oninput" />
+                            @if (EmailError != null)
+                            {
+                                <div class="text-danger small">@EmailError</div>
+                            }
 						</div>
-						<div class="form-group">
-							<label>Password</label>
-							<input class="form-control" />
-						</div>
-						<div style="display:flex; justify-content:space-between; align-items:center;">
-							<button class="btn btn-warning" style="margin-bottom: 30px;">Đăng nhập</button>
 
-							<ul class="list-inline" style="margin-bottom:0;">
+						<div class="form-group">
+							<label for="password">Mật khẩu</label>
+                            <div class="input-group">
+                                <input type="@passwordType"
+                                       id="password"
+                                       class="@(PasswordError != null ? "is-invalid" : "")"
+                                       placeholder="Nhập mật khẩu"
+                                       @bind="Password" @bind:event="oninput" />
+                                <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility">
+                                    <i class="@icon"></i>
+                                </button>
+                            </div>
+                            @if (PasswordError != null)
+                            {
+                                <div class="text-danger small">@PasswordError</div>
+                            }
+						</div>
+
+						<div class="form-actions">
+							<button type="button" class="btn btn-login">Đăng nhập</button>
+
+							<ul class="links-group">
 								<li><a href="/dangky">Đăng ký ngay?</a></li>
 								<li><a href="/quenmatkhau">Quên mật khẩu?</a></li>
 							</ul>
 						</div>
-
-
 					</form>
-				</div><!--/login form-->
+				</div>
 			</div>
 		</div>
 	</div>
-</section><!--/form-->
+</section>
 
 @code {
+    private string Email = "";
+    private string Password = "";
 
+    private string? EmailError;
+    private string? PasswordError;
+
+    private string? generalError;
+
+    private bool showPassword = false;
+    private string passwordType => showPassword ? "text" : "password";
+    private string icon => showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
+
+    private bool Validate()
+    {
+        EmailError = string.IsNullOrWhiteSpace(Email) ? "Vui lòng nhập tên đăng nhập." : null;
+        PasswordError = string.IsNullOrWhiteSpace(Password) ? "Vui lòng nhập mật khẩu." : null;
+        return EmailError == null && PasswordError == null;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await LoginAsync();
+    }
+
+    private async Task LoginAsync()
+    {
+        if (!Validate()) return;
+
+        var dto = new BlazorStoreManagementWebApp.DTOs.Admin.Authentication.DangNhapDTO { Username = Email, Password = Password };
+        var result = await AuthService.CheckLogin(dto, "admin");
+
+        if (result.Type != "success")
+        {
+            // await JS.InvokeVoidAsync("showAlert", result.Message, "error");
+            generalError = result.Message;
+            return;
+        }
+
+        var user = result.Data;
+        // SAVE SESSION
+        await SessionStorage.SetItemAsync("adminId", user.UserId);
+        await SessionStorage.SetItemAsync("adminName", user.FullName);
+        await SessionStorage.SetItemAsync("adminRole", user.Role);
+
+        // Redirect
+        string url = user.Role?.ToLower() == "staff"
+            ? "/admin/sanphamstaff"
+            : "/admin/thongke";
+
+        Navigation.NavigateTo(url);
+    }
 }

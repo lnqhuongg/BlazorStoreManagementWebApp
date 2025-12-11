@@ -1,1 +1,11 @@
-﻿<LayoutRouter />
+﻿<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(BlazorStoreManagementWebApp.Components.Layout.Client.MainLayout)" />
+    </Found>
+
+    <NotFound>
+        <LayoutView Layout="@typeof(BlazorStoreManagementWebApp.Components.Layout.Client.MainLayout)">
+            <p class="text-danger fw-bold">❌ Trang không tồn tại.</p>
+        </LayoutView>
+    </NotFound>
+</Router>

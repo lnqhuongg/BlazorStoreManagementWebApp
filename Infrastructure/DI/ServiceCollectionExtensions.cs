@@ -1,6 +1,8 @@
 ﻿// Infrastructure/ServiceCollectionExtensions.cs
+using BlazorStoreManagementWebApp.Services;
 using BlazorStoreManagementWebApp.Services.Implements;
 using BlazorStoreManagementWebApp.Services.Interfaces;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace StoreManagementBE.BackendServer.Infrastructure.DI
@@ -10,7 +12,7 @@ namespace StoreManagementBE.BackendServer.Infrastructure.DI
         // IServiceCollection la giao dien co san trong ASP.NET Core de dang ky cac dich vu (services) cho ung dung
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            // Đăng ký tất cả service ở đây
+            // Đăng ký tất cả service ở đây (service binh thuong)
             services.AddScoped<INhanVienService, NhanVienService>();
             services.AddScoped<ILoaiSanPhamService, LoaiSanPhamService>();
             services.AddScoped<ISanPhamService, SanPhamService>();
@@ -20,6 +22,9 @@ namespace StoreManagementBE.BackendServer.Infrastructure.DI
             services.AddScoped<IMaGiamGiaService, MaGiamGiaService>();
             services.AddScoped<IKhachHangService, KhachHangService>();
             services.AddScoped<IDonHangService, DonHangService>();
+            services.AddScoped<IAuthService, AuthService>();
+
+            services.AddAuthorizationCore();
 
             return services;
         }

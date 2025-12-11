@@ -15,7 +15,6 @@ body {
     overflow: hidden;
 }
 
-    /* Added decorative shapes for visual interest */
     body::before {
         content: '';
         position: absolute;
@@ -58,7 +57,6 @@ body {
     position: relative;
 }
 
-    /* Added icon decoration in header */
     .login-header::before {
         content: '';
         position: absolute;
@@ -94,34 +92,49 @@ body {
     margin-bottom: 24px;
 }
 
-    .form-group label {
-        display: block;
-        margin-bottom: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        color: #1f2937;
-    }
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+}
 
-    .form-group input {
-        width: 100%;
-        padding: 14px 16px;
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        font-family: inherit;
-    }
+.form-group input {
+/*    width: 100%;*/
+    padding: 14px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-            background-color: #f9fdf8;
-        }
+.form-group input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    background-color: #f9fdf8;
+}
 
-        .form-group input::placeholder {
-            color: #9ca3af;
-        }
+.form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.input-group {
+    display: flex;
+    width: 100%;
+}
+
+.input-group input {
+    flex: 1;
+}
+
+.input-group button {
+    width: 50px;
+    border-left: none;
+    border: 1px solid #e5e7eb;
+}
 
 .login-btn {
     width: 100%;
@@ -145,8 +158,6 @@ body {
     .login-btn:active {
         transform: translateY(-1px);
     }
-
-/* Removed login-footer div entirely */
 
 @media (max-width: 576px) {
     .login-container {

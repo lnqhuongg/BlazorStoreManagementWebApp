@@ -1,3 +1,4 @@
+using Blazored.SessionStorage;
 using BlazorStoreManagementWebApp.Components;
 using BlazorStoreManagementWebApp.Mappings;
 using BlazorStoreManagementWebApp.Models;
@@ -16,13 +17,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Dang ky cac service o ben DI (Dependency Injection)
 builder.Services.AddApplicationServices();
-
-
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// them service session storage
+builder.Services.AddBlazoredSessionStorage();
+
 
 var app = builder.Build();
 
