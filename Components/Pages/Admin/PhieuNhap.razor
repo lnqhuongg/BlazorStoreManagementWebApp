@@ -13,67 +13,186 @@
 </div>
 
 <!-- ACTION BAR -->
-<div class="action-bar">
-    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addPhieuNhapModal">
-        <i class="fas fa-plus"></i>
-        Thêm mới
+<!-- HÀNG 1: Nút thêm mới -->
+<div class="mb-2">
+    <button class="btn btn-success" @onclick="() => PhieuNhapFormRef.OpenCreate()">
+        <i class="fas fa-plus"></i> Thêm mới
     </button>
+</div>
 
-    <div class="search-group w-100">
-        <input type="text" placeholder="Tìm kiếm phiếu nhập..." class="form-control">
-        <button class="btn-search">
-            <i class="fas fa-search"></i>
-            Tìm kiếm
-        </button>
+<!-- HÀNG 2: Tìm kiếm + Bộ lọc -->
+<div class="card p-3 shadow-sm" style="border-radius: 1em;">
+
+    <div class="row g-3">
+        <div class="col-md-2">
+            <label>Tìm kiếm</label>
+            <div class="input-group">
+                <input @bind="InputFilter.Keyword"
+                       type="text"
+                       placeholder="Nhập tên NCC hoặc nhân viên..."
+                       class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <label>Từ ngày</label>
+            <input @bind="InputFilter.StartDate" type="date" class="form-control" />
+        </div>
+
+        <div class="col-md-2">
+            <label>Đến ngày</label>
+            <input @bind="InputFilter.EndDate" type="date" class="form-control" />
+        </div>
+
+        <div class="col-md-2">
+            <label>Min tổng tiền</label>
+            <input @bind="InputFilter.MinPrice" type="number" class="form-control" placeholder="0" />
+        </div>
+
+        <div class="col-md-2">
+            <label>Max tổng tiền</label>
+            <input @bind="InputFilter.MaxPrice" type="number" class="form-control" placeholder="0" />
+        </div>
+
+        <!-- Nút Lọc + Reset -->
+        <div class="col-md-1 align-content-end">
+            <button class="btn btn-primary w-100" @onclick="Search">
+                <i class="fas fa-filter"></i> Lọc
+            </button>
+        </div>
+
+        <div class="col-md-1 align-content-end">
+            <button class="btn btn-secondary w-100" @onclick="ClearFilter">
+                <i class="fas fa-undo"></i> Reset
+            </button>
+        </div>
+
     </div>
 </div>
 
+
 <!-- TABLE -->
-<div class="table-container">
+<div class="table-container mt-3">
     <table class="table">
         <thead>
             <tr>
                 <th>Mã phiếu</th>
                 <th>Nhà cung cấp</th>
                 <th class="text-center">Ngày nhập</th>
+                <th class="text-center">Nhân viên</th>
                 <th class="text-center">Tổng tiền</th>
-                <th class="text-center">Trạng thái</th>
                 <th class="text-center">Tùy chỉnh</th>
             </tr>
         </thead>
+
         <tbody>
-            <tr>
-                <td>#PN001</td>
-                <td>Nhà cung cấp A</td>
-                <td class="text-center">2025-12-01</td>
-                <td class="text-center">5,000,000 VND</td>
-                <td class="text-center"><span class="status-badge status-active">Hoàn thành</span></td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#addPhieuNhapModal">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-            </tr>
-            <tr>
-                <td>#PN002</td>
-                <td>Nhà cung cấp B</td>
-                <td class="text-center">2025-12-02</td>
-                <td class="text-center">3,200,000 VND</td>
-                <td class="text-center"><span class="status-badge status-inactive">Chờ duyệt</span></td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#addPhieuNhapModal">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-            </tr>
+            @if (PhieuNhapData?.Data == null || !PhieuNhapData.Data.Any())
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                        Không có dữ liệu
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in PhieuNhapData.Data)
+                {
+                    <tr>
+                        <td>@item.ImportId</td>
+                        <td>@item.Supplier.Name</td>
+
+                        <td class="text-center">
+                            @item.ImportDate.ToString("yyyy-MM-dd")
+                        </td>
+
+                        <td>@item.Staff.FullName</td>
+
+                        <td class="text-center">
+                            @item.TotalAmount.ToString("N0") VND
+                        </td>
+
+                        <td class="text-center">
+
+                            <!-- VIEW -->
+                            <button class="btn-action btn-edit"
+                                    @onclick="async () => await PhieuNhapFormRef.OpenDetail(item)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+
+                            <!-- PRINT PDF -->
+                            <button class="btn-action btn-pdf"
+                                    @onclick="() => PreviewPdf(item)">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+
+                        </td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
 </div>
-<PaginationAdmin />
 
-<!-- Modal Form -->
-<PhieuNhapForm />
-
-@code {
-
+@if (PhieuNhapData?.Data != null && PhieuNhapData.Data.Any())
+{
+    <PaginationAdmin Total="PhieuNhapData.Total"
+                     Page="@Page"
+                     PageChanged="ChangePage"
+                     PageSize="@PageSize" />
 }
+
+<PhieuNhapForm @ref="PhieuNhapFormRef" OnSuccess="LoadData" />
+
+@if (ShowPdfModal)
+{
+    <div style="
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0,0,0,.5);
+                    z-index: 2000;">
+    </div>
+
+    <div style="
+                    position: fixed;
+                    top: 50%; left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 80%; height: 90%;
+                    background: white;
+                    border-radius: 10px;
+                    padding: 10px;
+                    z-index: 2001;
+                    display: flex;
+                    flex-direction: column;
+                ">
+        <div style="display: flex; justify-content:space-between">
+
+            <div style="
+                        font-size: 20px;
+                        font-weight: bold;
+                        margin-bottom: 10px;
+                    ">
+                Preview PDF
+            </div>
+            <button class="btn btn-close btn-secondary" @onclick="ClosePreview"></button>
+        </div>
+
+        <iframe id="pdfPreviewFrame" style="
+                        width:100%;
+                        height:80vh;
+                        border:none;
+                    "></iframe>
+
+        <div style="
+                    margin-top: 10px;
+                    display: flex;
+                    gap: 10px;
+                    align-self: flex-end;
+                    margin-right: 1em;
+                ">
+            <button class="btn btn-primary" @onclick="PrintPdf">Xuất file</button>
+        </div>
+    </div>
+}
+

@@ -22,10 +22,9 @@ namespace StoreManagementBE.BackendServer.Infrastructure.DI
             services.AddScoped<IMaGiamGiaService, MaGiamGiaService>();
             services.AddScoped<IKhachHangService, KhachHangService>();
             services.AddScoped<IDonHangService, DonHangService>();
-            services.AddScoped<IAuthService, AuthService>();
-
+            services.AddScoped<IAuthService, AuthService>();            
+            services.AddScoped<PdfService>();
             services.AddAuthorizationCore();
-
             return services;
         }
     }

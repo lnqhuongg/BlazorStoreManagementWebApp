@@ -263,7 +263,14 @@ namespace BlazorStoreManagementWebApp.Services.Implements
 
         public IQueryable<PhieuNhap> FilterAndSearch(IQueryable<PhieuNhap> query, PhieuNhapFilter input)
         {
-            query = _context.PhieuNhaps.AsQueryable();
+            //query = _context.PhieuNhaps.AsQueryable();
+
+            if (input == null)
+            {
+                // Xử lý trường hợp input là null (ví dụ: trả về query mà không lọc)
+                Console.WriteLine("InputFilter received is NULL in FilterAndSearch.");
+                return query;
+            }
             Console.WriteLine($"StartDate: {input.StartDate}");
             Console.WriteLine($"EndDate: {input.EndDate}");
             // 🔹 Tìm kiếm theo từ khóa
@@ -295,7 +302,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 query = query.Where(p => p.ImportDate <= endDate);
             }
 
-            // 🔹 Include navigation
+            // Include navigation
             query = query
                 .Include(p => p.Staff)
                 .Include(p => p.Supplier)
@@ -310,6 +317,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         public async Task<PagedResult<PhieuNhapDTO>> GetAll(PhieuNhapFilter input, int pageNumber, int pageSize)
         {
             var query = FilterAndSearch(_context.PhieuNhaps, input);
+
             // ✅ Sắp xếp trước khi Skip/Take
             query = query.OrderBy(p => p.ImportDate);
             var total = await query.CountAsync();

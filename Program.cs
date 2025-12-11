@@ -4,7 +4,7 @@ using BlazorStoreManagementWebApp.Mappings;
 using BlazorStoreManagementWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 using StoreManagementBE.BackendServer.Infrastructure.DI;
-
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,14 +20,19 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Dang ky cac service o ben DI (Dependency Injection)
 builder.Services.AddApplicationServices();
 
+builder.Services.AddHttpContextAccessor();
+
+
+
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+QuestPDF.Settings.License = LicenseType.Community;
+
 // them service session storage
 builder.Services.AddBlazoredSessionStorage();
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
