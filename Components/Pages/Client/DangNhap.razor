@@ -52,10 +52,6 @@
 								<li><a href="/quenmatkhau">Quên mật khẩu?</a></li>
 							</ul>
 						</div>
-                        @if (!string.IsNullOrEmpty(generalError))
-                        {
-                            <div class="alert alert-danger mt-3">@generalError</div>
-                        }
 					</form>
 				</div>
 			</div>
@@ -69,8 +65,6 @@
 
     private string? EmailError;
     private string? PasswordError;
-
-    private string? generalError;
 
     private bool showPassword = false;
     private string passwordType => showPassword ? "text" : "password";
@@ -103,8 +97,11 @@
 
         if (result.Type != "success")
         {
-            // await JS.InvokeVoidAsync("showAlert", result.Message, "error");
-            generalError = result.Message;
+            try
+            {
+                await JS.InvokeAsync<object>("showToast", "error", result.Message);
+            }
+            catch { } // Ignore if JS not ready
             return;
         }
 
@@ -113,6 +110,12 @@
         await SessionStorage.SetItemAsync("clientId", user.UserId);
         await SessionStorage.SetItemAsync("clientName", user.FullName);
         await SessionStorage.SetItemAsync("clientRole", user.Role);
+
+        try
+        {
+            await JS.InvokeAsync<object>("showToast", "success", "Đăng nhập thành công!");
+        }
+        catch { } // Ignore if JS not ready
 
         var url = "";
         if(user.Role?.ToLower() == "client")

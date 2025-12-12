@@ -48,10 +48,6 @@
         <button type="button" class="login-btn" @onclick="LoginAsync">
             <i class="fas fa-sign-in-alt"></i> Đăng Nhập
         </button>
-        @if (!string.IsNullOrEmpty(generalError))
-        {
-            <div class="alert alert-danger mt-3">@generalError</div>
-        }
     </form>
 </div>
 
@@ -61,8 +57,6 @@
 
     private string? UsernameError;
     private string? PasswordError;
-
-	private string? generalError;
 
     private bool showPassword = false;
     private string passwordType => showPassword ? "text" : "password";
@@ -95,18 +89,29 @@
 
         if (result.Type != "success")
         {
-            // await JS.InvokeVoidAsync("showAlert", result.Message, "error");
-			generalError = result.Message;
+            // Chờ toast error hoàn tất (không cần chờ lâu, chỉ để hiển thị)
+            try
+            {
+                await JS.InvokeAsync<object>("showToast", "error", result.Message);
+            }
+            catch { } // Ignore if JS not ready
             return;
         }
 
-		var user = result.Data;
+        var user = result.Data;
         // SAVE SESSION
         await SessionStorage.SetItemAsync("adminId", user.UserId);
         await SessionStorage.SetItemAsync("adminName", user.FullName);
         await SessionStorage.SetItemAsync("adminRole", user.Role);
 
-        // Redirect
+        // Show success toast and WAIT for it to complete
+        try
+        {
+            await JS.InvokeAsync<object>("showToast", "success", "Đăng nhập thành công!");
+        }
+        catch { } // Ignore if JS not ready
+
+        // Redirect (toast đã hiển thị xong rồi)
         string url = user.Role?.ToLower() == "staff"
             ? "/admin/sanphamstaff"
             : "/admin/thongke";
