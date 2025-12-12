@@ -12,7 +12,7 @@
         </h1>
 
         <!-- Right side: User dropdown -->
-        <div class="user-profile-dropdown">
+        @* <div class="user-profile-dropdown">
             <button class="user-profile-btn">
                 <span class="user-name">@FullName</span>
                 <i class="fas fa-chevron-down"></i>
@@ -23,12 +23,12 @@
                     Thông tin cá nhân
                 </a>
                 <button class="dropdown-item" @onclick="Logout"> <i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
-            </div>
-        </div>  
+            </div> *@
+        @* </div>   *@
     </div>
 </nav>
 
-@code {
+@* @code {
     private string FullName = "Admin User";
     protected override async Task OnInitializedAsync()
     {
@@ -48,4 +48,4 @@
         Navigation.NavigateTo("/admin/dangnhap", forceLoad: true);
     }
 
-}
+} *@
