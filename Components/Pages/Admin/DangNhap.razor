@@ -113,7 +113,7 @@
 
         // Redirect (toast đã hiển thị xong rồi)
         string url = user.Role?.ToLower() == "staff"
-            ? "/admin/sanphamstaff"
+            ? "/admin/banhangstaff"
             : "/admin/thongke";
 
         Navigation.NavigateTo(url);
