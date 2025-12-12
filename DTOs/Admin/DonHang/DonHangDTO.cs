@@ -35,5 +35,6 @@ namespace BlazorStoreManagementWebApp.DTOs.Admin.DonHang
         public List<ChiTietDonHangDTO>? Items { get; set; }
 
         public List<ThanhToanReturnDTO>? Payments { get; set; }
+        public string Phone { get; set; } = "";
     }
 }

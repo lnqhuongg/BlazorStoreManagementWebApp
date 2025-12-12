@@ -69,5 +69,15 @@
 </div>
 
 @code {
-    // Code nhận Parameter là OrderId để load data
+    [Parameter] public EventCallback OnSaved { get; set; }
+    private int OrderId { get; set; }
+
+    // ĐÂY LÀ HÀM SHOW MÀ BÊN KIA ĐANG GỌI
+    public async Task Show(int orderId)
+    {
+        OrderId = orderId;
+        // Logic load dữ liệu chi tiết đơn hàng sẽ viết ở đây
+        StateHasChanged(); // Cập nhật lại giao diện popup
+        await Task.CompletedTask;
+    }
 }
