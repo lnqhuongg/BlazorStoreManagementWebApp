@@ -31,7 +31,7 @@
                             <div class="input-group">
                                 <input type="@passwordType"
                                        id="password"
-                                       class="@(PasswordError != null ? "is-invalid" : "")"
+                                       class="form-control"
                                        placeholder="Nhập mật khẩu"
                                        @bind="Password" @bind:event="oninput" />
                                 <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility">
@@ -45,13 +45,17 @@
 						</div>
 
 						<div class="form-actions">
-							<button type="button" class="btn btn-login">Đăng nhập</button>
+                            <button type="button" class="btn btn-login" @onclick="LoginAsync">Đăng nhập</button>
 
 							<ul class="links-group">
 								<li><a href="/dangky">Đăng ký ngay?</a></li>
 								<li><a href="/quenmatkhau">Quên mật khẩu?</a></li>
 							</ul>
 						</div>
+                        @if (!string.IsNullOrEmpty(generalError))
+                        {
+                            <div class="alert alert-danger mt-3">@generalError</div>
+                        }
 					</form>
 				</div>
 			</div>
@@ -95,7 +99,7 @@
         if (!Validate()) return;
 
         var dto = new BlazorStoreManagementWebApp.DTOs.Admin.Authentication.DangNhapDTO { Username = Email, Password = Password };
-        var result = await AuthService.CheckLogin(dto, "admin");
+        var result = await AuthService.CheckLoginClient(dto);
 
         if (result.Type != "success")
         {
@@ -106,14 +110,15 @@
 
         var user = result.Data;
         // SAVE SESSION
-        await SessionStorage.SetItemAsync("adminId", user.UserId);
-        await SessionStorage.SetItemAsync("adminName", user.FullName);
-        await SessionStorage.SetItemAsync("adminRole", user.Role);
+        await SessionStorage.SetItemAsync("clientId", user.UserId);
+        await SessionStorage.SetItemAsync("clientName", user.FullName);
+        await SessionStorage.SetItemAsync("clientRole", user.Role);
 
-        // Redirect
-        string url = user.Role?.ToLower() == "staff"
-            ? "/admin/sanphamstaff"
-            : "/admin/thongke";
+        var url = "";
+        if(user.Role?.ToLower() == "client")
+        {
+            url = "/";
+		}
 
         Navigation.NavigateTo(url);
     }

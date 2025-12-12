@@ -17,7 +17,7 @@ namespace BlazorStoreManagementWebApp.Services
             _context = context;   
         }
         
-        public async Task<ServiceResult<UserResponseDTO>> CheckLogin (DangNhapDTO dto, string userType) 
+        public async Task<ServiceResult<UserResponseDTO>> CheckLoginAdmin (DangNhapDTO dto) 
         {
             var usernameLower = dto.Username?.Trim().ToLower() ?? string.Empty;
             var user = await _context.NhanViens
@@ -31,16 +31,16 @@ namespace BlazorStoreManagementWebApp.Services
                     Data = null
                 };
             }
-            if (userType == "admin" && !(user.Role == "admin" || user.Role == "staff"))
+            if (!(user.Role == "admin" || user.Role == "staff"))
             {
                 return new ServiceResult<UserResponseDTO>
                 {
                     Type = "error",
-                    Message = "Tài khoản không có quyền truy cập admin.",
+                    Message = "Tài khoản không có quyền truy cập giao diện quản lý.",
                     Data = null
                 };
             }
-            var isValid = BCrypt.Net.BCrypt.Verify(dto.Password ?? string.Empty, user.Password);
+                var isValid = BCrypt.Net.BCrypt.Verify(dto.Password ?? string.Empty, user.Password);
             if (!isValid)
             {
                 return new ServiceResult<UserResponseDTO>
@@ -66,14 +66,42 @@ namespace BlazorStoreManagementWebApp.Services
             };
         }
 
-        public async Task<ServiceResult<UserResponseDTO>> LogoutAccount(string? username)
+        public async Task<ServiceResult<UserResponseDTO>> CheckLoginClient (DangNhapDTO dto) 
         {
-            await Task.CompletedTask;
+            var usernameLower = dto.Username?.Trim().ToLower() ?? string.Empty;
+            var user = await _context.KhachHangs
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == usernameLower);
+            if (user == null)
+            {
+                return new ServiceResult<UserResponseDTO>
+                {
+                    Type = "error",
+                    Message = "Email hoặc mật khẩu không đúng.",
+                    Data = null
+                };
+            }
+            var isValid = BCrypt.Net.BCrypt.Verify(dto.Password ?? string.Empty, user.Password);
+            if (!isValid)
+            {
+                return new ServiceResult<UserResponseDTO>
+                {
+                    Type = "error",
+                    Message = "Sai mật khẩu, vui lòng thử lại!",
+                    Data = null
+                };
+            }
+            var userDto = new UserResponseDTO 
+            {
+                UserId = user.CustomerId,
+                Username = user.Email,
+                FullName = user.Name,
+                Role = "client"
+            };
             return new ServiceResult<UserResponseDTO>
             {
                 Type = "success",
-                Message = "Đăng xuất thành công.",
-                Data = null
+                Message = "Đăng nhập thành công.",
+                Data = userDto
             };
         }
     }

@@ -6,7 +6,7 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<ServiceResult<UserResponseDTO>> CheckLogin(DangNhapDTO dto, string userType);
-        Task<ServiceResult<UserResponseDTO>> LogoutAccount(string? username);
+        Task<ServiceResult<UserResponseDTO>> CheckLoginAdmin(DangNhapDTO dto);
+        Task<ServiceResult<UserResponseDTO>> CheckLoginClient(DangNhapDTO dto);
     }
 }
