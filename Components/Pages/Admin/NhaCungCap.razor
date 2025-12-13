@@ -64,7 +64,9 @@
                         <td>@item.Email</td>
                         <td>@item.Address</td>
                         <td>
-                            @(item.Status == 1 ? "Hoạt động" : "Ngừng hợp tác")
+                            <span class="status-badge @(item.Status == 1 ? "status-active" : "status-inactive")">
+                                @(item.Status == 1 ? "Hoạt động" : "Tạm ngưng")
+                            </span>
                         </td>
                         <td class="text-center">
                             <button class="btn-action btn-edit"
