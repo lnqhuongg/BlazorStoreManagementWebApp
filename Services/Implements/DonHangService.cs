@@ -66,36 +66,33 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             var query = from o in _context.DonHangs
                         join c in _context.KhachHangs on o.CustomerId equals c.CustomerId into custGroup
                         from cust in custGroup.DefaultIfEmpty()
+                        join p in _context.MaGiamGias on o.PromoId equals p.PromoId into promoGroup
+                        from promo in promoGroup.DefaultIfEmpty()
                         select new
                         {
                             Order = o,
                             CustomerName = cust != null ? cust.Name : "Khách vãng lai",
                             Phone = cust != null ? cust.Phone : "",
-                            Status = _context.ThanhToans.Any(p => p.OrderId == o.OrderId) ? "Completed" : "Pending"
+                            PromoCode = promo != null ? promo.PromoCode : "",
+                            Status = o.Status
                         };
 
-            // --- LỌC DỮ LIỆU ---
-
-            // 1. Từ khóa
+            // Lọc dữ liệu
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
                 query = query.Where(x => x.Order.OrderId.ToString().Contains(filter.Keyword)
                                       || x.CustomerName.Contains(filter.Keyword));
             }
-
-            // 2. Ngày tháng (Dùng StartDate/EndDate cho khớp DTO)
+            // Sửa DateFrom -> StartDate (Theo DTO mới của bạn)
             if (filter.StartDate.HasValue)
             {
                 query = query.Where(x => x.Order.OrderDate >= filter.StartDate.Value);
             }
             if (filter.EndDate.HasValue)
             {
-                // Lấy đến hết ngày (23:59:59)
-                var EndDate = filter.EndDate.Value.Date.AddDays(1).AddTicks(-1);
-                query = query.Where(x => x.Order.OrderDate <= EndDate);
+                var toDate = filter.EndDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(x => x.Order.OrderDate <= toDate);
             }
-
-            // 3. Tiền
             if (filter.MinPrice.HasValue)
             {
                 query = query.Where(x => x.Order.TotalAmount >= filter.MinPrice.Value);
@@ -105,7 +102,6 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 query = query.Where(x => x.Order.TotalAmount <= filter.MaxPrice.Value);
             }
 
-            // --- PHÂN TRANG & TRẢ VỀ ---
             var total = await query.CountAsync();
 
             var data = await query
@@ -119,7 +115,9 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                     Phone = x.Phone,
                     OrderDate = x.Order.OrderDate,
                     TotalAmount = x.Order.TotalAmount,
-                    Status = x.Status
+                    DiscountAmount = x.Order.DiscountAmount,
+                    Status = x.Status,
+                    PromoCode = x.PromoCode
                 })
                 .ToListAsync();
 
@@ -132,15 +130,16 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             };
         }
 
-        // 2. HÀM CHI TIẾT (Thêm vào để sửa lỗi CS0535)
+        // --- 2. LẤY CHI TIẾT (Bắt buộc phải có để sửa lỗi CS0535) ---
+        // --- Copy đè đoạn này vào hàm GetOrderById ---
         public async Task<ChiTietDonHangDTO> GetOrderById(int orderId)
         {
-            // Bước 1: Lấy thông tin Header
+            // 1. Lấy thông tin chung (Header)
             var orderInfo = await (from o in _context.DonHangs
                                    join c in _context.KhachHangs on o.CustomerId equals c.CustomerId into custGroup
                                    from cust in custGroup.DefaultIfEmpty()
                                    where o.OrderId == orderId
-                                   select new ChiTietDonHangDTO // <-- Sửa tên class tại đây
+                                   select new ChiTietDonHangDTO
                                    {
                                        OrderId = o.OrderId,
                                        CustomerName = cust != null ? cust.Name : "Khách vãng lai",
@@ -149,26 +148,27 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                                        Address = cust != null ? cust.Address : "",
                                        OrderDate = o.OrderDate,
                                        TotalAmount = o.TotalAmount,
-                                       Status = _context.ThanhToans.Any(p => p.OrderId == o.OrderId) ? "Completed" : "Pending"
+                                       Status = o.Status
                                    }).FirstOrDefaultAsync();
 
             if (orderInfo == null) return null;
 
-            // Bước 2: Lấy danh sách sản phẩm
-            var items = await (from d in _context.ChiTietDonHangs // Bảng order_items
+            // 2. Lấy danh sách sản phẩm (Detail)
+            // SỬA: Dùng _context.ChiTietDonHangs thay vì OrderItems
+            var items = await (from d in _context.ChiTietDonHangs
                                join p in _context.SanPhams on d.ProductId equals p.ProductID
                                where d.OrderId == orderId
-                               select new DonHangItemDTO // <-- Class con
+                               select new DonHangItemDTO
                                {
                                    ProductId = d.ProductId ?? 0,
                                    ProductName = p.ProductName,
-                                   ImageUrl = p.ImageUrl, // Lấy thêm ảnh cho đẹp
+                                   ImageUrl = p.ImageUrl,
                                    Quantity = d.Quantity,
                                    Price = d.Price,
                                    Subtotal = d.Subtotal
                                }).ToListAsync();
 
-            orderInfo.DanhSachSanPham = items; // Gán list vào
+            orderInfo.DanhSachSanPham = items;
             return orderInfo;
         }
     }

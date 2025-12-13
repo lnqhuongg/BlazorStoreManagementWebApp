@@ -21,7 +21,7 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
         private DonHangFilterDTO InputFilter { get; set; } = new DonHangFilterDTO();
 
         // Modal
-        private ChiTietDonHangForm? DonHangFormRef; // Đặt tên Ref giống style của bạn
+        private ChiTietDonHangForm? donHangForm; // Đặt tên Ref giống style của bạn
 
         protected override async Task OnInitializedAsync()
         {
@@ -55,11 +55,16 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
         }
 
         // Mở Modal xem chi tiết
-        private async Task OpenDetail(int orderId)
+        public async Task OpenDetail(int orderId)
         {
-            if (DonHangFormRef != null)
+            // Kiểm tra biến donHangForm (chữ d viết thường)
+            if (donHangForm != null)
             {
-                await DonHangFormRef.Show(orderId);
+                await donHangForm.Show(orderId);
+            }
+            else
+            {
+                Console.WriteLine("Lỗi: Form chưa được khởi tạo (biến donHangForm bị null)");
             }
         }
     }

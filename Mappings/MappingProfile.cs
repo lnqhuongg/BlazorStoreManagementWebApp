@@ -39,11 +39,7 @@ namespace BlazorStoreManagementWebApp.Mappings
             CreateMap<NhaCungCap, NhaCungCapDTO>().ReverseMap();
 
             // entity donhang <-> donhangDTO
-            CreateMap<DonHang, DonHangDTO>()
-                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : ""))
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
-
-                .ReverseMap();
+            //CreateMap<DonHang, DonHangDTO>()
 
             // entity chitietdonhang <-> chitietdonhangDTO
             CreateMap<ChiTietDonHang, ChiTietDonHangDTO>().ReverseMap();

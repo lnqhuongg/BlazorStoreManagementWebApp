@@ -1,8 +1,8 @@
-﻿using BlazorStoreManagementWebApp.DTOs.Admin.SanPham;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
 
 namespace BlazorStoreManagementWebApp.DTOs.Admin.DonHang
 {
+    // [QUAN TRỌNG] Phải kế thừa DonHangDTO thì mới có CustomerName, Phone...
     public class ChiTietDonHangDTO : DonHangDTO
     {
         public string Address { get; set; } = "";
@@ -12,12 +12,11 @@ namespace BlazorStoreManagementWebApp.DTOs.Admin.DonHang
         public List<DonHangItemDTO> DanhSachSanPham { get; set; } = new();
     }
 
-    // Class đại diện cho từng dòng sản phẩm (để tránh trùng tên với Entity ChiTietDonHang)
     public class DonHangItemDTO
     {
         public int ProductId { get; set; }
         public string ProductName { get; set; } = "";
-        public string ImageUrl { get; set; } = ""; // Thêm ảnh nếu cần
+        public string ImageUrl { get; set; } = "";
         public int Quantity { get; set; }
         public decimal Price { get; set; }
         public decimal Subtotal { get; set; }
