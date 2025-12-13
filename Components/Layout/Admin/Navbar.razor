@@ -24,18 +24,32 @@
                 </a>
                 <button class="dropdown-item" @onclick="Logout"> <i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
             </div>
-        </div>  
+        </div>
     </div>
 </nav>
 
 @code {
     private string FullName = "Admin User";
-    protected override async Task OnInitializedAsync()
+
+    // Move SessionStorage calls to OnAfterRenderAsync to avoid JSInterop during prerendering
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var fullName = await SessionStorage.GetItemAsync<string>("adminName");
-        if (!string.IsNullOrEmpty(fullName))
+        if (!firstRender)
+            return;
+
+        try
         {
-            FullName = fullName;
+            var fullName = await SessionStorage.GetItemAsync<string>("adminName");
+            if (!string.IsNullOrEmpty(fullName))
+            {
+                FullName = fullName;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            // If JS interop not available or any error, fail silently to avoid crashing prerender
+            Console.WriteLine($"Navbar: could not read session storage: {ex.Message}");
         }
     }
 
