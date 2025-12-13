@@ -13,10 +13,9 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-        public DonHangService(ApplicationDbContext context, IMapper mapper)
+        public DonHangService(ApplicationDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // ==================== 1. LỌC DỮ LIỆU (Tương tự SearchByKeyword) ====================
@@ -42,58 +41,73 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             }
 
             // 3. Lọc theo ngày
-            if (filter.DateFrom.HasValue)
-                q = q.Where(x => x.OrderDate >= filter.DateFrom);
+            if (filter.StartDate.HasValue)
+                q = q.Where(x => x.OrderDate >= filter.StartDate);
 
-            if (filter.DateTo.HasValue)
+            if (filter.EndDate.HasValue)
             {
-                var end = filter.DateTo.Value.Date.AddDays(1).AddTicks(-1);
+                var end = filter.EndDate.Value.Date.AddDays(1).AddTicks(-1);
                 q = q.Where(x => x.OrderDate <= end);
             }
 
             // 4. Lọc theo tổng tiền
-            if (filter.MinTotal.HasValue)
-                q = q.Where(x => (x.TotalAmount ?? 0) >= filter.MinTotal.Value);
+            if (filter.MinPrice.HasValue)
+                q = q.Where(x => (x.TotalAmount ?? 0) >= filter.MinPrice.Value);
 
-            if (filter.MaxTotal.HasValue)
-                q = q.Where(x => (x.TotalAmount ?? 0) <= filter.MaxTotal.Value);
+            if (filter.MaxPrice.HasValue)
+                q = q.Where(x => (x.TotalAmount ?? 0) <= filter.MaxPrice.Value);
 
             return q;
         }
 
         // ==================== 2. LẤY DANH SÁCH (Phân trang) ====================
-        public async Task<PagedResult<DonHangDTO>> GetAll(int page, int pageSize, string keyword, string status = "")
+        public async Task<PagedResult<DonHangDTO>> GetAll(int page, int pageSize, DonHangFilterDTO filter)
         {
-            // 1. Tạo Query: Nối bảng Đơn hàng (DonHangs) với Khách hàng (KhachHangs)
             var query = from o in _context.DonHangs
                         join c in _context.KhachHangs on o.CustomerId equals c.CustomerId into custGroup
-                        from cust in custGroup.DefaultIfEmpty() // Left Join
+                        from cust in custGroup.DefaultIfEmpty()
                         select new
                         {
                             Order = o,
                             CustomerName = cust != null ? cust.Name : "Khách vãng lai",
                             Phone = cust != null ? cust.Phone : "",
-                            // Logic xác định trạng thái (Ví dụ: có thanh toán rồi thì là Completed)
                             Status = _context.ThanhToans.Any(p => p.OrderId == o.OrderId) ? "Completed" : "Pending"
                         };
 
-            // 2. Lọc theo Từ khóa (Keyword)
-            if (!string.IsNullOrEmpty(keyword))
+            // --- LỌC DỮ LIỆU ---
+
+            // 1. Từ khóa
+            if (!string.IsNullOrEmpty(filter.Keyword))
             {
-                query = query.Where(x => x.Order.OrderId.ToString().Contains(keyword)
-                                      || x.CustomerName.Contains(keyword));
+                query = query.Where(x => x.Order.OrderId.ToString().Contains(filter.Keyword)
+                                      || x.CustomerName.Contains(filter.Keyword));
             }
 
-            // 3. Lọc theo Trạng thái (Status) - Sửa lỗi thiếu biến filter ở đây
-            if (!string.IsNullOrEmpty(status))
+            // 2. Ngày tháng (Dùng StartDate/EndDate cho khớp DTO)
+            if (filter.StartDate.HasValue)
             {
-                query = query.Where(x => x.Status == status);
+                query = query.Where(x => x.Order.OrderDate >= filter.StartDate.Value);
+            }
+            if (filter.EndDate.HasValue)
+            {
+                // Lấy đến hết ngày (23:59:59)
+                var EndDate = filter.EndDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(x => x.Order.OrderDate <= EndDate);
             }
 
-            // 4. Đếm tổng số bản ghi
+            // 3. Tiền
+            if (filter.MinPrice.HasValue)
+            {
+                query = query.Where(x => x.Order.TotalAmount >= filter.MinPrice.Value);
+            }
+            if (filter.MaxPrice.HasValue)
+            {
+                query = query.Where(x => x.Order.TotalAmount <= filter.MaxPrice.Value);
+            }
+
+            // --- PHÂN TRANG & TRẢ VỀ ---
             var total = await query.CountAsync();
 
-            // 5. Phân trang & Lấy dữ liệu
             var data = await query
                 .OrderByDescending(x => x.Order.OrderDate)
                 .Skip((page - 1) * pageSize)
@@ -118,88 +132,44 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             };
         }
 
-        // ==================== 3. LẤY CHI TIẾT (GetById) ====================
-        public async Task<DonHangDTO?> GetById(int orderId)
+        // 2. HÀM CHI TIẾT (Thêm vào để sửa lỗi CS0535)
+        public async Task<ChiTietDonHangDTO> GetOrderById(int orderId)
         {
-            var e = await _context.DonHangs
-                .Include(x => x.Promotion)
-                .Include(x => x.Customer)
-                .Include(x => x.User)
-                .Include(x => x.Payments)
-                .Include(x => x.Items)
-                    .ThenInclude(d => d.Product)
-                        .ThenInclude(p => p.Category)
-                .FirstOrDefaultAsync(x => x.OrderId == orderId);
+            // Bước 1: Lấy thông tin Header
+            var orderInfo = await (from o in _context.DonHangs
+                                   join c in _context.KhachHangs on o.CustomerId equals c.CustomerId into custGroup
+                                   from cust in custGroup.DefaultIfEmpty()
+                                   where o.OrderId == orderId
+                                   select new ChiTietDonHangDTO // <-- Sửa tên class tại đây
+                                   {
+                                       OrderId = o.OrderId,
+                                       CustomerName = cust != null ? cust.Name : "Khách vãng lai",
+                                       Phone = cust != null ? cust.Phone : "",
+                                       Email = cust != null ? cust.Email : "",
+                                       Address = cust != null ? cust.Address : "",
+                                       OrderDate = o.OrderDate,
+                                       TotalAmount = o.TotalAmount,
+                                       Status = _context.ThanhToans.Any(p => p.OrderId == o.OrderId) ? "Completed" : "Pending"
+                                   }).FirstOrDefaultAsync();
 
-            if (e == null) return null;
+            if (orderInfo == null) return null;
 
-            var dto = _mapper.Map<DonHangDTO>(e);
-            dto.CustomerName = e.Customer?.Name ?? "";
-            dto.UserName = e.User?.FullName ?? "";
-            return dto;
+            // Bước 2: Lấy danh sách sản phẩm
+            var items = await (from d in _context.ChiTietDonHangs // Bảng order_items
+                               join p in _context.SanPhams on d.ProductId equals p.ProductID
+                               where d.OrderId == orderId
+                               select new DonHangItemDTO // <-- Class con
+                               {
+                                   ProductId = d.ProductId ?? 0,
+                                   ProductName = p.ProductName,
+                                   ImageUrl = p.ImageUrl, // Lấy thêm ảnh cho đẹp
+                                   Quantity = d.Quantity,
+                                   Price = d.Price,
+                                   Subtotal = d.Subtotal
+                               }).ToListAsync();
+
+            orderInfo.DanhSachSanPham = items; // Gán list vào
+            return orderInfo;
         }
-
-        // ==================== 4. TẠO MỚI (Create) ====================
-        public async Task<DonHangDTO> CreateStaff(CreateDonHangDTO dto)
-        {
-            using var tran = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                // 1) Map Order
-                var orderEntity = new DonHang
-                {
-                    CustomerId = dto.CustomerId,
-                    UserId = dto.UserId,
-                    PromoId = dto.PromoId,
-                    TotalAmount = dto.TotalAmount ?? 0,
-                    DiscountAmount = dto.DiscountAmount,
-                    OrderDate = DateTime.Now,
-                    Status = "paid",
-                    Items = dto.Items?.Select(i => new ChiTietDonHang
-                    {
-                        ProductId = i.ProductId,
-                        Quantity = i.Quantity,
-                        Price = i.Price,
-                        Subtotal = i.Subtotal
-                    }).ToList()
-                };
-
-                // 2) Insert Order + Items
-                _context.DonHangs.Add(orderEntity);
-                await _context.SaveChangesAsync();   // <-- sinh OrderId
-
-                // 3) Insert Payments nếu có
-                if (dto.Payments != null)
-                {
-                    foreach (var p in dto.Payments)
-                    {
-                        var payment = new ThanhToan
-                        {
-                            OrderId = orderEntity.OrderId,
-                            Amount = p.Amount,
-                            PaymentMethod = p.PaymentMethod,
-                            PaymentDate = DateTime.Now
-                        };
-
-                        _context.ThanhToans.Add(payment);
-                    }
-
-                    await _context.SaveChangesAsync();
-                }
-
-                await tran.CommitAsync();
-
-                // 4) Trả về DTO
-                return _mapper.Map<DonHangDTO>(orderEntity);
-            }
-            catch (Exception ex)
-            {
-                await tran.RollbackAsync();
-                var msg = ex.InnerException?.Message ?? ex.Message;
-                throw new Exception("SQL Error: " + msg);
-            }
-        }
-
     }
 }

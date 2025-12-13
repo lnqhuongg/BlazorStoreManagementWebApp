@@ -1,5 +1,6 @@
 ﻿using BlazorStoreManagementWebApp.Components.Forms.Admin;
 using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
+using BlazorStoreManagementWebApp.Helpers; // Chứa PagedResult
 using BlazorStoreManagementWebApp.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 
@@ -7,71 +8,58 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
 {
     public partial class DonHang : ComponentBase
     {
-        [Inject]
-        public IDonHangService _donHangService { get; set; } = default!;
+        [Inject] public IDonHangService DonHangService { get; set; } = default!;
 
-        // 1. Biến dữ liệu danh sách
-        public List<DonHangDTO> DonHangs { get; set; } = new List<DonHangDTO>();
+        // Dùng PagedResult giống PhieuNhapData
+        protected PagedResult<DonHangDTO> DonHangData = new();
 
-        // 2. Biến tham chiếu Modal
-        private ChiTietDonHangForm? donHangForm;
+        // Các biến phân trang
+        protected int Page = 1;
+        protected int PageSize = 5; // Giống PageSize bên Phiếu nhập
 
-        // 3. CÁC BIẾN PHÂN TRANG & TÌM KIẾM
-        public string Keyword { get; set; } = "";
-        public string StatusFilter { get; set; } = "";
+        // Biến bộ lọc
+        private DonHangFilterDTO InputFilter { get; set; } = new DonHangFilterDTO();
 
-        // Các biến dùng cho PaginationAdmin
-        public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-        public int TotalItems { get; set; }
+        // Modal
+        private ChiTietDonHangForm? DonHangFormRef; // Đặt tên Ref giống style của bạn
 
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
         }
 
-        // --- HÀM LOAD DATA ---
-        public async Task LoadData()
+        protected async Task LoadData()
         {
-            // Gọi Service với các tham số tìm kiếm, lọc và phân trang
-            var result = await _donHangService.GetAll(CurrentPage, PageSize, Keyword, StatusFilter);
+            // Gọi Service lấy dữ liệu
+            DonHangData = await DonHangService.GetAll(Page, PageSize, InputFilter);
+        }
 
-            if (result != null)
+        protected async Task ChangePage(int newPage)
+        {
+            Page = newPage;
+            await LoadData();
+        }
+
+        // --- HÀM SEARCH (Y HỆT PHIẾU NHẬP) ---
+        private async Task Search()
+        {
+            Page = 1; // Reset về trang 1 khi lọc
+            await LoadData();
+        }
+
+        // --- HÀM CLEAR FILTER (Y HỆT PHIẾU NHẬP) ---
+        protected async Task ClearFilter()
+        {
+            InputFilter = new DonHangFilterDTO(); // Reset object filter
+            await LoadData();
+        }
+
+        // Mở Modal xem chi tiết
+        private async Task OpenDetail(int orderId)
+        {
+            if (DonHangFormRef != null)
             {
-                DonHangs = result.Data;
-                TotalItems = result.Total; // Cập nhật tổng số để PaginationAdmin tính toán số trang
-            }
-        }
-
-        // --- XỬ LÝ SỰ KIỆN TÌM KIẾM ---
-        public async Task HandleSearch()
-        {
-            // Reset về trang 1 khi tìm kiếm mới
-            CurrentPage = 1;
-            await LoadData();
-        }
-
-        // --- XỬ LÝ SỰ KIỆN LỌC TRẠNG THÁI ---
-        public async Task HandleStatusFilter(ChangeEventArgs e)
-        {
-            StatusFilter = e.Value?.ToString() ?? "";
-            CurrentPage = 1; // Reset về trang 1 khi đổi bộ lọc
-            await LoadData();
-        }
-
-        // --- XỬ LÝ CHUYỂN TRANG (Callback cho PaginationAdmin) ---
-        public async Task ChangePage(int page)
-        {
-            CurrentPage = page;
-            await LoadData();
-        }
-
-        // --- MỞ MODAL ---
-        public async Task OpenModal(int orderId)
-        {
-            if (donHangForm != null)
-            {
-                await donHangForm.Show(orderId);
+                await DonHangFormRef.Show(orderId);
             }
         }
     }

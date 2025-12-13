@@ -3,18 +3,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlazorStoreManagementWebApp.DTOs.Admin.DonHang
 {
-    public class ChiTietDonHangDTO
+    public class ChiTietDonHangDTO : DonHangDTO
     {
-        public int OrderItemId { get; set; }
-        public int OrderId { get; set; }
+        public string Address { get; set; } = "";
+        public string Email { get; set; } = "";
+
+        // Danh sách sản phẩm bên trong
+        public List<DonHangItemDTO> DanhSachSanPham { get; set; } = new();
+    }
+
+    // Class đại diện cho từng dòng sản phẩm (để tránh trùng tên với Entity ChiTietDonHang)
+    public class DonHangItemDTO
+    {
         public int ProductId { get; set; }
-        public SanPhamDTO Product { get; set; }
+        public string ProductName { get; set; } = "";
+        public string ImageUrl { get; set; } = ""; // Thêm ảnh nếu cần
         public int Quantity { get; set; }
-
-        [Column("price", TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
-
-        [Column("subtotal", TypeName = "decimal(18,2)")]
         public decimal Subtotal { get; set; }
     }
 }
