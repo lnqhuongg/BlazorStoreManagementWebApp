@@ -1,4 +1,6 @@
-﻿namespace BlazorStoreManagementWebApp.DTOs.Admin.SanPham
+﻿using Microsoft.AspNetCore.Components.Forms;
+
+namespace BlazorStoreManagementWebApp.DTOs.Admin.SanPham
 {
     public class SanPhamRequestDTO
     {
@@ -11,7 +13,7 @@
         public decimal Price { get; set; }
         public string Unit { get; set; }
         //public DateTime CreatedAt { get; set; }
-        public IFormFile? ImageUrl { get; set; }
+        public IBrowserFile? ImageUrl { get; set; }
         //public int? stock { get; set; } = 0;
         public int Status { get; set; }
     }

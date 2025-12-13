@@ -1,8 +1,10 @@
-﻿namespace BlazorStoreManagementWebApp.Services.Interfaces
+﻿using Microsoft.AspNetCore.Components.Forms;
+
+namespace BlazorStoreManagementWebApp.Services.Interfaces
 {
     public interface IImageService
     {
-        Task<ImageUploadResult> SaveImageAsync(IFormFile file);
+        Task<ImageUploadResult> SaveImageAsync(IBrowserFile file);
         Task<bool> DeleteImageAsync(string fileName);
         string GetImageUrl(string fileName);
         Task<(byte[] data, string contentType)> GetImageAsync(string fileName);

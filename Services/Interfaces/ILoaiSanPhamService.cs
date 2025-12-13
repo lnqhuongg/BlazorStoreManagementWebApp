@@ -7,6 +7,7 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
     public interface ILoaiSanPhamService
     {
         Task<PagedResult<LoaiSanPhamDTO>> GetAll(int page, int pageSize, string keyword);
+        Task<List<LoaiSanPhamDTO>> GetListLSP();
         IQueryable<LoaiSanPham> SearchByKeyword(string keyword);
         Task<LoaiSanPhamDTO> GetById(int category_id);
         Task<LoaiSanPhamDTO> Create(LoaiSanPhamDTO loaiSanPhamDTO);
