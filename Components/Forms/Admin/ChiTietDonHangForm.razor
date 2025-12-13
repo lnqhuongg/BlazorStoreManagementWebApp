@@ -1,67 +1,78 @@
 ﻿@using BlazorStoreManagementWebApp.Services.Interfaces
 @using BlazorStoreManagementWebApp.DTOs.Admin.DonHang
 @inject IDonHangService DonHangService
+@inject IJSRuntime JS
 
 @if (IsVisible)
 {
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 10000;"></div>
+
     <div class="modal fade show" tabindex="-1" role="dialog"
-         style="display: block; background-color: rgba(0,0,0,0.5);">
+         style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10001; overflow-x: hidden; overflow-y: auto;">
 
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content border-0 shadow-lg">
 
-                <div class="modal-header bg-primary text-white">
+                <div class="modal-header bg-primary text-white d-print-none">
                     <h5 class="modal-title fw-bold">
                         <i class="fas fa-file-invoice me-2"></i>Chi tiết đơn hàng #@OrderDetail?.OrderId
                     </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
                 </div>
 
-                <div class="modal-body p-4" style="max-height: 70vh; overflow-y: auto;">
+                <div class="modal-body p-4" id="printable-area">
                     @if (IsLoading)
                     {
                         <div class="text-center py-5">
                             <div class="spinner-border text-primary" role="status"></div>
-                            <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
                         </div>
                     }
-                    else if (OrderDetail == null)
+                    else if (OrderDetail != null)
                     {
-                        <div class="alert alert-warning">Không tìm thấy thông tin đơn hàng.</div>
-                    }
-                    else
-                    {
-                        <div class="row mb-4 bg-light p-3 rounded mx-0">
+                        <div class="d-none d-print-block text-center mb-4">
+                            <h2 class="fw-bold">CỬA HÀNG BLZ STORE</h2>
+                            <p>ĐC: 123 Đường ABC, TP.HCM - Hotline: 1900 1234</p>
+                            <hr />
+                            <h4>HÓA ĐƠN BÁN LẺ</h4>
+                            <p>Mã đơn: #@OrderDetail.OrderId - Ngày: @OrderDetail.OrderDate?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+
+                        <div class="row mb-4 bg-light p-3 rounded mx-0 border-print">
                             <div class="col-md-6">
                                 <p class="mb-1"><strong>Khách hàng:</strong> @OrderDetail.CustomerName</p>
                                 <p class="mb-1"><strong>SĐT:</strong> @OrderDetail.Phone</p>
-                                <p class="mb-0"><strong>Địa chỉ:</strong> @OrderDetail.Address</p>
+                                <p class="mb-0"><strong>Địa chỉ:</strong> @(string.IsNullOrEmpty(OrderDetail.Address) ? "Tại quầy" : OrderDetail.Address)</p>
                             </div>
                             <div class="col-md-6 text-md-end">
-                                <p class="mb-1"><strong>Ngày đặt:</strong> @OrderDetail.OrderDate?.ToString("dd/MM/yyyy HH:mm")</p>
+                                <p class="mb-1"><strong>Mã giảm giá:</strong> @(string.IsNullOrEmpty(OrderDetail.PromoCode) ? "Không" : OrderDetail.PromoCode)</p>
                                 <p class="mb-0">
                                     <strong>Trạng thái:</strong>
-                                    @if (OrderDetail.Status == "Completed")
+                                    @if (OrderDetail.Status == "paid")
                                     {
-                                        <span class="badge bg-success">Đã thanh toán</span>
+                                        <span class="badge bg-success text-white print-text-black">Đã thanh toán</span>
+                                    }
+                                    else if (OrderDetail.Status == "canceled")
+                                    {
+
+                                        <span class="badge bg-danger text-white print-text-black">Đã hủy</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-warning text-dark">Chờ thanh toán</span>
+
+                                        <span class="badge bg-warning text-dark print-text-black">Chờ thanh toán</span>
                                     }
                                 </p>
                             </div>
                         </div>
 
-                        <h6 class="fw-bold mb-3 border-bottom pb-2">Danh sách sản phẩm</h6>
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover mb-0">
+                            <table class="table table-bordered mb-0">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Sản phẩm</th>
-                                        <th class="text-center" style="width: 80px;">SL</th>
-                                        <th class="text-end" style="width: 150px;">Đơn giá</th>
-                                        <th class="text-end" style="width: 150px;">Thành tiền</th>
+                                        <th class="text-center">SL</th>
+                                        <th class="text-end">Đơn giá</th>
+                                        <th class="text-end">Thành tiền</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -70,40 +81,45 @@
                                         @foreach (var item in OrderDetail.DanhSachSanPham)
                                         {
                                             <tr>
-                                                <td>
-                                                    @if (!string.IsNullOrEmpty(item.ImageUrl) && item.ImageUrl != "ok")
-                                                    {
-                                                        <img src="@item.ImageUrl" width="30" height="30" class="me-2 rounded object-fit-cover" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <i class="fas fa-box text-secondary me-2"></i>
-                                                    }
-                                                    @item.ProductName
-                                                </td>
+                                                <td>@item.ProductName</td>
                                                 <td class="text-center">@item.Quantity</td>
-                                                <td class="text-end">@item.Price.ToString("N0") đ</td>
-                                                <td class="text-end fw-bold">@item.Subtotal.ToString("N0") đ</td>
+                                                <td class="text-end">@item.Price.ToString("N0")</td>
+                                                <td class="text-end fw-bold">@item.Subtotal.ToString("N0")</td>
                                             </tr>
                                         }
                                     }
                                 </tbody>
                                 <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end">Tổng tiền hàng:</td>
+                                        <td class="text-end fw-bold">@OrderDetail.TotalAmount?.ToString("N0")</td>
+                                    </tr>
+                                    @if (OrderDetail.DiscountAmount > 0)
+                                    {
+                                        <tr>
+                                            <td colspan="3" class="text-end text-danger">Giảm giá:</td>
+                                            <td class="text-end fw-bold text-danger">-@OrderDetail.DiscountAmount.ToString("N0")</td>
+                                        </tr>
+                                    }
                                     <tr class="bg-light">
-                                        <td colspan="3" class="text-end fw-bold">TỔNG CỘNG:</td>
-                                        <td class="text-end fw-bold text-danger fs-5">
-                                            @OrderDetail.TotalAmount?.ToString("N0") đ
+                                        <td colspan="3" class="text-end fw-bold fs-5">TỔNG THANH TOÁN:</td>
+                                        <td class="text-end fw-bold text-success fs-5">
+                                            @((OrderDetail.TotalAmount - OrderDetail.DiscountAmount)?.ToString("N0")) đ
                                         </td>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
+
+                        <div class="d-none d-print-block text-center mt-5">
+                            <p><i>Cảm ơn quý khách và hẹn gặp lại!</i></p>
+                        </div>
                     }
                 </div>
 
-                <div class="modal-footer">
+                <div class="modal-footer d-print-none">
                     <button type="button" class="btn btn-secondary" @onclick="Close">Đóng</button>
-                    <button type="button" class="btn btn-primary">
+                    <button type="button" class="btn btn-primary" @onclick="PrintInvoice">
                         <i class="fas fa-print me-1"></i> In hóa đơn
                     </button>
                 </div>
@@ -117,37 +133,37 @@
 
     private ChiTietDonHangDTO? OrderDetail { get; set; }
     private bool IsLoading { get; set; } = false;
-
-    // BIẾN QUAN TRỌNG ĐỂ ẨN HIỆN FORM
     private bool IsVisible { get; set; } = false;
 
-    // --- HÀM SHOW ---
     public async Task Show(int orderId)
     {
-        IsVisible = true; // Bật cờ hiển thị lên
+        IsVisible = true;
         IsLoading = true;
         OrderDetail = null;
-        StateHasChanged(); // Render lại giao diện ngay để hiện khung Spinner
+        StateHasChanged();
 
-        // Gọi Service lấy dữ liệu thật
         try
         {
             OrderDetail = await DonHangService.GetOrderById(orderId);
         }
         catch (Exception ex)
         {
-            // Xử lý lỗi nếu cần
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Lỗi: " + ex.Message);
         }
 
         IsLoading = false;
-        StateHasChanged(); // Render lại lần nữa để hiện dữ liệu
+        StateHasChanged();
     }
 
-    // --- HÀM CLOSE ---
     public void Close()
     {
-        IsVisible = false; // Tắt cờ hiển thị
+        IsVisible = false;
         StateHasChanged();
+    }
+
+    // Hàm gọi in
+    private async Task PrintInvoice()
+    {
+        await JS.InvokeVoidAsync("printDiv", "printable-area");
     }
 }

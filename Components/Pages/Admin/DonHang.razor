@@ -6,10 +6,9 @@
 @using BlazorStoreManagementWebApp.Components.UI.Pagination
 @layout Components.Layout.Admin.MainLayout
 
-<div class="content-header">
-    <h2>
-        <i class="fas fa-shopping-cart"></i>
-        Quản lý Đơn hàng
+<div class="content-header mb-3">
+    <h2 class="fw-bold text-primary">
+        <i class="fas fa-shopping-cart me-2"></i>Quản lý Đơn hàng
     </h2>
 </div>
 
@@ -18,7 +17,7 @@
         <div class="col-md-2">
             <label>Tìm kiếm</label>
             <div class="input-group">
-                <input @bind="InputFilter.Keyword" type="text" placeholder="Mã đơn / Tên khách..." class="form-control" />
+                <input @bind="InputFilter.Keyword" type="text" placeholder="Mã đơn / Tên..." class="form-control" />
             </div>
         </div>
         <div class="col-md-2">
@@ -37,97 +36,104 @@
             <label>Max tiền</label>
             <input @bind="InputFilter.MaxPrice" type="number" class="form-control" placeholder="0" />
         </div>
-        <div class="col-md-1 align-content-end">
-            <button class="btn btn-primary w-100" @onclick="Search"><i class="fas fa-filter"></i> Lọc</button>
-        </div>
-        <div class="col-md-1 align-content-end">
-            <button class="btn btn-secondary w-100" @onclick="ClearFilter"><i class="fas fa-undo"></i> Reset</button>
+
+        <div class="col-md-2 d-flex align-items-end gap-2">
+            <button class="btn btn-primary flex-grow-1" @onclick="Search">
+                <i class="fas fa-filter me-1"></i> Lọc
+            </button>
+            <button class="btn btn-light border" @onclick="ClearFilter" title="Reset">
+                <i class="fas fa-undo"></i>
+            </button>
         </div>
     </div>
 </div>
 
-<div class="table-container mt-3">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Mã đơn</th>
-                <th>Khách hàng</th>
-                <th class="text-center">Ngày đặt</th>
-                <th class="text-center">Mã giảm giá</th>
-                <th class="text-center">Tổng tiền</th>
-                <th class="text-center">Trạng thái</th>
-                <th class="text-center">Tùy chỉnh</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (DonHangData?.Data == null || !DonHangData.Data.Any())
-            {
+<div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-secondary">
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
-                        <i class="fas fa-box-open fa-2x mb-2"></i><br /> Không có dữ liệu
-                    </td>
+                    <th class="ps-4">Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th class="text-center">Ngày đặt</th>
+                    <th class="text-center">Mã giảm giá</th>
+                    <th class="text-center">Tổng tiền</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center pe-4">Tùy chỉnh</th>
                 </tr>
-            }
-            else
-            {
-                @foreach (var item in DonHangData.Data)
+            </thead>
+            <tbody>
+                @if (DonHangData?.Data == null || !DonHangData.Data.Any())
                 {
                     <tr>
-                        <td>#@item.OrderId</td>
-                        <td>
-                            <div class="fw-bold">@item.CustomerName</div>
-                            <small class="text-muted">@item.Phone</small>
-                        </td>
-                        <td class="text-center">
-                            @item.OrderDate?.ToString("dd/MM/yyyy HH:mm")
-                        </td>
-                        <td class="text-center">
-                            @if (!string.IsNullOrEmpty(item.PromoCode))
-                            {
-                                <span class="badge bg-info text-dark">
-                                    <i class="fas fa-tag me-1"></i>@item.PromoCode
-                                </span>
-                                <div style="font-size: 0.8rem; color: #dc2626; margin-top: 2px;">
-                                    -@string.Format("{0:N0} đ", item.DiscountAmount)
-                                </div>
-                            }
-                            else
-                            {
-                                <span class="text-muted small" style="font-style: italic;">Không áp dụng</span>
-                            }
-                        </td>
-                        <td class="text-center fw-bold" style="color: #059669;">
-                            @string.Format("{0:N0} VND", item.TotalAmount)
-                        </td>
-                        <td class="text-center">
-                            @if (item.Status == "paid")
-                            {
-                                <span class="badge bg-success">Đã thanh toán</span>
-                            }
-                            else if (item.Status == "canceled")
-                            {
-                                <span class="badge bg-danger">Đã hủy</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">Chờ xử lý</span>
-                            }
-                        </td>
-                        <td class="text-center">
-                            <button class="btn-action btn-edit" @onclick="() => OpenDetail(item.OrderId)" title="Xem chi tiết">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-box-open fa-3x mb-3 d-block text-secondary opacity-50"></i>
+                            <span>Không tìm thấy dữ liệu phù hợp</span>
                         </td>
                     </tr>
                 }
-            }
-        </tbody>
-    </table>
-</div>
+                else
+                {
+                    @foreach (var item in DonHangData.Data)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">#@item.OrderId</td>
+                            <td>
+                                <div class="fw-bold text-dark">@item.CustomerName</div>
+                                <div class="small text-muted">@item.Phone</div>
+                            </td>
+                            <td class="text-center">@item.OrderDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(item.PromoCode))
+                                {
+                                    <span class="badge bg-info text-dark bg-opacity-10 text-info border border-info">
+                                        <i class="fas fa-tag me-1"></i>@item.PromoCode
+                                    </span>
+                                    <div class="small text-danger mt-1">-@string.Format("{0:N0}", item.DiscountAmount)</div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small fst-italic">Không áp dụng</span>
+                                }
+                            </td>
+                            <td class="text-center fw-bold text-success">
+                                @string.Format("{0:N0} đ", item.TotalAmount)
+                            </td>
+                            <td class="text-center">
+                                @{
+                                    var s = item.Status?.ToLower() ?? "";
+                                }
+                                @if (s == "paid")
+                                {
+                                    <span class="badge bg-success">Đã thanh toán</span>
+                                }
+                                else if (s == "canceled")
+                                {
+                                    <span class="badge bg-danger">Đã hủy</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                                }
+                            </td>
+                            <td class="text-center pe-4">
+                                <button class="btn-action btn-edit" @onclick="() => OpenDetail(item.OrderId)" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 
-@if (DonHangData?.Data != null && DonHangData.Data.Any())
-{
-    <PaginationAdmin Total="DonHangData.Total" Page="@Page" PageChanged="ChangePage" PageSize="@PageSize" />
-}
+    @if (DonHangData?.Data != null && DonHangData.Data.Any())
+    {
+        <div class="p-3 border-top">
+            <PaginationAdmin Total="DonHangData.Total" Page="@Page" PageChanged="ChangePage" PageSize="@PageSize" />
+        </div>
+    }
+</div>
 
 <ChiTietDonHangForm @ref="donHangForm" OnSaved="LoadData" />

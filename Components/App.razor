@@ -11,7 +11,17 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
+<script>
+    window.printDiv = (divId) => {
+        var printContents = document.getElementById(divId).innerHTML;
+        var originalContents = document.body.innerHTML;
 
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload(); // Tải lại trang để phục hồi giao diện sau khi in
+    }
+</script>
 <body>
     <Routes @rendermode="InteractiveServer" />
     @* <script src="_framework/blazor.server.js"></script> *@
