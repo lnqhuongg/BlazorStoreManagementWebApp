@@ -2,41 +2,51 @@
 @rendermode InteractiveServer
 @page "/admin/magiamgia"
 @using Components.Layout.Admin;
+@using BlazorStoreManagementWebApp.Components.Forms.Admin
 @layout MainLayout
 
-<div class="content-header d-flex align-items-center mb-3">
-    <h2 class="mb-0 me-3">
+<!-- HEADER -->
+<div class="content-header">
+    <h2>
         <i class="fas fa-ticket-alt"></i>
         Quản lý Mã giảm giá
     </h2>
 </div>
 
-<div class="action-bar d-flex align-items-center mb-3">
-    <button class="btn btn-success me-2" @onclick="() => MaGiamGiaFormRef.OpenCreate()">
+<!-- ACTION BAR -->
+<div class="action-bar">
+    <button class="btn-add" @onclick="() => MaGiamGiaFormRef.OpenCreate()">
         <i class="fas fa-plus"></i>
         Thêm mới
     </button>
-    <div class="d-flex flex-row align-items-center w-100" style="gap: 8px;">
-        <input @bind="Keyword" @bind:event="oninput" @onkeydown="OnSearchKeyDown"
-               type="text" placeholder="Tìm kiếm mã hoặc mô tả..." class="form-control" style="max-width: 220px;" />
-        <button class="btn btn-primary" @onclick="Search">
+
+    <div class="search-group w-100">
+        <input @bind="Keyword" 
+               @bind:event="oninput" 
+               @onkeydown="OnSearchKeyDown"
+               type="text" 
+               placeholder="Tìm kiếm mã hoặc mô tả..." 
+               class="form-control" />
+        <button class="btn-search" @onclick="Search">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
-        <select @bind="DiscountType" @bind:event="oninput" @onchange="FilterChanged"
-                class="form-select" style="max-width: 160px;">
-            <option value="">Tất cả loại giảm</option>
-            <option value="percent">Phần trăm</option>
-            <option value="fixed">Số tiền</option>
-        </select>
-
-
-
     </div>
+
+    <select @bind="DiscountType" 
+            @bind:event="oninput" 
+            @onchange="FilterChanged"
+            class="form-control ms-2" 
+            style="width: auto;">
+        <option value="">-- Tất cả loại giảm --</option>
+        <option value="percent">Phần trăm</option>
+        <option value="fixed">Số tiền</option>
+    </select>
 </div>
 
+<!-- TABLE -->
 <div class="table-container">
-    <table class="table table-hover align-middle">
+    <table class="table">
         <thead>
             <tr>
                 <th>Mã</th>
@@ -47,8 +57,8 @@
                 <th>Ngày kết thúc</th>
                 <th>Giới hạn</th>
                 <th>Đã dùng</th>
-                <th>Trạng thái</th>
-                <th>Tùy chỉnh</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center">Tùy chỉnh</th>
             </tr>
         </thead>
         <tbody>
@@ -74,18 +84,15 @@
                         <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
                         <td>@item.UsageLimit</td>
                         <td>@item.UsedCount</td>
-                        <td>
+                        <td class="text-center">
                             <span class="status-badge @(item.Status == "active" ? "status-active" : "status-inactive")">
                                 @(item.Status == "active" ? "Hoạt động" : "Tạm ngưng")
                             </span>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <button class="btn-action btn-edit"
                                     @onclick="() => MaGiamGiaFormRef.OpenUpdate(item)">
                                 <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-action btn-delete">
-                                <i class="fas fa-trash"></i>
                             </button>
                         </td>
                     </tr>
@@ -94,6 +101,7 @@
         </tbody>
     </table>
 </div>
+
 @if (PromoData?.Data != null && PromoData.Data.Any())
 {
     <PaginationAdmin Total="PromoData.Total"
