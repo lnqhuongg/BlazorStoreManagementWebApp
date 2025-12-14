@@ -30,9 +30,11 @@
             Tìm kiếm
         </button>
     </div>
+</div>
 
-    <input @bind="InputFilter.StartDate" type="date" class="form-control ms-2" style="width: auto;" />
-    <input @bind="InputFilter.EndDate" type="date" class="form-control ms-2" style="width: auto;" />
+<div class="action-bar">
+    <input @bind="InputFilter.StartDate" type="date" class="form-control" style="width: auto;" placeholder="Từ ngày" />
+    <input @bind="InputFilter.EndDate" type="date" class="form-control ms-2" style="width: auto;" placeholder="Đến ngày" />
 
     <input @bind="InputFilter.MinPrice" type="number" class="form-control ms-2" style="width: auto;" placeholder="Min tổng tiền" />
     <input @bind="InputFilter.MaxPrice" type="number" class="form-control ms-2" style="width: auto;" placeholder="Max tổng tiền" />
