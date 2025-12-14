@@ -83,10 +83,7 @@
                                     <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                         Số lượng <span style="color: #ef4444;">*</span>
                                     </label>
-                                    <InputNumber @bind-Value="quantity" 
-                                                 min="1" 
-                                                 class="form-control" 
-                                                 style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
+                                    <input disabled="@IsViewMode" @bind="quantity" type="number" min="1" class="form-control" style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
                                     @if (Errors.ContainsKey("Quantity"))
                                     {
                                         <span class="text-danger" style="font-size: 13px; font-weight: 500;">
@@ -100,10 +97,7 @@
                                     <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                         Đơn giá <span style="color: #ef4444;">*</span>
                                     </label>
-                                    <InputNumber @bind-Value="price" 
-                                                 min="0" 
-                                                 class="form-control" 
-                                                 style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
+                                    <input disabled="@IsViewMode" @bind="price" type="number" min="0" class="form-control" style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
                                     @if (Errors.ContainsKey("Price"))
                                     {
                                         <span class="text-danger" style="font-size: 13px; font-weight: 500;">
@@ -167,7 +161,7 @@
                                     <td>@item.Product.ProductName</td>
                                     <td class="text-center">@item.Quantity</td>
                                     <td class="text-end">@item.Price.ToString("N0")</td>
-                                    <td class="text-end">@(item.Quantity * item.Price).ToString("N0")</td>
+                                    <td class="text-end">@((item.Quantity * item.Price).ToString("N0"))</td>
                                     @if (IsAddMode)
                                     {
                                         <td class="text-center">
