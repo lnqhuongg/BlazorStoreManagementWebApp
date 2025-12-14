@@ -1,6 +1,6 @@
 ﻿// Services/AuthService.cs
 using AutoMapper;
-using BlazorStoreManagementWebApp.DTOs.Admin.Authentication;
+using BlazorStoreManagementWebApp.DTOs.Authentication;
 using BlazorStoreManagementWebApp.Helpers;
 using BlazorStoreManagementWebApp.Models;
 using BlazorStoreManagementWebApp.Services.Interfaces;

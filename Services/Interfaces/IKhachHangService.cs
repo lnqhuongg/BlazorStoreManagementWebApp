@@ -1,4 +1,5 @@
 ﻿using BlazorStoreManagementWebApp.DTOs.Admin.KhachHang;
+using BlazorStoreManagementWebApp.DTOs.Authentication;
 using BlazorStoreManagementWebApp.Helpers;
 using BlazorStoreManagementWebApp.Models.Entities;
 
@@ -16,7 +17,7 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
         Task<KhachHangDTO> GetById(int id);
 
         // tạo mới khách hàng(đã tự kiểm tra trùng email + sđt)
-        Task<KhachHangDTO> Create(KhachHangDTO dto);
+        Task<KhachHangDTO> Create(DangKyDTO dto);
 
         // cập nhật khách hàng (chỉ cho sửa Tên và Địa chỉ, KHÔNG cho sửa SĐT, Email, Điểm)
         Task<KhachHangDTO?> Update(int id, KhachHangDTO dto);

@@ -84,7 +84,7 @@
     {
         if (!Validate()) return;
 
-        var dto = new BlazorStoreManagementWebApp.DTOs.Admin.Authentication.DangNhapDTO { Username = Username, Password = Password };
+        var dto = new BlazorStoreManagementWebApp.DTOs.Authentication.DangNhapDTO { Username = Username, Password = Password };
         var result = await AuthService.CheckLoginAdmin(dto);
 
         if (result.Type != "success")

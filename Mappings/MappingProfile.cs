@@ -10,6 +10,7 @@ using BlazorStoreManagementWebApp.DTOs.Admin.PhieuNhap;
 using BlazorStoreManagementWebApp.DTOs.Admin.SanPham;
 using BlazorStoreManagementWebApp.DTOs.Admin.ThanhToanDTO;
 using BlazorStoreManagementWebApp.DTOs.Admin.TonKho;
+using BlazorStoreManagementWebApp.DTOs.Authentication;
 using BlazorStoreManagementWebApp.Models.Entities;
 
 namespace BlazorStoreManagementWebApp.Mappings
@@ -53,6 +54,12 @@ namespace BlazorStoreManagementWebApp.Mappings
 
             // entity khachhang <-> khachhangDTO
             CreateMap<KhachHang, KhachHangDTO>().ReverseMap();
+
+            // DangKyDTO -> KhachHang (chỉ map các property có chung tên)
+            CreateMap<DangKyDTO, KhachHang>()
+                .ForMember(dest => dest.CustomerId, opt => opt.Ignore()) // CustomerId được DB tự sinh
+                .ForMember(dest => dest.RewardPoints, opt => opt.MapFrom(src => 0)) // Set mặc định
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()); // CreatedAt được set trong service
 
             // entity magiamgia <-> magiamgiaDTO
             CreateMap<MaGiamGia, MaGiamGiaDTO>().ReverseMap();

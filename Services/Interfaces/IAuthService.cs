@@ -1,5 +1,4 @@
-﻿using BlazorStoreManagementWebApp.DTOs.Admin.Authentication;
-using BlazorStoreManagementWebApp.DTOs.Admin.NhanVien;
+﻿using BlazorStoreManagementWebApp.DTOs.Authentication;
 using BlazorStoreManagementWebApp.Helpers;
 
 namespace BlazorStoreManagementWebApp.Services.Interfaces
