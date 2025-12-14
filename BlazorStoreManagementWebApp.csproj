@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="DTOs\Admin\NhaCungCap\" />
-    <Folder Include="DTOs\Client\Account\" />
   </ItemGroup>
 
   <ItemGroup>

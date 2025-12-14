@@ -189,11 +189,14 @@
                 </div>
 
                 <div>
-                    <button type="button" class="btn btn-light small-btn" data-bs-dismiss="modal">Hủy</button>
-
-                    <button type="button" class="btn small-btn-save" @onclick="() => Save()">
-                        <i class="fas fa-check"></i> Lưu
-                    </button>
+                    @if(IsAddMode)
+                    {
+                        <button type="button" class="btn btn-light small-btn" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn small-btn-save" @onclick="() => Save()">
+                            <i class="fas fa-check"></i> Lưu
+                        </button>
+                    }
+                    
                 </div>
             </div>
 
