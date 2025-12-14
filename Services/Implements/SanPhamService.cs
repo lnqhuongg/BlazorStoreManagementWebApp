@@ -39,7 +39,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 {
                     query = query.Where(x => x.ProductName.ToLower().Contains(keyword.ToLower()) || x.Barcode.ToLower().Contains(keyword.ToLower()));
                 }
-               
+
                 if (categoryID.HasValue)
                 {
                     query = query.Where(x => x.CategoryID == categoryID);
@@ -334,7 +334,61 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 throw new Exception("Lỗi khi lấy danh sách sản phẩm: " + e.Message);
             }
         }
+
+        public async Task<PagedResult<SanPhamDTO>> GetAll2(int page, int pageSize, string? keyword, string? order, int? categoryID, int? supplierID, decimal? minPrice, decimal? maxPrice)
+        {
+            try
+            {
+                //var list = await _context.SanPhams.Include(x => x.Category).Include(x => x.Supplier).ToListAsync();
+                //return _mapper.Map<List<SanPhamDTO>>(list);i
+                var query = _context.SanPhams.Include(sp => sp.Category).Include(sp => sp.Supplier).AsQueryable();
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    query = query.Where(x => x.ProductName.ToLower().Contains(keyword.ToLower()) || x.Barcode.ToLower().Contains(keyword.ToLower()));
+                }
+
+                if (categoryID.HasValue)
+                {
+                    query = query.Where(x => x.CategoryID == categoryID);
+                }
+                if (supplierID.HasValue)
+                {
+                    query = query.Where(x => x.SupplierID == supplierID);
+                }
+                if (minPrice.HasValue)
+                {
+                    query = query.Where(x => x.Price >= minPrice.Value);
+                }
+
+                if (maxPrice.HasValue)
+                {
+                    query = query.Where(x => x.Price <= maxPrice.Value);
+                }
+                if (!string.IsNullOrEmpty(order))
+                {
+                    query = order.ToLower() == "desc"
+                        ? query.OrderByDescending(p => p.Price)
+                        : query.OrderBy(p => p.Price);
+                }
+                int totalPage = await query.CountAsync();
+                var list = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+                return new PagedResult<SanPhamDTO>
+                {
+                    Data = _mapper.Map<List<SanPhamDTO>>(list),
+                    Total = totalPage,
+                    Page = page,
+                    PageSize = pageSize
+                };
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Lỗi khi lấy danh sách sản phẩm: " + e.Message);
+            }
+        }
+
     }
-
-
 }
+
