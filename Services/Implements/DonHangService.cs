@@ -216,29 +216,63 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 .ToListAsync();
         }
 
-        public long TinhTongDoanhThu(string mode, int month, int year)
+        //public long TinhTongDoanhThu(string mode, int month, int year)
+        //{
+        //    if (mode == "Month")
+        //    {
+        //        var start = new DateTime(year, month, 1);
+        //        var end = start.AddMonths(1);
+
+        //        return (long)_context.DonHangs
+        //            .Where(o => o.OrderDate >= start && o.OrderDate < end)
+        //            .Sum(o => o.TotalAmount ?? 0);
+        //    }
+        //    else if (mode == "Year")
+        //    {
+        //        var start = new DateTime(year, 1, 1);
+        //        var end = start.AddYears(1);
+
+        //        return (long)_context.DonHangs
+        //            .Where(o => o.OrderDate >= start && o.OrderDate < end)
+        //            .Sum(o => o.TotalAmount ?? 0);
+        //    }
+
+        //    // Không làm crash UI
+        //    return 0;
+        //}
+
+        public async Task<long> TinhTongDoanhThu(string mode, int month, int year)
         {
-            if (mode == "Month")
+            try
             {
-                var start = new DateTime(year, month, 1);
-                var end = start.AddMonths(1);
+                decimal totalDecimal = 0m;
 
-                return (long)_context.DonHangs
-                    .Where(o => o.OrderDate >= start && o.OrderDate < end)
-                    .Sum(o => o.TotalAmount ?? 0);
+                if (mode == "month")
+                {
+                    var start = new DateTime(year, month, 1);
+                    var end = start.AddMonths(1);
+
+                    totalDecimal = await _context.DonHangs
+                        .Where(x => x.Status == "paid" && x.OrderDate >= start && x.OrderDate < end)
+                        .SumAsync(x => x.TotalAmount ?? 0m);
+                }
+                else if (mode == "year")
+                {
+                    var start = new DateTime(year, 1, 1);
+                    var end = start.AddYears(1);
+
+                    totalDecimal = await _context.DonHangs
+                        .Where(x => x.Status == "paid" && x.OrderDate >= start && x.OrderDate < end)
+                        .SumAsync(x => x.TotalAmount ?? 0m);
+                }
+
+                // Convert decimal total to long (round to nearest)
+                return Convert.ToInt64(totalDecimal);
             }
-            else if (mode == "Year")
+            catch (Exception ex)
             {
-                var start = new DateTime(year, 1, 1);
-                var end = start.AddYears(1);
-
-                return (long)_context.DonHangs
-                    .Where(o => o.OrderDate >= start && o.OrderDate < end)
-                    .Sum(o => o.TotalAmount ?? 0);
+                throw new Exception("Lỗi tính tổng doanh thu: " + ex.Message);
             }
-
-            // Không làm crash UI
-            return 0;
         }
 
         public List<long> GetRevenueByMonth(int month, int year)

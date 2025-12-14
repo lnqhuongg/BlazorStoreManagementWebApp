@@ -53,7 +53,7 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
             Console.WriteLine($"Mode: {SelectedMode}, Month: {SelectedMonth}, Year: {SelectedYear}");
 
             // Tổng doanh thu / vốn / lãi
-            TotalRevenue = DonHangService.TinhTongDoanhThu(SelectedMode, SelectedMonth, SelectedYear);
+            TotalRevenue = await DonHangService.TinhTongDoanhThu(SelectedMode, SelectedMonth, SelectedYear);
             TotalCapital = PhieuNhapService.TinhTongTienNhap(SelectedMode, SelectedMonth, SelectedYear);
             TotalProfit = TotalRevenue - TotalCapital;
 

@@ -20,7 +20,8 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
 
         Task<List<DonHangDTO>> GetTodayOrders();
 
-        long TinhTongDoanhThu(string mode, int month, int year);
+        //long TinhTongDoanhThu(string mode, int month, int year);
+        Task<long> TinhTongDoanhThu(string mode, int month, int year);
 
         public List<long> GetRevenueByMonth(int month, int year);
 
