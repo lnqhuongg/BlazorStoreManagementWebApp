@@ -201,5 +201,84 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             }
         }
 
+        public Task<List<DonHangDTO>> GetTodayOrders()
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+            var orders = _context.DonHangs
+                .Where(o => o.OrderDate >= today && o.OrderDate < tomorrow)
+                .Include(o => o.Customer)
+                .Include(o => o.User)
+                .Include(o => o.Items)
+                .AsNoTracking();
+            return orders
+                .Select(o => _mapper.Map<DonHangDTO>(o))
+                .ToListAsync();
+        }
+
+        public long TinhTongDoanhThu(string mode, int month, int year)
+        {
+            if (mode == "Month")
+            {
+                var start = new DateTime(year, month, 1);
+                var end = start.AddMonths(1);
+
+                return (long)_context.DonHangs
+                    .Where(o => o.OrderDate >= start && o.OrderDate < end)
+                    .Sum(o => o.TotalAmount ?? 0);
+            }
+            else if (mode == "Year")
+            {
+                var start = new DateTime(year, 1, 1);
+                var end = start.AddYears(1);
+
+                return (long)_context.DonHangs
+                    .Where(o => o.OrderDate >= start && o.OrderDate < end)
+                    .Sum(o => o.TotalAmount ?? 0);
+            }
+
+            // Không làm crash UI
+            return 0;
+        }
+
+        public List<long> GetRevenueByMonth(int month, int year)
+        {
+            int days = DateTime.DaysInMonth(year, month);
+            List<long> result = new();
+
+            for (int day = 1; day <= days; day++)
+            {
+                var start = new DateTime(year, month, day);
+                var end = start.AddDays(1);
+
+                long total = (long) _context.DonHangs
+                    .Where(o => o.OrderDate >= start && o.OrderDate < end)
+                    .Sum(o => o.TotalAmount ?? 0);
+
+                result.Add(total);
+            }
+
+            return result;
+        }
+
+        public List<long> GetRevenueByYear(int year)
+        {
+            List<long> result = new();
+
+            for (int month = 1; month <= 12; month++)
+            {
+                var start = new DateTime(year, month, 1);
+                var end = start.AddMonths(1);
+
+                long total = (long) _context.DonHangs
+                    .Where(o => o.OrderDate >= start && o.OrderDate < end)
+                    .Sum(o => o.TotalAmount ?? 0);
+
+                result.Add(total);
+            }
+
+            return result;
+        }
+
     }
 }

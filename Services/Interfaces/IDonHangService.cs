@@ -17,6 +17,14 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
 
         // 4. Tạo mới đơn hàng (Giống Create bên LoaiSanPham)
         Task<DonHangDTO> CreateStaff(CreateDonHangDTO dto);
+
+        Task<List<DonHangDTO>> GetTodayOrders();
+
+        long TinhTongDoanhThu(string mode, int month, int year);
+
+        public List<long> GetRevenueByMonth(int month, int year);
+
+        public List<long> GetRevenueByYear(int year);
     }
 
 }

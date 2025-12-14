@@ -332,6 +332,60 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             };
         }
 
+        public long TinhTongTienNhap(string mode, int month, int year)
+        {
+            var query = _context.PhieuNhaps.AsQueryable();
+            if (mode == "Month")
+            {
+                query = query.Where(p => p.ImportDate.Month == month && p.ImportDate.Year == year);
+            }
+            else if (mode == "Year")
+            {
+                query = query.Where(p => p.ImportDate.Year == year);
+            }
+            long totalTienNhap = query.Sum(p => (long?)p.TotalAmount) ?? 0;
+            return totalTienNhap;
+        }
+
+        public List<long> GetCapitalByMonth(int month, int year)
+        {
+            int days = DateTime.DaysInMonth(year, month);
+            List<long> result = new();
+
+            for (int day = 1; day <= days; day++)
+            {
+                var start = new DateTime(year, month, day);
+                var end = start.AddDays(1);
+
+                long total = (long) _context.PhieuNhaps
+                    .Where(i => i.ImportDate >= start && i.ImportDate < end)
+                    .Sum(i => i.TotalAmount);
+
+                result.Add(total);
+            }
+
+            return result;
+        }
+
+        public List<long> GetCapitalByYear(int year)
+        {
+            List<long> result = new();
+
+            for (int month = 1; month <= 12; month++)
+            {
+                var start = new DateTime(year, month, 1);
+                var end = start.AddMonths(1);
+
+                long total = (long) _context.PhieuNhaps
+                    .Where(o => o.ImportDate >= start && o.ImportDate < end)
+                    .Sum(o => o.TotalAmount);
+
+                result.Add(total);
+            }
+
+            return result;
+        }
+
     }
 
 
