@@ -45,9 +45,12 @@
 
                         <div class="mb-3">
                             <strong>Trạng thái:</strong>
-                            <span class="badge @(donHang.Status == "Completed" ? "bg-success" : "bg-warning")"
-                                  style="padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.9rem;">
-                                @(donHang.Status == "Completed" ? "Đã thanh toán" : "Chờ thanh toán")
+                            <span class="badge 
+                                @(donHang.Status == "paid" ? "bg-success" : 
+                                donHang.Status == "canceled" ? "bg-danger" : "bg-warning")"
+                                style="padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.9rem;">
+                                @(donHang.Status == "paid" ? "Đã thanh toán" : 
+                                donHang.Status == "canceled" ? "Đã hủy" : "Chờ thanh toán")
                             </span>
                         </div>
 

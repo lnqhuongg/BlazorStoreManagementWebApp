@@ -73,8 +73,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                             Order = o,
                             CustomerName = cust != null ? cust.Name : "Khách vãng lai",
                             Phone = cust != null ? cust.Phone : "",
-                            // Logic xác định trạng thái (Ví dụ: có thanh toán rồi thì là Completed)
-                            Status = _context.ThanhToans.Any(p => p.OrderId == o.OrderId) ? "Completed" : "Pending"
+                            Status = o.Status ?? "pending"
                         };
 
             // 2. Lọc theo Từ khóa (Keyword)
