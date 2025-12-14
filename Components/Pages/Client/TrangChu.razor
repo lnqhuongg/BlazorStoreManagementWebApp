@@ -59,7 +59,7 @@
             <div class="col-sm-9 padding-right">
                 <div class="container" style="margin-bottom: 20px; width:100%">
                     <!--filter-->
-                    <div class="row">
+                    <div class="row" style="display: flex; align-items: end;">
                         <div class="col-md-2">
                             <h5>Sắp xếp theo:</h5>
                             <select class="form-control" @bind="Order">
@@ -86,15 +86,13 @@
                                    @bind="MaxPrice" />
                         </div>
                         <div class="col-md-1">
-                            <h5>Lọc</h5>
                             <button class="btn btn-danger" @onclick="ApplyFilter">
-                                Filter
+                                Lọc
                             </button>
                         </div>
                         <div class="col-md-2">
-                            <h5>Xóa bộ lọc</h5>
                             <button class="btn btn-danger" @onclick="ResetFilter">
-                                Clear Filter
+                                Xóa bộ lọc
                             </button>
                         </div>
                     </div>
@@ -104,7 +102,7 @@
                 <div class="features_items">
                     <h2 class="title text-center">Features Items</h2>
 
-                    @if (SanPhamData?.Data != null)
+                    @if (SanPhamData?.Data != null && SanPhamData.Data.Count != 0)
                     {
                         @foreach (var sp in SanPhamData.Data)
                         {
@@ -124,6 +122,11 @@
                                     </div>
                                 </div>
                             </div>
+                        }
+                    } else
+                    { 
+                        if (SanPhamData?.Data.Count == 0) {
+                            <h3 class="text-center text-muted">Không có sản phẩm.</h3>
                         }
                     }
                 </div>

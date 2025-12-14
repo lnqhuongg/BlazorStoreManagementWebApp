@@ -364,6 +364,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 {
                     query = query.Where(x => x.Price <= maxPrice.Value);
                 }
+                query = query.Where(x => x.Status == 1); // Chỉ lấy sản phẩm có trạng thái 1 (đang kinh doanh)
                 if (!string.IsNullOrEmpty(order))
                 {
                     query = order.ToLower() == "desc"

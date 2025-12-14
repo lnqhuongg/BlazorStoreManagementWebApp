@@ -1,57 +1,45 @@
-﻿using BlazorStoreManagementWebApp.DTOs.Admin.PhieuNhap;
-using QuestPDF.Fluent;
-using QuestPDF.Helpers;
+﻿using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
 using QuestPDF.Infrastructure;
+using QuestPDF.Helpers;
+using QuestPDF.Fluent;
+using BlazorStoreManagementWebApp.Services.Interfaces;
 
-public class PdfService
+namespace BlazorStoreManagementWebApp.Services.Pdf.Documents
 {
-    public byte[] ExportPhieuNhap(PhieuNhapDTO phieu)
+    public class DonHangPdfDocument : IDocument
     {
-        // Nhét class document vào bên trong service
-        var doc = new PhieuNhapPdfDocument(phieu);
-        return doc.GeneratePdf();
-    }
+        private readonly DonHangDTO donHang;
 
-
-    // -------------------------
-    // CLASS DOCUMENT NHÉT CHUNG
-    // -------------------------
-    private class PhieuNhapPdfDocument : IDocument
-    {
-        private readonly PhieuNhapDTO phieu;
-
-        public PhieuNhapPdfDocument(PhieuNhapDTO phieu)
+        public DonHangPdfDocument(DonHangDTO donHang)
         {
-            this.phieu = phieu;
+            this.donHang = donHang;
         }
 
         public DocumentMetadata GetMetadata() => new DocumentMetadata();
 
         public void Compose(IDocumentContainer container)
         {
+            var details = donHang.Items ?? new List<ChiTietDonHangDTO>();
+            Console.WriteLine($"Generating PDF for Order ID: {donHang.OrderId} with {details.Count} items.");
             container.Page(page =>
             {
                 page.Margin(40);
 
-                // ===== HEADER =====
                 page.Header()
-                    .Text($"PHIẾU NHẬP #{phieu.ImportId}")
+                    .Text($"ĐƠN HÀNG #{donHang.OrderId}")
                     .SemiBold()
                     .FontSize(22)
                     .AlignCenter();
 
-                // ===== CONTENT =====
                 page.Content().Column(col =>
                 {
                     col.Spacing(12);
 
-                    col.Item().Text($"Ngày nhập: {phieu.ImportDate:dd/MM/yyyy}");
-                    col.Item().Text($"Nhà cung cấp: {phieu.Supplier.Name}");
+                    col.Item().Text($"Ngày đặt: {donHang.OrderDate:dd/MM/yyyy}");
+                    col.Item().Text($"Khách hàng: {donHang.CustomerName}");
 
                     col.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
 
-
-                    // BẢNG CHI TIẾT
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(cols =>
@@ -61,16 +49,14 @@ public class PdfService
                             cols.RelativeColumn(2);
                         });
 
-                        // Header bảng
                         table.Header(header =>
                         {
                             header.Cell().Text("Sản phẩm").SemiBold();
                             header.Cell().Text("Số lượng").SemiBold();
-                            header.Cell().Text("Đơn giá").SemiBold();
+                            header.Cell().Text("Giá").SemiBold();
                         });
 
-                        // Dữ liệu bảng
-                        foreach (var ct in phieu.ImportDetails)
+                        foreach (var ct in details)
                         {
                             table.Cell().Text(ct.Product.ProductName);
                             table.Cell().Text(ct.Quantity.ToString());
@@ -80,12 +66,12 @@ public class PdfService
 
                     col.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
 
-                    // Tổng tiền
-                    col.Item().AlignRight().Text($"Tổng tiền: {phieu.TotalAmount:N0} VND")
-                        .SemiBold().FontSize(14);
+                    col.Item().AlignRight()
+                        .Text($"Tổng tiền: {donHang.TotalAmount:N0} VND")
+                        .SemiBold()
+                        .FontSize(14);
                 });
 
-                // ===== FOOTER =====
                 page.Footer()
                     .AlignCenter()
                     .Text(x =>
@@ -96,4 +82,5 @@ public class PdfService
             });
         }
     }
+
 }

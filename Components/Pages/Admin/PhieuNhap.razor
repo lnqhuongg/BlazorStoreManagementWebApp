@@ -87,6 +87,11 @@
                                     @onclick="async () => await PhieuNhapFormRef.OpenDetail(item)">
                                 <i class="fas fa-eye"></i>
                             </button>
+                            <!-- PRINT PDF -->
+                            <button class="btn-action btn-pdf"
+                                    @onclick="() => PreviewPdf(item)">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
                         </td>
                     </tr>
                 }

@@ -1,7 +1,6 @@
 ﻿using BlazorStoreManagementWebApp.Components.Forms.Admin;
 using BlazorStoreManagementWebApp.DTOs.Admin.PhieuNhap;
 using BlazorStoreManagementWebApp.Helpers;
-using BlazorStoreManagementWebApp.Services.Implements;
 using BlazorStoreManagementWebApp.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -14,7 +13,6 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
         [Inject] private IJSRuntime JS { get; set; } = default!;
 
         [Inject] PdfService PdfService { get; set; }
-        [Inject] IHttpContextAccessor HttpContextAccessor { get; set; }
 
         protected PagedResult<PhieuNhapDTO> PhieuNhapData = new();
         protected int Page = 1;
