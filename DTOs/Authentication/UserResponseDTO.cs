@@ -1,4 +1,4 @@
-﻿namespace BlazorStoreManagementWebApp.DTOs.Admin.Authentication
+﻿namespace BlazorStoreManagementWebApp.DTOs.Authentication
 {
     public class UserResponseDTO
     {

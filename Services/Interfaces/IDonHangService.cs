@@ -7,7 +7,7 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
     public interface IDonHangService
     {
         // 1. Lấy danh sách có phân trang & lọc (Giống GetAll bên LoaiSanPham)
-        Task<PagedResult<DonHangDTO>> GetAll(int page, int pageSize, DonHangFilterDTO filter);
+        Task<PagedResult<DonHangDTO>> GetAll(int page, int pageSize, string keyword, string status = "");
 
         // 2. Hàm lọc (Thay thế cho SearchByKeyword vì đơn hàng cần lọc nhiều tiêu chí hơn)
         IQueryable<DonHang> ApplyFilter(DonHangFilterDTO filter);
@@ -17,6 +17,14 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
 
         // 4. Tạo mới đơn hàng (Giống Create bên LoaiSanPham)
         Task<DonHangDTO> CreateStaff(CreateDonHangDTO dto);
+
+        Task<List<DonHangDTO>> GetTodayOrders();
+
+        long TinhTongDoanhThu(string mode, int month, int year);
+
+        public List<long> GetRevenueByMonth(int month, int year);
+
+        public List<long> GetRevenueByYear(int year);
     }
 
 }

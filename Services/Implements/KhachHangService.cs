@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BlazorStoreManagementWebApp.DTOs.Admin.KhachHang;
+using BlazorStoreManagementWebApp.DTOs.Authentication;
 using BlazorStoreManagementWebApp.Helpers;
 using BlazorStoreManagementWebApp.Models;
 using BlazorStoreManagementWebApp.Models.Entities;
@@ -69,29 +70,31 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         }
 
         // tạo mới (đã kiểm tra trùng email và số điện thoại)
-        public async Task<KhachHangDTO> Create(KhachHangDTO dto)
+        public async Task<KhachHangDTO> Create(DangKyDTO dto)
         {
             try
             {
                 // Kiểm tra nhập số điện thoại (không được để trống)
-                if (dto.Phone == null || string.IsNullOrWhiteSpace(dto.Phone))
-                {
-                    throw new InvalidOperationException("Số điện thoại không được để trống!");
-                }
+                //if (dto.Phone == null || string.IsNullOrWhiteSpace(dto.Phone))
+                //{
+                //    throw new InvalidOperationException("Số điện thoại không được để trống!");
+                //}
 
-                // Kiểm tra trùng số điện thoại
-                if (await IsPhoneExist(dto.Phone))
-                {
-                    throw new InvalidOperationException("Số điện thoại đã được sử dụng!");
-                }
+                //// Kiểm tra trùng số điện thoại
+                //if (await IsPhoneExist(dto.Phone))
+                //{
+                //    throw new InvalidOperationException("Số điện thoại đã được sử dụng!");
+                //}
 
-                // Kiểm tra trùng email (nếu có nhập)
-                if (!string.IsNullOrEmpty(dto.Email) && await IsEmailExist(dto.Email))
-                {
-                    throw new InvalidOperationException("Email đã được sử dụng!");
-                }
+                //// Kiểm tra trùng email (nếu có nhập)
+                //if (!string.IsNullOrEmpty(dto.Email) && await IsEmailExist(dto.Email))
+                //{
+                //    throw new InvalidOperationException("Email đã được sử dụng!");
+                //}
 
                 var entity = _mapper.Map<KhachHang>(dto);
+                entity.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
                 entity.CreatedAt = DateTime.Now;
 
                 _context.KhachHangs.Add(entity);

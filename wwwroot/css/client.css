@@ -3146,78 +3146,93 @@ overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-    .login-form h2 {
-        color: #333;
-        font-size: 24px;
-        font-weight: 300;
-        margin-bottom: 30px;
-        text-align: center;
-        letter-spacing: 0.5px;
-    }
+.login-form h2 {
+    color: #333;
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 30px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
 
-    .login-form .form-group {
-        margin-bottom: 20px;
-    }
+.login-form .form-group {
+    margin-bottom: 20px;
+}
 
-        .login-form .form-group label {
-            color: #666;
-            font-size: 13px;
-            font-weight: 400;
-            margin-bottom: 8px;
-            display: block;
-            text-transform: uppercase;
-        }
+.login-form .form-group label {
+    color: #666;
+    font-size: 13px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+}
 
-    .login-form .form-control {
-        background: #f9f9f9;
-        border: 1px solid #ddd;
-        color: #666;
-        font-size: 14px;
-        font-weight: 300;
-        height: 40px;
-        padding: 10px 12px;
-        border-radius: 0;
-        box-shadow: none;
-        transition: all 0.3s ease;
-    }
+.login-form .form-control {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    color: #666;
+    font-size: 14px;
+    font-weight: 300;
+    height: 40px;
+    padding: 10px 12px;
+    border-radius: 0;
+    box-shadow: none;
+    transition: all 0.3s ease;
+}
 
-        .login-form .form-control:focus {
-            background: #fff;
-            border-color: #fe980f;
-            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(254, 152, 15, 0.3);
-            color: #333;
-        }
+.login-form .form-control:focus {
+    background: #fff;
+    border-color: #fe980f;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(254, 152, 15, 0.3);
+    color: #333;
+}
 
-        .login-form .form-control::placeholder {
-            color: #999;
-        }
+.login-form .form-control::placeholder {
+    color: #999;
+}
 
-    .login-form .btn-login {
-        background: #fe980f;
-        border: none;
-        color: #fff;
-        font-family: 'Roboto', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        height: 40px;
-        padding: 8px 25px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-        border-radius: 0;
-        transition: all 0.3s ease;
-        margin-top: 10px;
-    }
+.login-form .btn-login {
+    background: #fe980f;
+    border: none;
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    padding: 8px 25px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
 
-        .login-form .btn-login:hover {
-            background: #e08a0a;
-            color: #fff;
-            text-decoration: none;
-        }
+.login-form .btn-login:hover {
+    background: #e08a0a;
+    color: #fff;
+    text-decoration: none;
+}
 
-        .login-form .btn-login:active {
-            background: #cc7a09;
-        }
+.login-form .btn-login:active {
+    background: #cc7a09;
+}
+
+.input-group {
+    display: flex;
+    width: 100%;
+}
+
+.input-group input {
+    flex: 1;
+}
+
+.input-group button {
+    width: 50px;
+    border-left: none;
+    border: 1px solid #e5e7eb;
+}
 
 .form-actions {
     display: flex;
@@ -3867,31 +3882,6 @@ border-radius: 0;
 color: #FFFFFF;
 margin-top: 17px;
 }
-
-
-.pagination-area {
-margin-bottom: 45px;
-margin-top: 45px
-}
-
-.pagination-area
-.pagination li a {
-background: #F0F0E9;
-border: 0 none;
-border-radius: 0;
-color: #696763;
-margin-right: 5px;
-padding: 4px 12px;
-}
-
-.pagination-area
-.pagination li a:hover,
-.pagination-area
-.pagination li .active {
-background: #FE980F;
-color: #fff
-}
-
 
 
 /*************************

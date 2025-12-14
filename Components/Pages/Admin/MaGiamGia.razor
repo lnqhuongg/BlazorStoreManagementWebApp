@@ -4,82 +4,102 @@
 @using Components.Layout.Admin;
 @layout MainLayout
 
-<!-- HEADER -->
-<div class="content-header">
-    <h2>
-        <i class="fas fa-list"></i>
-        Quản lý Mã Giảm Giá
+<div class="content-header d-flex align-items-center mb-3">
+    <h2 class="mb-0 me-3">
+        <i class="fas fa-ticket-alt"></i>
+        Quản lý Mã giảm giá
     </h2>
 </div>
 
-<!-- ACTION BAR -->
-<div class="action-bar">
-    @* không chia component *@
-    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addProductCategoryModal">
+<div class="action-bar d-flex align-items-center mb-3">
+    <button class="btn btn-success me-2" @onclick="() => MaGiamGiaFormRef.OpenCreate()">
         <i class="fas fa-plus"></i>
         Thêm mới
     </button>
-    @* không chia component (tìm kiếm & lọc mỗi chỗ mỗi khác nên thôi) *@
-    <div class="search-group w-100">
-        <input type="text" placeholder="Tìm kiếm..." class="form-control">
-        <button class="btn-search">
+    <div class="d-flex flex-row align-items-center w-100" style="gap: 8px;">
+        <input @bind="Keyword" @bind:event="oninput" @onkeydown="OnSearchKeyDown"
+               type="text" placeholder="Tìm kiếm mã hoặc mô tả..." class="form-control" style="max-width: 220px;" />
+        <button class="btn btn-primary" @onclick="Search">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
+        <select @bind="DiscountType" @bind:event="oninput" @onchange="FilterChanged"
+                class="form-select" style="max-width: 160px;">
+            <option value="">Tất cả loại giảm</option>
+            <option value="percent">Phần trăm</option>
+            <option value="fixed">Số tiền</option>
+        </select>
+
+
+
     </div>
 </div>
 
-<!-- TABLE -->
 <div class="table-container">
-    <table class="table">
+    <table class="table table-hover align-middle">
         <thead>
             <tr>
-                <th>Mã khuyến mãi (ID)</th>
-                <th class="text-center">Mã giảm giá</th>
-                <th class="text-center">Mô tả</th>
-                <th class="text-center">Loại giảm giá</th>
-                <th class="text-center">Giá trị giảm</th>
-                <th class="text-center">Ngày bắt đầu</th>
-                <th class="text-center">Ngày kết thúc</th>
-                <th class="text-center">Đơn tối thiểu</th>
-                <th class="text-center">Giới hạn sử dụng</th>
-                <th class="text-center">Đã sử dụng</th>
-                <th class="text-center">Trạng thái</th>
-                <th class="text-center">Tùy chỉnh</th>
+                <th>Mã</th>
+                <th>Mô tả</th>
+                <th>Loại giảm</th>
+                <th>Giá trị</th>
+                <th>Ngày bắt đầu</th>
+                <th>Ngày kết thúc</th>
+                <th>Giới hạn</th>
+                <th>Đã dùng</th>
+                <th>Trạng thái</th>
+                <th>Tùy chỉnh</th>
             </tr>
         </thead>
-
         <tbody>
-            <tr>
-                <td>#001</td>
-                <td class="text-center">SALE50</td>
-                <td class="text-center">Giảm 50% cho đơn đầu</td>
-                <td class="text-center">percent</td>
-                <td class="text-center">50</td>
-                <td class="text-center">2025-01-01</td>
-                <td class="text-center">2025-01-31</td>
-                <td class="text-center">100000</td>
-                <td class="text-center">100</td>
-                <td class="text-center">20</td>
-                <td class="text-center"><span class="status-badge status-active">Hoạt động</span></td>
-
-                <td class="text-center">
-                    <button class="btn-action btn-edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-action btn-delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
+            @if (PromoData?.Data == null || !PromoData.Data.Any())
+            {
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                        Không có dữ liệu
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in PromoData.Data)
+                {
+                    <tr>
+                        <td>@item.PromoCode</td>
+                        <td>@item.Description</td>
+                        <td>@(item.DiscountType == "percent" ? "Phần trăm" : "Số tiền")</td>
+                        <td>@item.DiscountValue</td>
+                        <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
+                        <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
+                        <td>@item.UsageLimit</td>
+                        <td>@item.UsedCount</td>
+                        <td>
+                            <span class="status-badge @(item.Status == "active" ? "status-active" : "status-inactive")">
+                                @(item.Status == "active" ? "Hoạt động" : "Tạm ngưng")
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-action btn-edit"
+                                    @onclick="() => MaGiamGiaFormRef.OpenUpdate(item)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
 </div>
-<PaginationAdmin />
-
-
-<MaGiamGiaForm />
-
-@code {
-
+@if (PromoData?.Data != null && PromoData.Data.Any())
+{
+    <PaginationAdmin Total="PromoData.Total"
+                     Page="@Page"
+                     PageChanged="ChangePage"
+                     PageSize="@PageSize" />
 }
+
+<MaGiamGiaForm @ref="MaGiamGiaFormRef" OnSuccess="LoadData" />

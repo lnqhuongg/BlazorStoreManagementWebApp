@@ -1,42 +1,108 @@
-﻿<aside class="sidebar">
-    <NavLink class="sidebar-item" href="/admin/thongke" Match="NavLinkMatch.All">
-        <i class="fa-solid fa-chart-column"></i>
-        <span>Thống kê</span>
-    </NavLink>
-    <NavLink class="sidebar-item" href="/admin/sanpham" Match="NavLinkMatch.All">
-        <i class="fas fa-cube"></i>
-        <span>Sản phẩm</span>
-    </NavLink>
-    <NavLink class="sidebar-item" href="/admin/loaisanpham" Match="NavLinkMatch.All">
-        <i class="fas fa-boxes"></i>
-        <span>Loại sản phẩm</span>
-    </NavLink>
-    <NavLink class="sidebar-item" href="/admin/khachhang" Match="NavLinkMatch.All">
-        <i class="fa-duotone fa-solid fa-user-group-simple"></i>
-        <span>Khách hàng</span>
-    </NavLink>
-    <NavLink class="sidebar-item" href="/admin/nhanvien" Match="NavLinkMatch.All">
-        <i class="fas fa-users"></i>
-        <span>Nhân viên</span>
-    </NavLink>
-    <NavLink class="sidebar-item" href="/admin/donhang" Match="NavLinkMatch.All">
-        <i class="fas fa-shopping-cart"></i>
-        <span>Đơn hàng</span>
-    </NavLink>
-    <NavLink class="sidebar-item" href="/admin/nhacungcap" Match="NavLinkMatch.All">
-        <i class="fa-sharp-duotone fa-solid fa-building"></i>
-        <span>Nhà cung cấp</span>
-    </NavLink>
-    <NavLink class="sidebar-item" href="/admin/magiamgia" Match="NavLinkMatch.All">
-        <i class="fa-solid fa-ticket"></i>
-        <span>Mã giảm giá</span>
-    </NavLink>
-    <NavLink class="sidebar-item" href="/admin/phieunhap" Match="NavLinkMatch.All">
-        <i class="fa-regular fa-newspaper"></i>
-        <span>Phiếu nhập</span>
-    </NavLink>
+﻿@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<aside class="sidebar">
+    @if (Role == "admin")
+    {
+        <NavLink class="sidebar-item" href="/admin/thongke" Match="NavLinkMatch.All">
+            <i class="fa-solid fa-chart-column"></i>
+            <span>Thống kê</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/sanpham" Match="NavLinkMatch.All">
+            <i class="fas fa-cube"></i>
+            <span>Sản phẩm</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/loaisanpham" Match="NavLinkMatch.All">
+            <i class="fas fa-boxes"></i>
+            <span>Loại sản phẩm</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/khachhang" Match="NavLinkMatch.All">
+            <i class="fa-duotone fa-solid fa-user-group-simple"></i>
+            <span>Khách hàng</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/nhanvien" Match="NavLinkMatch.All">
+            <i class="fas fa-users"></i>
+            <span>Nhân viên</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/donhang" Match="NavLinkMatch.All">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Đơn hàng</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/nhacungcap" Match="NavLinkMatch.All">
+            <i class="fa-sharp-duotone fa-solid fa-building"></i>
+            <span>Nhà cung cấp</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/magiamgia" Match="NavLinkMatch.All">
+            <i class="fa-solid fa-ticket"></i>
+            <span>Mã giảm giá</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/phieunhap" Match="NavLinkMatch.All">
+            <i class="fa-regular fa-newspaper"></i>
+            <span>Phiếu nhập</span>
+        </NavLink>
+    }
+    else if (Role == "staff")
+    {
+        <NavLink class="sidebar-item" href="/admin/banhang" Match="NavLinkMatch.All">
+            <i class="fas fa-cash-register"></i>
+            <span>Bán hàng</span>
+        </NavLink>
+        <NavLink class="sidebar-item" href="/admin/khachhang" Match="NavLinkMatch.All">
+            <i class="fa-duotone fa-solid fa-user-group-simple"></i>
+            <span>Khách hàng</span>
+        </NavLink>
+    }
 </aside>
 
 @code {
+    private string Role = "admin";
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var role = await SessionStorage.GetItemAsync<string>("adminRole");
+                if (!string.IsNullOrEmpty(role))
+                {
+                    Role = role;
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading role: {ex.Message}");
+            }
+        }
+    }
+
+    // Subscribe to location changes to refresh sidebar
+    protected override async Task OnInitializedAsync()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var role = await SessionStorage.GetItemAsync<string>("adminRole");
+                if (!string.IsNullOrEmpty(role) && role != Role)
+                {
+                    Role = role;
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+            catch { }
+        });
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
 }

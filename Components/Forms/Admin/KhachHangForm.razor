@@ -1,82 +1,96 @@
-<div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerLabel" aria-hidden="true">
+<div class="modal fade" id="KhachHangModal" tabindex="-1" aria-labelledby="KhachHangModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border: none; border-radius:12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-            <!-- Header -->
-            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
-                <h1 class="modal-title fs-5" id="addCustomerLabel" style="color: white; font-weight: 700;">
-                    Thêm mới khách hàng
-                </h1>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+        <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+            <EditForm Model="@customerDTO" OnValidSubmit="@HandleSubmit">
+                <!-- Header -->
+                <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
+                    <h1 class="modal-title fs-5" style="color: white; font-weight: 700;">
+                        <i class="fas fa-edit" style="margin-right: 0.5rem;"></i>
+                        Chỉnh sửa khách hàng
+                    </h1>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
 
-            <!-- Body -->
-            <div class="modal-body" style="padding: 2rem;">
-                <div class="row g-3">
-                    <!-- Tên khách hàng -->
-                    <div class="col-md-12">
-                        <label for="customerName" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
-                            Tên khách hàng <span style="color:#ef4444;">*</span>
-                        </label>
-                        <input type="text" class="form-control" id="customerName" placeholder="Nhập tên khách hàng..."
-                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
-                        <small class="form-text" style="color:#6b7280;">Tên khách hàng là bắt buộc</small>
-                    </div>
+                <!-- Body -->
+                <div class="modal-body" style="padding: 2rem;">
+                    <div class="row g-3">
 
-                    <!-- Số điện thoại -->
-                    <div class="col-md-6">
-                        <label for="phone" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
-                            Số điện thoại
-                        </label>
-                        <input type="tel" class="form-control" id="phone" placeholder="0901234567..."
-                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
-                        <small class="form-text" style="color:#6b7280;">Ví dụ: 0901234567</small>
-                    </div>
+                        <!-- Tên khách hàng -->
+                        <div class="col-md-12">
+                            <label class="form-label" style="font-weight: 600; color: #065f46;">
+                                Tên khách hàng <span style="color: #ef4444;">*</span>
+                            </label>
+                            <InputText @bind-Value="customerDTO.Name"
+                                       class="form-control"
+                                       placeholder="Nhập tên khách hàng..."
+                                       style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                            @if (!string.IsNullOrEmpty(NameErrorMessage))
+                            {
+                                <div class="text-danger mt-1" style="font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                    @NameErrorMessage
+                                </div>
+                            }
+                        </div>
 
-                    <!-- Email -->
-                    <div class="col-md-6">
-                        <label for="email" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
-                            Email
-                        </label>
-                        <input type="email" class="form-control" id="email" placeholder="khachhang@email.com..."
-                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
-                        <small class="form-text" style="color:#6b7280;">Ví dụ: ten@email.com</small>
-                    </div>
+                        <!-- Số điện thoại (không sửa) -->
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight:600; color:#065f46;">Số điện thoại</label>
+                            <input type="text" class="form-control" value="@customerDTO.Phone" disabled
+                                   style="background:#f9fafb; border:2px solid #e5e7eb; border-radius:8px; padding: 0.75rem 1rem;" />
+                        </div>
 
-                    <!-- Địa chỉ -->
-                    <div class="col-md-12">
-                        <label for="address" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
-                            Địa chỉ
-                        </label>
-                        <textarea class="form-control" id="address" rows="3" placeholder="Nhập địa chỉ..."
-                                  style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;"></textarea>
-                        <small class="form-text" style="color:#6b7280;">Có thể để trống</small>
-                    </div>
+                        <!-- Email (không sửa) -->
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight:600; color:#065f46;">Email</label>
+                            <input type="text" class="form-control" value="@customerDTO.Email" disabled
+                                   style="background:#f9fafb; border:2px solid #e5e7eb; border-radius:8px; padding: 0.75rem 1rem;" />
+                        </div>
 
-                    <!-- Điểm thưởng -->
-                    <div class="col-md-12">
-                        <label for="rewardPoints" class="form-label" style="font-weight:600; color:#065f46; margin-bottom:0.75rem;">
-                            Điểm thưởng ban đầu
-                        </label>
-                        <input type="number" class="form-control" id="rewardPoints" value="0" min="0"
-                               style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem; font-size:0.95rem;">
-                        <small class="form-text" style="color:#6b7280;">Mặc định là 0 điểm</small>
+                        <!-- Mật khẩu (che) -->
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight:600; color:#065f46;">Mật khẩu</label>
+                            <input type="password" class="form-control" value="••••••••••••" disabled
+                                   style="background:#f9fafb; border:2px solid #e5e7eb; border-radius:8px; padding: 0.75rem 1rem;" />
+                        </div>
+
+                        <!-- Điểm thưởng (không sửa) -->
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight:600; color:#065f46;">Điểm thưởng</label>
+                            <input type="number" class="form-control" value="@customerDTO.RewardPoints" disabled
+                                   style="background:#f9fafb; border:2px solid #e5e7eb; border-radius:8px; padding: 0.75rem 1rem;" />
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div class="col-md-12">
+                            <label class="form-label" style="font-weight:600; color:#065f46;">Địa chỉ</label>
+                            <InputTextArea @bind-Value="customerDTO.Address"
+                                           class="form-control" rows="3"
+                                           placeholder="Nhập địa chỉ (không bắt buộc)..."
+                                           style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                            @if (!string.IsNullOrEmpty(AddressErrorMessage))
+                            {
+                                <div class="text-danger mt-1" style="font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                    @AddressErrorMessage
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Footer -->
-            <div class="modal-footer" style="border-top:1px solid #e5e7eb; padding:1.5rem;">
-                <button type="button" class="btn" data-bs-dismiss="modal"
-                        style="background:#e5e7eb; color:#374151; border:none; padding:0.75rem 1.5rem; border-radius:8px; font-weight:600;">
-                    Hủy
-                </button>
-                <button type="button" class="btn btn-add"
-                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; padding:0.75rem 1.5rem; border-radius:8px; font-weight:600;">
-                    Thêm mới
-                </button>
-            </div>
+                <!-- Footer -->
+                <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1.5rem;">
+                    <button type="button" class="btn" data-bs-dismiss="modal"
+                            style="background:#e5e7eb; color:#374151; padding:0.75rem 1.5rem; border-radius:8px; font-weight:600;">
+                        Hủy
+                    </button>
+                    <button type="submit" class="btn btn-add"
+                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; padding:0.75rem 1.5rem; border-radius:8px; font-weight:600;">
+                        <i class="fas fa-check"></i> Cập nhật
+                    </button>
+                </div>
+            </EditForm>
         </div>
     </div>
 </div>
-
-@code { }
