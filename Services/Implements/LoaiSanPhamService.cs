@@ -157,6 +157,14 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 .AnyAsync(x => x.CategoryId == category_id);
             return CategoryExist;
         }
+
+        public Task<List<LoaiSanPhamDTO>> GetAllCategories()
+        {
+            return _context.LoaiSanPhams
+                .AsNoTracking()
+                .Select(c => _mapper.Map<LoaiSanPhamDTO>(c))
+                .ToListAsync();
+        }
     }
 
 

@@ -17,6 +17,7 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
         public Task<bool> checkBarcodeExistForOtherProducts(int id, string barcode);
         public Task<List<SanPhamDTO>> searchByCategoryAndSortOrderAndKeyword(int? categoryID, string? sortOrder, string? keyword);
         public Task<List<SanPhamDTO>> GetAllSP();
+        public Task<PagedResult<SanPhamDTO>> GetAll2(int page, int pageSize, string? keyword, string? order, int? categoryID, int? supplierID, decimal? minPrice, decimal? maxPrice);
     }
 
 }

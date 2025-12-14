@@ -15,5 +15,6 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
         Task<bool> isCategoryNameExist(string categoryName, int id = 0);
         Task<bool> isCategoryExist(int category_id);
         Task<bool> Delete(int category_id);
+        Task<List<LoaiSanPhamDTO>> GetAllCategories();
     }
 }
