@@ -24,6 +24,8 @@ namespace StoreManagementBE.BackendServer.Infrastructure.DI
             services.AddScoped<IDonHangService, DonHangService>();
             services.AddScoped<IAuthService, AuthService>();            
             services.AddScoped<PdfService>();
+            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<ITonKhoService, TonKhoService>();
             services.AddAuthorizationCore();
             return services;
         }

@@ -6,6 +6,7 @@ using BlazorStoreManagementWebApp.Models.Entities;
 using BlazorStoreManagementWebApp.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 
 namespace BlazorStoreManagementWebApp.Services.Implements
@@ -46,6 +47,12 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 Page = page,
                 PageSize = pageSize
             };
+        }
+
+        public async Task<List<LoaiSanPhamDTO>> GetListLSP()
+        {
+            var list = await _context.LoaiSanPhams.ToListAsync();
+            return _mapper.Map<List<LoaiSanPhamDTO>>(list);
         }
 
         public IQueryable<LoaiSanPham> SearchByKeyword(string keyword)
