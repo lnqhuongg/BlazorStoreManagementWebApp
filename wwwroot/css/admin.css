@@ -295,6 +295,19 @@ body {
     transform: translateY(-2px);
 }
 
+/* ========== SELECT ========= */
+.select-filter {
+    padding: 0.75rem 1rem;
+    border: 2px solid #d1fae5;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    color: #065f46;
+    cursor: pointer;
+}
+
+
 /* ========== TABLE ========== */
 .table-container {
     background: white;
@@ -387,6 +400,17 @@ body {
     background-color: #dc2626;
     transform: translateY(-1px);
 }
+
+.btn-eyes {
+    background-color: #facc15 !important;
+    color: white !important;
+}
+
+.btn-eyes:hover {
+    background-color: #f59e0b; 
+    transform: translateY(-1px);
+}
+
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {

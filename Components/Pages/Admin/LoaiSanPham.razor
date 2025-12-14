@@ -53,7 +53,7 @@
             {
                 @foreach (var item in LoaiData.Data)
                 {
-                    <tr>
+                    <tr @key="item.CategoryId">
                         <td>@item.CategoryId</td>
                         <td class="text-center">@item.CategoryName</td>
                         <td class="text-center">

@@ -33,18 +33,13 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             try
             {
                 //var list = await _context.SanPhams.Include(x => x.Category).Include(x => x.Supplier).ToListAsync();
-                //return _mapper.Map<List<SanPhamDTO>>(list);
+                //return _mapper.Map<List<SanPhamDTO>>(list);i
                 var query = _context.SanPhams.Include(sp => sp.Category).Include(sp => sp.Supplier).AsQueryable();
                 if (!string.IsNullOrEmpty(keyword))
                 {
                     query = query.Where(x => x.ProductName.ToLower().Contains(keyword.ToLower()) || x.Barcode.ToLower().Contains(keyword.ToLower()));
                 }
-                if (!string.IsNullOrEmpty(order))
-                {
-                    query = order.ToLower() == "desc"
-                        ? query.OrderByDescending(p => p.Price)
-                        : query.OrderBy(p => p.Price);
-                }
+               
                 if (categoryID.HasValue)
                 {
                     query = query.Where(x => x.CategoryID == categoryID);
@@ -52,6 +47,12 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 if (supplierID.HasValue)
                 {
                     query = query.Where(x => x.SupplierID == supplierID);
+                }
+                if (!string.IsNullOrEmpty(order))
+                {
+                    query = order.ToLower() == "desc"
+                        ? query.OrderByDescending(p => p.Price)
+                        : query.OrderBy(p => p.Price);
                 }
                 int totalPage = await query.CountAsync();
                 var list = await query
@@ -168,8 +169,9 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 string imageUrl = null;
 
                 // Xử lý upload ảnh nếu có
-                if (sp.ImageUrl != null && sp.ImageUrl.Length > 0)
+                if (sp.ImageUrl != null && sp.ImageUrl.Size > 0)
                 {
+                    // GIẢ ĐỊNH: IImageService.SaveImageAsync đã được sửa để nhận IBrowserFile
                     var uploadResult = await _imageService.SaveImageAsync(sp.ImageUrl);
                     if (uploadResult.Success && uploadResult.Data != null)
                     {
@@ -264,7 +266,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 // CHỈ update ID, không update navigation objects
                 existingProduct.CategoryID = sp.CategoryID;
                 existingProduct.SupplierID = sp.SupplierID;
-                if (sp.ImageUrl != null && sp.ImageUrl.Length > 0)
+                if (sp.ImageUrl != null && sp.ImageUrl.Size > 0)
                 {
                     // 1. Xóa ảnh cũ nếu có
                     if (!string.IsNullOrEmpty(existingProduct.ImageUrl))

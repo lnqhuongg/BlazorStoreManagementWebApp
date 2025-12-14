@@ -1,4 +1,5 @@
 ﻿using BlazorStoreManagementWebApp.Services.Interfaces;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace BlazorStoreManagementWebApp.Services.Implements
 {
@@ -23,12 +24,14 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             }
         }
 
-        public async Task<ImageUploadResult> SaveImageAsync(IFormFile file)
+        // Đã sửa: Chữ ký phương thức đã đúng (nhận IBrowserFile)
+        public async Task<ImageUploadResult> SaveImageAsync(IBrowserFile file)
         {
             try
             {
                 // Validate file
-                if (file == null || file.Length == 0)
+                // SỬA: Dùng file.Size thay vì file.Length
+                if (file == null || file.Size == 0)
                 {
                     return new ImageUploadResult
                     {
@@ -38,7 +41,8 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 }
 
                 // Validate file size
-                if (file.Length > _maxFileSize)
+                // SỬA: Dùng file.Size thay vì file.Length
+                if (file.Size > _maxFileSize)
                 {
                     return new ImageUploadResult
                     {
@@ -48,7 +52,8 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 }
 
                 // Validate file type
-                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                // SỬA: Dùng file.Name thay vì file.FileName
+                var extension = Path.GetExtension(file.Name).ToLowerInvariant();
                 if (string.IsNullOrEmpty(extension) || !_allowedExtensions.Contains(extension))
                 {
                     return new ImageUploadResult
@@ -65,7 +70,9 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 // Lưu file
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);
+                    // SỬA: Dùng OpenReadStream(maxFileSize) của IBrowserFile 
+                    // để đọc dữ liệu và giới hạn kích thước file.
+                    await file.OpenReadStream(_maxFileSize).CopyToAsync(stream);
                 }
 
                 // Tạo URL để truy cập
@@ -80,7 +87,8 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                         FileName = fileName,
                         FilePath = filePath,
                         Url = imageUrl,
-                        FileSize = file.Length,
+                        // SỬA: Dùng file.Size thay vì file.Length
+                        FileSize = file.Size,
                         ContentType = GetContentType(extension)
                     }
                 };
@@ -148,8 +156,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 return string.Empty;
             }
 
-            var baseUrl = _configuration["BaseUrl"] ?? "https://localhost:7009";
-            return $"{baseUrl}/images/{fileName}";
+            return $"/images/{fileName}";
         }
 
         private string GetContentType(string extension)
