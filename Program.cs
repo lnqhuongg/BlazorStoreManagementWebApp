@@ -22,9 +22,6 @@ builder.Services.AddApplicationServices();
 
 builder.Services.AddHttpContextAccessor();
 
-
-
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

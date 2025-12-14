@@ -16,14 +16,16 @@
 
             <!--Bộ lọc và tìm kiếm -->
             <div class="filter-bar">
-                <input type="text" id="searchProduct" placeholder="🔍 Tìm kiếm sản phẩm...">
-                <select id="filterCategory">
+                <input type="text" 
+                       id="searchProduct" 
+                       placeholder="🔍 Tìm kiếm sản phẩm..."
+                       @bind="Keyword" />
+                <select id="filterCategory" @bind="CategoryID">
                     <option value="">Tất cả loại</option>
-                    <option value="dienthoai">Điện thoại</option>
-                    <option value="laptop">Laptop</option>
-                    <option value="tablet">Tablet</option>
-                    <option value="tainghe">Tai nghe</option>
-                    <option value="phukien">Phụ kiện</option>
+                    @foreach (var category in LSPData)
+                    {
+                        <option value="@category.CategoryId">@category.CategoryName</option>
+                    }
                 </select>
             </div>
 

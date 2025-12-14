@@ -67,7 +67,6 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
             Page = 1;
             await LoadData();
             await LoadStockForProducts();
-
         }
 
         protected void handleToggleIcon()
