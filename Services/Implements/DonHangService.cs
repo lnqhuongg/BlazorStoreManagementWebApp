@@ -136,6 +136,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             var dto = _mapper.Map<DonHangDTO>(e);
             dto.CustomerName = e.Customer?.Name ?? "";
             dto.UserName = e.User?.FullName ?? "";
+            dto.Phone = e.Customer?.Phone ?? "";
             return dto;
         }
 
@@ -279,6 +280,8 @@ namespace BlazorStoreManagementWebApp.Services.Implements
 
             return result;
         }
+
+        
 
     }
 }
