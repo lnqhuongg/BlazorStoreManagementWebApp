@@ -31,8 +31,9 @@
 
     <select class="form-control ms-2" style="width: auto;" @onchange="HandleStatusFilter">
         <option value="">-- Tất cả trạng thái --</option>
-        <option value="Pending">Chờ thanh toán (Pending)</option>
-        <option value="Completed">Đã thanh toán (Completed)</option>
+        <option value="pending">Chờ thanh toán </option>
+        <option value="paid">Đã thanh toán </option>
+        <option value="canceled">Đã hủy </option>
     </select>
 </div>
 
@@ -65,8 +66,11 @@
                             @string.Format("{0:N0} đ", item.TotalAmount)
                         </td>
                         <td class="text-center">
-                            <span class="status-badge @(item.Status == "Completed" ? "status-active" : "status-inactive")">
-                                @(item.Status == "Completed" ? "Đã thanh toán" : "Chờ thanh toán")
+                            <span class="status-badge 
+                                @(item.Status == "paid" ? "status-active" : 
+                                item.Status == "canceled" ? "status-inactive" : "status-pending")">
+                                @(item.Status == "paid" ? "Đã thanh toán" : 
+                                item.Status == "canceled" ? "Đã hủy" : "Chờ thanh toán")
                             </span>
                         </td>
                         <td class="text-center">
