@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Components\UI\ProductCard\" />
     <Folder Include="DTOs\Admin\NhaCungCap\" />
   </ItemGroup>
 

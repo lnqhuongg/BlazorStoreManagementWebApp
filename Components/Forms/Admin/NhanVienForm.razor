@@ -5,7 +5,7 @@
         <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
             <EditForm Model="@Model" OnValidSubmit="@HandleSubmit">
                 <!-- Header -->
-                <div class="modal-header" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
                     <h1 class="modal-title fs-5" id="NhanVienModalLabel" style="color: white; font-weight: 700;">
                         <i class="fas fa-@(IsEditMode ? "edit" : "plus-circle")" style="margin-right: 0.5rem;"></i>
                         @(IsEditMode ? "Cập nhật nhân viên" : "Thêm mới nhân viên")
@@ -17,30 +17,32 @@
                 <div class="modal-body" style="padding: 2rem;">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                            <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                 Tên đăng nhập <span style="color: #ef4444;">*</span>
                             </label>
-                            <InputText @bind-Value="Model.Username" class="form-control" placeholder="Nhập tên đăng nhập..." style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;" />
+                            <InputText @bind-Value="Model.Username" class="form-control" placeholder="Nhập tên đăng nhập..." style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
                             @if (!string.IsNullOrEmpty(UsernameError))
                             {
-                                <div class="text-danger mt-1" style="font-size: 0.875rem;">
+                                <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
                                     @UsernameError
-                                </div>
+                                </span>
                             }
                         </div>
 
                         @if (!IsEditMode)
                         {
                             <div class="col-md-6 mb-3">
-                                <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                                <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                     Mật khẩu <span style="color: #ef4444;">*</span>
                                 </label>
-                                <InputText @bind-Value="Model.Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;" />
+                                <InputText @bind-Value="Model.Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
                                 @if (!string.IsNullOrEmpty(PasswordError))
                                 {
-                                    <div class="text-danger mt-1" style="font-size: 0.875rem;">
+                                    <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
                                         @PasswordError
-                                    </div>
+                                    </span>
                                 }
                             </div>
                         }
@@ -48,23 +50,24 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                            <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                 Họ và tên <span style="color: #ef4444;">*</span>
                             </label>
-                            <InputText @bind-Value="Model.FullName" class="form-control" placeholder="Nhập họ và tên..." style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;" />
+                            <InputText @bind-Value="Model.FullName" class="form-control" placeholder="Nhập họ và tên..." style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
                             @if (!string.IsNullOrEmpty(FullNameError))
                             {
-                                <div class="text-danger mt-1" style="font-size: 0.875rem;">
+                                <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
                                     @FullNameError
-                                </div>
+                                </span>
                             }
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                            <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                 Chức vụ <span style="color: #ef4444;">*</span>
                             </label>
-                            <InputSelect @bind-Value="Model.Role" class="form-select" style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <InputSelect @bind-Value="Model.Role" class="form-select" style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;">
                                 <option value="">-- Chọn chức vụ --</option>
                                 <option value="staff">Nhân viên</option>
                                 <option value="admin">Quản trị viên</option>
@@ -73,10 +76,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" style="font-weight: 600; color: #1e40af;">
+                        <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                             Trạng thái <span style="color: #ef4444;">*</span>
                         </label>
-                        <InputSelect @bind-Value="Model.Status" class="form-select" style="border: 2px solid #dbeafe; border-radius: 8px; padding: 0.75rem 1rem;">
+                        <InputSelect @bind-Value="Model.Status" class="form-select" style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;">
                             <option value="">-- Chọn trạng thái --</option>
                             <option value="1">Hoạt động</option>
                             <option value="0">Tạm ngưng</option>
@@ -96,7 +99,7 @@
                     <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #e5e7eb; color: #374151; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
                         Hủy
                     </button>
-                    <button type="submit" class="btn btn-add" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                    <button type="submit" class="btn btn-add" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
                         <i class="fas fa-check"></i>
                         @(IsEditMode ? "Cập nhật" : "Thêm mới")
                     </button>

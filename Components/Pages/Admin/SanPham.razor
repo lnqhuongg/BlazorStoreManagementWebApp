@@ -3,8 +3,8 @@
 @using System.Globalization
 @page "/admin/sanpham"
 @using Components.Layout.Admin;
+@using BlazorStoreManagementWebApp.Components.Forms.Admin;
 @layout MainLayout
-
 
 <!-- HEADER -->
 <div class="content-header">
@@ -14,48 +14,50 @@
     </h2>
 </div>
 
-
 <!-- ACTION BAR -->
-<div class="d-flex justify-content-start align-items-center gap-2 p-2">
-    <button class="btn-add" style="width:15%; height: 50px" @onclick="() => SanPhamFormRef.OpenCreate(LSPData, NCCData)">
+<div class="action-bar">
+    <button class="btn-add" @onclick="() => SanPhamFormRef.OpenCreate(LSPData, NCCData)">
         <i class="fas fa-plus"></i>
         Thêm mới
     </button>
-    <div class="d-flex align-items-center justify-content-start gap-3" style="width: 85%">
-        <select class="form-select" style="width: 200px"
-                @bind="CategoryID">
-            <option value="">Lọc theo loại</option>
-            @foreach (var category in LSPData)
-            {
-                <option value="@category.CategoryId">@category.CategoryName</option>
-            }
-        </select>
 
-        <select class="form-select" style="width: 200px"
-                @bind="SupplierID">
-            <option value="">Lọc theo NCC</option>
-            @foreach (var sup in NCCData)
-            {
-                <option value="@sup.SupplierId">@sup.Name</option>
-            }
-        </select>
-
-        <button @onclick="@handleToggleIcon" class="btn btn-outline-secondary">
-            @if(Order == "asc")
-            {
-                <i class="fas fa-sort-amount-up-alt"></i>
-            }
-            else
-            {
-                <i class="fas fa-sort-amount-down"></i>
-            }
-        </button>
-        <input @bind="Keyword" type="text" placeholder="Tìm kiếm..." class="form-control" style="height: 50px; width:300px">
+    <div class="search-group w-100">
+        <input @bind="Keyword" 
+               type="text" 
+               placeholder="Tìm kiếm sản phẩm..." 
+               class="form-control">
         <button class="btn-search" @onclick="@Search">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
     </div>
+
+    <select class="form-control ms-2" style="width: auto;" @bind="CategoryID">
+        <option value="">Lọc theo loại</option>
+        @foreach (var category in LSPData)
+        {
+            <option value="@category.CategoryId">@category.CategoryName</option>
+        }
+    </select>
+
+    <select class="form-control ms-2" style="width: auto;" @bind="SupplierID">
+        <option value="">Lọc theo NCC</option>
+        @foreach (var sup in NCCData)
+        {
+            <option value="@sup.SupplierId">@sup.Name</option>
+        }
+    </select>
+
+    <button @onclick="@handleToggleIcon" class="btn btn-outline-secondary ms-2">
+        @if(Order == "asc")
+        {
+            <i class="fas fa-sort-amount-up-alt"></i>
+        }
+        else
+        {
+            <i class="fas fa-sort-amount-down"></i>
+        }
+    </button>
 </div>
 
 <!-- TABLE -->
@@ -78,13 +80,13 @@
             @if (SPData?.Data == null || !SPData.Data.Any())
             {
                 <tr>
-                    <td colspan="3" class="text-center text-muted py-4">
+                    <td colspan="9" class="text-center text-muted py-4">
                         <i class="fas fa-box-open fa-2x mb-2"></i><br />
                         Không có dữ liệu
                     </td>
                 </tr>
             }
-            else 
+            else
             {
                 @foreach (var item in SPData.Data)
                 {
@@ -93,28 +95,21 @@
                         <td>@item.ProductName</td>
                         <td>
                             @(StockMap.ContainsKey(item.ProductID)
-                                                ? StockMap[item.ProductID]
-                                                : 0)
+                                ? StockMap[item.ProductID]
+                                : 0)
                         </td>
                         <td class="text-center">@item.Category.CategoryName</td>
                         <td class="text-center">@item.Supplier.Name</td>
                         <td class="text-center">@item.Price.ToString("C0", new CultureInfo("vi-VN"))</td>
                         <td class="text-center">@item.Unit</td>
-                        <td class="text-center"><span class="status-badge status-active">
-                            @if (item.Status == 1)
-                            {
-                                <span class="text-success">Hoạt động</span>
-                            }
-                            else
-                            {
-                                <span class="text-danger">Ngừng hoạt động</span>
-                            }
-                        </span></td>
                         <td class="text-center">
-                            <button class="btn-action btn-eyes" @onclick="() => SanPhamFormRef.OpenView(item, LSPData, NCCData)">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn-action btn-edit" @onclick="() => SanPhamFormRef.OpenUpdate(item, LSPData, NCCData)">
+                            <span class="status-badge @(item.Status == 1 ? "status-active" : "status-inactive")">
+                                @(item.Status == 1 ? "Hoạt động" : "Ngừng hoạt động")
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-action btn-edit" 
+                                    @onclick="() => SanPhamFormRef.OpenUpdate(item, LSPData, NCCData)">
                                 <i class="fas fa-edit"></i>
                             </button>
                         </td>
@@ -133,6 +128,4 @@
                      PageSize="@PageSize" />
 }
 
-
 <SanPhamForm @ref="SanPhamFormRef" OnSuccess="LoadData" />
-@* <SanPhamForm /> *@

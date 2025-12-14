@@ -29,7 +29,7 @@
     </div>
 
     <select @bind="Filter.Role" class="form-control ms-2" style="width: auto;">
-        <option value="">Tất cả chức vụ</option>
+        <option value="">-- Tất cả chức vụ --</option>
         <option value="admin">Quản trị viên</option>
         <option value="staff">Nhân viên</option>
     </select>
@@ -77,9 +77,6 @@
                         <td class="text-center">
                             <button class="btn-action btn-edit" @onclick="() => NhanVienFormRef.OpenUpdate(item)">
                                 <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-action btn-delete">
-                                <i class="fas fa-trash"></i>
                             </button>
                         </td>
                     </tr>
