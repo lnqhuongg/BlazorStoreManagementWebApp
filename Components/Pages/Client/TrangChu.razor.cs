@@ -35,13 +35,15 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
 
         protected async Task LoadData()
         {
-            SanPhamData = await SanPhamService.GetAll(
+            SanPhamData = await SanPhamService.GetAll2(
                 Page,
                 PageSize,
-                keyword: null,
-                order: null,
-                categoryID: null,
-                supplierID: null
+                Keyword = null,
+                Order = null,
+                SelectedCategoryId = null,
+                supplierID: null,
+                MinPrice,
+                MaxPrice
             );
             categoryList = await LoaiSanPhamService.GetAllCategories();
         }
@@ -77,6 +79,7 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
                 MinPrice,
                 MaxPrice
             );
+            Console.WriteLine($"Filtered data count: {SanPhamData?.Data.Count}");
         }
 
         protected async Task ResetFilter()
@@ -87,13 +90,15 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
             MinPrice = null;
             MaxPrice = null;
 
-            SanPhamData = await SanPhamService.GetAll(
+            SanPhamData = await SanPhamService.GetAll2(
                 Page,
                 PageSize,
-                keyword: null,
-                order: null,
-                categoryID: null,
-                supplierID: null
+                Keyword = null,
+                Order = null,
+                SelectedCategoryId = null,
+                supplierID: null,
+                MinPrice,
+                MaxPrice
             );
         }
 

@@ -1,12 +1,16 @@
 ﻿using BlazorStoreManagementWebApp.Components.Forms.Admin;
 using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
+using BlazorStoreManagementWebApp.DTOs.Admin.PhieuNhap;
 using BlazorStoreManagementWebApp.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace BlazorStoreManagementWebApp.Components.Pages.Admin
 {
     public partial class DonHang : ComponentBase
     {
+        [Inject] private IJSRuntime JS { get; set; } = default!;
+        [Inject] private PdfService PdfService { get; set; } = default!;
         [Inject]
         public IDonHangService _donHangService { get; set; } = default!;
 
@@ -24,6 +28,10 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
         public int CurrentPage { get; set; } = 1;
         public int PageSize { get; set; } = 10;
         public int TotalItems { get; set; }
+
+        private DonHangDTO selected;
+        private bool ShowPdfModal = false;
+        private string Base64Pdf = "";
 
         protected override async Task OnInitializedAsync()
         {
@@ -74,5 +82,34 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
                 await donHangForm.Show(orderId);
             }
         }
+
+        private async Task PreviewPdf(DonHangDTO dh)
+        {
+            // 1. GỌI LẠI API LẤY FULL DATA
+            var fullDonHang = await _donHangService.GetById(dh.OrderId);
+
+            if (fullDonHang == null) return;
+
+            selected = fullDonHang;
+
+            // 2. Export PDF
+            byte[] pdfBytes = PdfService.ExportDonHang(fullDonHang);
+
+            Base64Pdf = Convert.ToBase64String(pdfBytes);
+            ShowPdfModal = true;
+        }
+
+        private async Task PrintPdf()
+        {
+            await JS.InvokeVoidAsync("downloadFileFromBase64",
+                $"DonHang_{selected.OrderId}.pdf", Base64Pdf);
+        }
+
+
+        private void ClosePreview()
+        {
+            ShowPdfModal = false;
+        }
     }
 }
+
