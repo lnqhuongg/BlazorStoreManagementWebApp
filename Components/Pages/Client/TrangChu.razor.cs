@@ -179,6 +179,5 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
                 "Đã thêm sản phẩm vào giỏ hàng"
             );
         }
-
     }
 }
