@@ -3,6 +3,7 @@ using BlazorStoreManagementWebApp.DTOs.Admin.SanPham;
 using BlazorStoreManagementWebApp.Helpers;
 using BlazorStoreManagementWebApp.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace BlazorStoreManagementWebApp.Components.Pages.Client
 {
@@ -10,6 +11,8 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
     {
         [Inject] ISanPhamService SanPhamService { get; set; } = default!;
         [Inject] ILoaiSanPhamService LoaiSanPhamService { get; set; } = default!;
+        [Inject] Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
+        [Inject] IJSRuntime JS { get; set; } = default!;
 
 
         PagedResult<SanPhamDTO>? SanPhamData;
@@ -17,7 +20,7 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
         List<LoaiSanPhamDTO> categoryList = new List<LoaiSanPhamDTO>();
 
         int Page = 1;
-        int PageSize = 9; // 9 san pham 1 trang
+        int PageSize = 6; // 9 san pham 1 trang
 
         string? Keyword;
         string? Order;
@@ -27,6 +30,15 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
         string? sortType;
 
         int SelectedCategory;
+
+        // Giỏ hàng trong session
+        public class CartItemSession
+        {
+            public int ProductId { get; set; }
+            public string ProductName { get; set; } = string.Empty;
+            public decimal Price { get; set; }
+            public int Quantity { get; set; }
+        }
 
         protected override async Task OnInitializedAsync()
         {
@@ -119,6 +131,54 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
             );
         }
 
+        // ------------------------------- PHẦN NÀY XỬ LÝ GIỎ HÀNG TRONG SESSION -------------------------------
+        protected async Task AddToCart(SanPhamDTO sp)
+        {
+            // 1️⃣ Kiểm tra đăng nhập
+            var clientId = await SessionStorage.GetItemAsync<int>("clientId");
+
+            if (clientId <= 0)
+            {
+                await JS.InvokeAsync<object>(
+                    "showToast",
+                    "info",
+                    "Đăng nhập vào tài khoản để thêm sản phẩm vào giỏ hàng"
+                );
+                return;
+            }
+
+            // 2️⃣ Lấy giỏ hàng từ session
+            var cart = await SessionStorage.GetItemAsync<List<CartItemSession>>("cart")
+                       ?? new List<CartItemSession>();
+
+            // 3️⃣ Kiểm tra sản phẩm đã có trong giỏ chưa
+            var item = cart.FirstOrDefault(x => x.ProductId == sp.ProductID);
+
+            if (item != null)
+            {
+                item.Quantity++;
+            }
+            else
+            {
+                cart.Add(new CartItemSession
+                {
+                    ProductId = sp.ProductID,
+                    ProductName = sp.ProductName,
+                    Price = sp.Price,
+                    Quantity = 1
+                });
+            }
+
+            // 4️⃣ Lưu lại session
+            await SessionStorage.SetItemAsync("cart", cart);
+
+            // 5️⃣ Toast thành công
+            await JS.InvokeAsync<object>(
+                "showToast",
+                "success",
+                "Đã thêm sản phẩm vào giỏ hàng"
+            );
+        }
 
     }
 }

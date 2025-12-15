@@ -115,7 +115,7 @@
                                                 <h2 class="product-name">@sp.ProductName</h2>
                                                 <p>@sp.Price.ToString("N0") VND</p>
                                             </a>
-                                            <button class="btn btn-default add-to-cart add-to-cart-primary">
+                                            <button class="btn btn-default add-to-cart add-to-cart-primary" @onclick="() => AddToCart(sp)">
                                                 <i class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng
                                             </button>
                                         </div>
@@ -126,8 +126,16 @@
                     } else
                     { 
                         if (SanPhamData?.Data.Count == 0) {
-                            <h3 class="text-center text-muted">Không có sản phẩm.</h3>
+                        {
+                            <h4 class="text-center text-muted"><i class="fa-light fa-basket-shopping"></i>Không có sản phẩm.</h4>
                         }
+                    }
+                    @if (SanPhamData?.Data != null && SanPhamData.Total > PageSize)
+                    {
+                        <PaginationClient Total="SanPhamData.Total"
+                                          Page="@Page"
+                                          PageChanged="ChangePage"
+                                          PageSize="@PageSize" />
                     }
                 </div>
 
@@ -135,13 +143,4 @@
         </div>
     </div>
 </section>
-
-@if (SanPhamData?.Data != null && SanPhamData.Total > PageSize)
-{
-    <PaginationClient Total="SanPhamData.Total"
-                      Page="@Page"
-                      PageChanged="ChangePage"
-                      PageSize="@PageSize" />
-}
-
 
