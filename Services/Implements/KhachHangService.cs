@@ -111,7 +111,34 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             }
         }
 
-        // cập nhật (CHỈ CHO SỬA TÊN VÀ ĐỊA CHỈ - KHÔNG CHO SỬA SĐT, EMAIL, ĐIỂM)
+        // admin reset mật khẩu khách hàng
+        public async Task<KhachHangDTO> AdminResetPasswordAsync(int customerId, AdminResetPasswordDTO dto)
+        {
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto));
+
+            if (dto.NewPassword != dto.ConfirmNewPassword)
+                throw new ArgumentException("Xác nhận mật khẩu không khớp.");
+
+            if (string.IsNullOrWhiteSpace(dto.NewPassword))
+                throw new ArgumentException("Mật khẩu mới không được để trống.");
+
+            if (dto.NewPassword.Length < 6)
+                throw new ArgumentException("Mật khẩu mới phải có ít nhất 6 ký tự.");
+
+            var customer = await _context.KhachHangs.FindAsync(customerId);
+            if (customer == null)
+                throw new KeyNotFoundException($"Khách hàng với ID {customerId} không tồn tại.");
+
+            // Admin được phép đặt lại mật khẩu mà KHÔNG cần kiểm tra mật khẩu cũ
+            customer.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<KhachHangDTO>(customer);
+        }
+
+        // cập nhật (CHỈ CHO SỬA TÊN VÀ ĐỊA CHỈ  SĐT, KHÔNG CHO SỬA EMAIL VÀ ĐIỂM)
         public async Task<KhachHangDTO?> Update(int id, KhachHangDTO dto)
         {
             try
@@ -125,9 +152,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 // CHỈ CHO PHÉP SỬA TÊN VÀ ĐỊA CHỈ
                 existing.Name = dto.Name;
                 existing.Address = dto.Address;
-
-                // KHÔNG CHO SỬA SỐ ĐIỆN THOẠI, EMAIL, ĐIỂM TÍCH LŨY
-                // existing.Phone = dto.Phone;
+                existing.Phone = dto.Phone?.Trim();
                 // existing.Email = dto.Email;
                 // existing.RewardPoints = dto.RewardPoints;
 
