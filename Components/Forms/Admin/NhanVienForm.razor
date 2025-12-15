@@ -41,7 +41,10 @@
                                 <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                     Mật khẩu <span style="color: #ef4444;">*</span>
                                 </label>
-                                <InputText @bind-Value="Model.Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                                <InputText @bind-Value="Model.Password" type="password" 
+                                            class="form-control" 
+                                            placeholder="Nhập mật khẩu..." 
+                                            style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
                                 @if (!string.IsNullOrEmpty(PasswordError))
                                 {
                                     <span class="text-danger" style="font-size: 13px; font-weight: 500;">
@@ -58,7 +61,10 @@
                             <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                 Họ và tên <span style="color: #ef4444;">*</span>
                             </label>
-                            <InputText @bind-Value="Model.FullName" class="form-control" placeholder="Nhập họ và tên..." style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                            <InputText @bind-Value="Model.FullName" 
+                                        class="form-control" 
+                                        placeholder="Nhập họ và tên..." 
+                                        style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
                             @if (!string.IsNullOrEmpty(FullNameError))
                             {
                                 <span class="text-danger" style="font-size: 13px; font-weight: 500;">
