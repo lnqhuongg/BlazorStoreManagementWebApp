@@ -9,5 +9,6 @@
         public string Role { get; set; } = "staff";
         public DateTime CreatedAt { get; set; }
         public byte Status { get; set; } = 1;
+        public string? NewPassword { get; set; }
     }
 }

@@ -38,5 +38,11 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
             Page = 1;
             await LoadData();
         }
+
+        private async Task FilterChanged(ChangeEventArgs e)
+        {
+            Page = 1;
+            await LoadData();
+        }
     }
 }

@@ -2,51 +2,72 @@
 @using Components.Layout.Client;
 @layout MainLayout
 
-<section id="">
-	<!--form-->
-	<div class="container">
-		<div class="breadcrumbs">
-			<ol class="breadcrumb">
-				<li><a>Home</a></li>
-				<li class="active">Cập nhập thông tin</li>
-			</ol>
-		</div>
-		<div class="row">
-			<div class="col-sm-8 col-sm-offset-1">
-				<div class="signup-form">
-					<!--sign up form-->
-					<h2>Cập nhật thông tin</h2>
-					<div class="text-danger"></div>
-					<form method="post">
-						<input type="hidden"/>
-						<div class="form-group">
-							<label>Username</label>
-							<input required readonly class="form-control" />
-							<span class="text-danger" />
-						</div>
-						<div class="form-group">
-							<label>Email</label>
-							<input required readonly class="form-control" />
-							<span class="text-danger" />
-						</div>
-						<div class="form-group">
-							<label>SĐT</label>
-							<input type="number" required class="form-control" />
-							<span class="text-danger" />
-						</div>
-						<div class="form-group">
-							<label>Địa chỉ giao hàng</label>
-							<input required class="form-control" />
-							<span class="text-danger" />
-						</div>
-						<button class="btn btn-default" style="margin-bottom:30px;">Cập nhật</button>
-					</form>
-				</div><!--/sign up form-->
-			</div>
-		</div>
-	</div>
-</section><!--/form-->
 
-@code {
+<div class="account-management-main-container-unique">
+    <div class="account-navigation-tabs-wrapper-special">
+        <button class="account-tab-navigation-button-detailed active-state" onclick="switchTab('info')">Thông Tin Cá Nhân</button>
+        <button class="account-tab-navigation-button-detailed" onclick="switchTab('password')">Đổi Mật Khẩu</button>
+    </div>
 
-}
+    <div id="info" class="account-tab-content-section-complex active-state">
+        <h2 class="account-section-title-heading-custom">Thông Tin Cá Nhân</h2>
+
+        <div class="account-info-display-panel-special">
+            <div class="account-info-single-item-wrapper">
+                <div class="account-info-label-description">Ngày tạo</div>
+                <div class="account-info-value-display-text">15/01/2024</div>
+            </div>
+            <div class="account-info-single-item-wrapper">
+                <div class="account-info-label-description">Điểm thưởng</div>
+                <div class="account-info-value-display-text">250 điểm</div>
+            </div>
+        </div>
+
+        <form onsubmit="updateInfo(event)">
+            <div class="account-form-input-group-advanced">
+                <label class="account-form-label-text-custom">Họ và tên</label>
+                <input type="text" class="account-input-field-element-unique" value="Nguyễn Văn A" required>
+            </div>
+
+            <div class="account-form-input-group-advanced">
+                <label class="account-form-label-text-custom">Email</label>
+                <input type="email" class="account-input-field-element-unique" value="nguyenvana@example.com" required>
+            </div>
+
+            <div class="account-form-input-group-advanced">
+                <label class="account-form-label-text-custom">Số điện thoại</label>
+                <input type="tel" class="account-input-field-element-unique" value="0123456789" required>
+            </div>
+
+            <div class="account-form-input-group-advanced">
+                <label class="account-form-label-text-custom">Địa chỉ</label>
+                <textarea class="account-textarea-field-element-unique" required>123 Đường ABC, Quận 1, TP.HCM</textarea>
+            </div>
+
+            <button type="submit" class="account-action-submit-button-extended">Cập Nhật</button>
+        </form>
+    </div>
+
+    <div id="password" class="account-tab-content-section-complex">
+        <h2 class="account-section-title-heading-custom">Đổi Mật Khẩu</h2>
+
+        <form onsubmit="changePassword(event)">
+            <div class="account-form-input-group-advanced">
+                <label class="account-form-label-text-custom">Mật khẩu hiện tại</label>
+                <input type="password" class="account-input-field-element-unique" required>
+            </div>
+
+            <div class="account-form-input-group-advanced">
+                <label class="account-form-label-text-custom">Mật khẩu mới</label>
+                <input type="password" class="account-input-field-element-unique" required>
+            </div>
+
+            <div class="account-form-input-group-advanced">
+                <label class="account-form-label-text-custom">Xác nhận mật khẩu mới</label>
+                <input type="password" class="account-input-field-element-unique" required>
+            </div>
+
+            <button type="submit" class="account-action-submit-button-extended">Đổi Mật Khẩu</button>
+        </form>
+    </div>
+</div>

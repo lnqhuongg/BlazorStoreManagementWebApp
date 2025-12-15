@@ -2,112 +2,73 @@
 @using Components.Layout.Client;
 @layout MainLayout
 
-<section id="cart_items">
-	<div class="container">
-		<div class="breadcrumbs">
-			<ol class="breadcrumb">
-				<li><a href="/">Home</a></li>
-				<li class="active">Giỏ hàng</li>
-			</ol>
-		</div>
-		<div class="table-responsive cart_info">
-			<table class="table table-condensed">
-				<thead>
-					<tr class="cart_menu">
-						<td class="image">Item</td>
-						<td class="name">Tên sản phẩm</td>
-						<td class="price">Đơn giá</td>
-						<td class="quantity">Số lượng</td>
-						<td class="total">Tổng tiền</td>
-						<td></td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td class="cart_product">
-							<a href=""><img src="images/cart/one.png" width="150" height="150"></a>
-						</td>
-						<td class="cart_price">
-							<p>Product 001</p>
-						</td>
-						<td class="cart_price">
-							<p>100.000 VND</p>
-						</td>
-						<td>
-							<button class="btn btn-success btn-sm increase" style="float:left"> + </button>
-							<input class="cart_quantity_input" type="text" name="quantity" autocomplete="off" size="2" />
-							<button class="btn btn-success btn-sm decrease"> - </button>
-							<a class="btn btn-danger btn-sm" onclick="return confirm('Confirm remove?')"> x </a>
-						</td>
-						<td class="cart_total">
-							<p class="cart_total_price">200.000 VND</p>
-						</td>
-					</tr>
-					<tr>
-						<td class="cart_product">
-							<a href=""><img src="images/cart/one.png" width="150" height="150"></a>
-						</td>
-						<td class="cart_price">
-							<p>Product 001</p>
-						</td>
-						<td class="cart_price">
-							<p>100.000 VND</p>
-						</td>
-						<td>
-							<button class="btn btn-success btn-sm increase" style="float:left"> + </button>
-							<input class="cart_quantity_input" type="text" name="quantity" autocomplete="off" size="2" />
-							<button class="btn btn-success btn-sm decrease"> - </button>
-							<a class="btn btn-danger btn-sm" onclick="return confirm('Confirm remove?')"> x </a>
-						</td>
-						<td class="cart_total">
-							<p class="cart_total_price">200.000 VND</p>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+<div class="cart-main-wrapper-complex">
+	<div class="cart-title-section-unique">
+		<h1>Giỏ hàng</h1>
+	</div>
+
+	<div class="cart-products-list-special">
+		@if (Cart.Any())
+		{
+			@foreach (var item in Cart)
+			{
+				<div class="cart-single-product-entry-detailed">
+					<div class="product-visual-thumbnail-custom">
+						<img src="@item.ImageUrl" alt="@item.ProductName">
+					</div>
+					<div class="product-details-description-extended">
+						<h3 class="product-title-label-specific">@item.ProductName</h3>
+					</div>
+
+					<div class="product-cost-value-area">
+						<span class="cost-display-text">
+							@item.Price.ToString("N0") VNĐ
+						</span>
+					</div>
+
+					<div class="product-count-selector-advanced">
+						<button class="count-adjust-button-complex minus-variant"
+								@onclick="() => DecreaseQuantity(item.ProductId)">
+							−
+						</button>
+
+						<input type="text"
+							   class="count-input-field-unique"
+							   value="@item.Quantity"
+							   readonly />
+
+						<button class="count-adjust-button-complex plus-variant"
+								@onclick="() => IncreaseQuantity(item.ProductId)">
+							+
+						</button>
+					</div>
+
+					<div class="product-subtotal-calculation-zone">
+						<span class="subtotal-amount-output">
+							@(item.Price* item.Quantity).ToString("N0") đ
+						</span>
+					</div>
+
+					<button class="item-removal-trigger-special"
+							@onclick="() => RemoveFromCart(item.ProductId)">
+						×
+					</button>
+				</div>
+			}
+		}
+		else
+		{
+			<h3 class="text-center text-muted">Giỏ hàng trống</h3>
+		}
+	</div>
+
+	<div class="cart-summary-footer-detailed">
+		<button class="resume-shopping-link-custom">
+			<span class="navigation-arrow-icon">←</span> Tiếp tục mua hàng
+		</button>
+		<div class="overall-total-display-area">
+			<span class="total-description-text">Tổng cộng: <strong class="grand-total-figure-highlight">@Total.ToString("N0")đ</strong></span>
+			<button class="proceed-to-payment-button-extended">Thanh toán</button>
 		</div>
 	</div>
-</section> <!--/#cart_items-->
-
-<section id="do_action">
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-6">
-				<div class="chose_area">
-					<ul class="user_option">
-						<li>
-							<input type="checkbox">
-							<label>Áp dụng mã giảm giá</label>
-						</li>
-					</ul>
-					<ul class="user_info">
-						<li class="single_field">
-							<label>Chọn mã giảm:</label>
-							<select>
-								<option>Coupon 001</option>
-								<option>Coupon 002</option>
-								<option>Coupon 003</option>
-							</select>
-
-						</li>
-					</ul>
-				</div>
-			</div>
-			<div class="col-sm-6">
-				<div class="total_area">
-					<ul>
-						<li>Tổng tiền trước giảm <span>400.000 VND</span></li>
-						<li>Giá đã giảm <span>10%</span></li>
-						<li>Phí vận chuyển <span>Free</span></li>
-						<li>THành tiền <span>360.000 VND</span></li>
-					</ul>
-					<a class="btn btn-default check_out" href="checkout.html">Thanh toán</a>
-				</div>
-			</div>
-		</div>
-	</div>
-</section><!--/#do_action-->
-
-@code {
-
-}
+</div>
