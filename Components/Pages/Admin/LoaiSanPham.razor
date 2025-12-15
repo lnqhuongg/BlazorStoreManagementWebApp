@@ -1,6 +1,8 @@
 ﻿@attribute [StreamRendering]
 @rendermode InteractiveServer
 @page "/admin/loaisanpham"
+@using Components.Layout.Admin;
+@layout MainLayout
 
 <!-- HEADER -->
 <div class="content-header">
@@ -51,7 +53,7 @@
             {
                 @foreach (var item in LoaiData.Data)
                 {
-                    <tr>
+                    <tr @key="item.CategoryId">
                         <td>@item.CategoryId</td>
                         <td class="text-center">@item.CategoryName</td>
                         <td class="text-center">

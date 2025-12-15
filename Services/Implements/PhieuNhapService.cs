@@ -263,7 +263,14 @@ namespace BlazorStoreManagementWebApp.Services.Implements
 
         public IQueryable<PhieuNhap> FilterAndSearch(IQueryable<PhieuNhap> query, PhieuNhapFilter input)
         {
-            query = _context.PhieuNhaps.AsQueryable();
+            //query = _context.PhieuNhaps.AsQueryable();
+
+            if (input == null)
+            {
+                // Xử lý trường hợp input là null (ví dụ: trả về query mà không lọc)
+                Console.WriteLine("InputFilter received is NULL in FilterAndSearch.");
+                return query;
+            }
             Console.WriteLine($"StartDate: {input.StartDate}");
             Console.WriteLine($"EndDate: {input.EndDate}");
             // 🔹 Tìm kiếm theo từ khóa
@@ -295,7 +302,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 query = query.Where(p => p.ImportDate <= endDate);
             }
 
-            // 🔹 Include navigation
+            // Include navigation
             query = query
                 .Include(p => p.Staff)
                 .Include(p => p.Supplier)
@@ -310,6 +317,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         public async Task<PagedResult<PhieuNhapDTO>> GetAll(PhieuNhapFilter input, int pageNumber, int pageSize)
         {
             var query = FilterAndSearch(_context.PhieuNhaps, input);
+
             // ✅ Sắp xếp trước khi Skip/Take
             query = query.OrderBy(p => p.ImportDate);
             var total = await query.CountAsync();
@@ -322,6 +330,60 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 PageSize = pageSize,
                 Data = _mapper.Map<List<PhieuNhapDTO>>(pagedList)
             };
+        }
+
+        public long TinhTongTienNhap(string mode, int month, int year)
+        {
+            var query = _context.PhieuNhaps.AsQueryable();
+            if (mode == "Month")
+            {
+                query = query.Where(p => p.ImportDate.Month == month && p.ImportDate.Year == year);
+            }
+            else if (mode == "Year")
+            {
+                query = query.Where(p => p.ImportDate.Year == year);
+            }
+            long totalTienNhap = query.Sum(p => (long?)p.TotalAmount) ?? 0;
+            return totalTienNhap;
+        }
+
+        public List<long> GetCapitalByMonth(int month, int year)
+        {
+            int days = DateTime.DaysInMonth(year, month);
+            List<long> result = new();
+
+            for (int day = 1; day <= days; day++)
+            {
+                var start = new DateTime(year, month, day);
+                var end = start.AddDays(1);
+
+                long total = (long) _context.PhieuNhaps
+                    .Where(i => i.ImportDate >= start && i.ImportDate < end)
+                    .Sum(i => i.TotalAmount);
+
+                result.Add(total);
+            }
+
+            return result;
+        }
+
+        public List<long> GetCapitalByYear(int year)
+        {
+            List<long> result = new();
+
+            for (int month = 1; month <= 12; month++)
+            {
+                var start = new DateTime(year, month, 1);
+                var end = start.AddMonths(1);
+
+                long total = (long) _context.PhieuNhaps
+                    .Where(o => o.ImportDate >= start && o.ImportDate < end)
+                    .Sum(o => o.TotalAmount);
+
+                result.Add(total);
+            }
+
+            return result;
         }
 
     }

@@ -1,0 +1,267 @@
+﻿@attribute [StreamRendering]
+@rendermode InteractiveServer
+@page "/admin/banhang"
+@using Components.Layout.Admin;
+@layout MainLayout
+
+<div class="pos-container" id="posContainer">
+    <!-- BÊN TRÁI: DANH SÁCH SẢN PHẨM + CHỌN KHÁCH HÀNG -->
+    <div class="products-section">
+        <!-- Product list section -->
+        <div>
+            <h3 class="section-title">
+                <i class="fas fa-boxes"></i>
+                Danh sách sản phẩm
+            </h3>
+
+            <!--Bộ lọc và tìm kiếm -->
+            <div class="filter-bar">
+                <input type="text"
+                       id="searchProduct"
+                       placeholder="🔍 Tìm kiếm sản phẩm..."
+                       @bind="Keyword"
+                       @bind:event="oninput"
+                       @onkeyup="Search" />
+                <select id="filterCategory" @onchange="OnCategoryChanged">
+                    <option value="">Tất cả loại</option>
+                    @foreach (var category in LSPData)
+                    {
+                        <option value="@category.CategoryId">@category.CategoryName</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Danh sách sản phẩm từ database -->
+            <div class="products-grid" id="productsGrid">
+                @if (SPData?.Data != null && SPData.Data.Any())
+                {
+                    @foreach (var product in SPData.Data)
+                    {
+                        var stock = StockMap.ContainsKey(product.ProductID) ? StockMap[product.ProductID] : 0;
+                        <div class="product-card" @onclick="() => AddToCart(product.ProductID, product.ProductName, product.Price)">
+                            <div class="product-image">
+                                <img src="@product.ImageUrl" alt="@product.ProductName" />
+                            </div>
+                            <div class="product-name">@product.ProductName</div>
+                            <div class="product-price">@((product.Price).ToString("N0"))₫</div>
+                            <div class="product-quantity product-name">Tồn kho: @stock</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #999;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>Không có sản phẩm nào</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (SPData?.Data != null && SPData.Data.Any())
+            {
+                <PaginationAdmin Total="SPData.Total"
+                                  Page="@Page"
+                                  PageChanged="ChangePage"
+                                  PageSize="@PageSize" />
+            }
+        </div>
+
+        <!-- Customer and discount section at bottom -->
+        <div class="customer-discount-section">
+            <!-- Chọn khách hàng -->
+            <div class="section-subtitle">
+                <i class="fas fa-user-circle"></i>
+                Thông tin khách hàng
+            </div>
+
+            <div class="customer-input-group" style="margin-bottom: 5px;">
+                <input type="text"
+                       id="customerPhone"
+                       placeholder="Nhập số điện thoại khách hàng"
+                       maxlength="10"
+                       @bind="CustomerPhone" />
+                
+                <button class="find-customer-btn" @onclick="FindCustomer">
+                    <i class="fas fa-search"></i> Tìm khách hàng
+                </button>
+            </div>
+            @if (ShowCustomerSuggestion && SelectedCustomer != null)
+            {
+                <div class="autocomplete-box">
+                    <div class="autocomplete-item">
+                        <strong>@SelectedCustomer.Name</strong> - @SelectedCustomer.Phone
+                    </div>
+                </div>
+            }
+
+            <!-- Customer info display -->
+            <div class="customer-info-display @(SelectedCustomer != null ? "show" : "")">
+                <div class="customer-name-display">
+                    <i class="fas fa-user-check"></i>
+                    <span>@SelectedCustomer?.Name</span>
+                </div>
+
+                <div class="customer-points-display">
+                    <span class="points-label">
+                        <i class="fas fa-gift"></i> Điểm thưởng khả dụng
+                    </span>
+                    <span class="points-value">
+                        @SelectedCustomer?.RewardPoints điểm
+                    </span>
+                </div>
+
+                <label class="use-points-checkbox">
+                    <input type="checkbox" @bind="UsePoints" />
+                    <span>Sử dụng điểm thưởng (1.000 điểm = 1.000₫)</span>
+                </label>
+            </div>
+
+            <!-- Discount code section -->
+            <div class="section-subtitle" style="margin-top: 1rem;">
+                <i class="fas fa-tag"></i>
+                Mã giảm giá
+            </div>
+
+            <div class="discount-input-group" style="margin-bottom: 5px;">
+                <input type="text" 
+                       id="discountCode" 
+                       placeholder="Nhập mã giảm giá (VD: GIAM10)"
+                       @bind="DiscountKeyword" />
+                <button class="apply-discount-btn" @onclick="ApplyDiscount">
+                    <i class="fas fa-ticket-alt"></i> Áp dụng
+                </button>
+            </div>
+            @if (DiscountSuggestions.Any())
+            {
+                <div class="autocomplete-box">
+                    @foreach (var promo in DiscountSuggestions)
+                    {
+                        <div class="autocomplete-item"
+                             @onclick="() => SelectDiscount(promo)">
+                            <strong>@promo.PromoCode</strong> - @promo.Description
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Cart section - always visible -->
+    <div class="cart-section" id="cartSection">
+        <h3 class="section-title">
+            <i class="fas fa-shopping-cart"></i>
+            Đơn hàng
+        </h3>
+
+        <!-- Danh sách sản phẩm trong giỏ -->
+        <div class="cart-items" id="cartItems">
+            @if (Cart != null && Cart.Any())
+            {
+                @foreach (var item in Cart)
+                {
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">@item.Name</div>
+                            <div class="cart-item-price">@((item.Price).ToString("N0"))₫</div>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" @onclick="() => DecreaseQuantity(item.ProductId)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity-display">@item.Quantity</span>
+                            <button class="quantity-btn" @onclick="() => IncreaseQuantity(item.ProductId)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <button class="remove-item" @onclick="() => RemoveFromCart(item.ProductId)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-basket"></i>
+                    <p>Chưa có sản phẩm nào</p>
+                </div>
+            }
+        </div>
+
+        <!-- Order summary section -->
+        <div class="order-summary">
+            <div class="summary-row">
+                <span class="label">Tạm tính:</span>
+                <span class="amount" id="subtotal">@((Subtotal).ToString("N0"))₫</span>
+            </div>
+            @* @* <div class="summary-row discount" id="discountRow" style="display: none;">
+                <span class="label">Mã giảm giá:</span>
+                <span class="amount" id="discount">0₫</span>
+            </div> *@ 
+            @if (SelectedDiscount != null)
+            {
+                <div class="summary-row discount">
+                    <span class="label">Mã giảm giá (@SelectedDiscount.PromoCode):</span>
+                    <span class="amount">-@PromoDiscount.ToString("N0")₫</span>
+                </div>
+            }
+            @* <div class="summary-row points-discount" id="pointsDiscountRow" style="display: none;">
+                <span class="label">Điểm thưởng:</span>
+                <span class="amount" id="pointsDiscount">0₫</span>
+            </div> *@
+            @if (UsePoints && SelectedCustomer != null)
+            {
+                <div class="summary-row points-discount">
+                    <span class="label">Điểm thưởng:</span>
+                    <span class="amount">-@PointsDiscount.ToString("N0")₫</span>
+                </div>
+            }
+            <div class="summary-row total">
+                <span class="label">Tổng cộng:</span>
+                <span class="amount" id="total">@Total.ToString("N0")₫</span>
+            </div>
+        </div>
+
+        <!-- Payment methods -->
+        <div class="payment-methods">
+            <div class="payment-methods-label">
+                <i class="fas fa-credit-card"></i> Phương thức thanh toán
+            </div>
+            <div class="payment-options">
+                <div class="payment-option @(SelectedPaymentMethod == "cash" ? "active" : "")"
+                     @onclick="@(() => SelectPayment("cash"))">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <div>Tiền mặt</div>
+                </div>
+
+                <div class="payment-option @(SelectedPaymentMethod == "card" ? "active" : "")"
+                     @onclick="@(() => SelectPayment("card"))">
+                    <i class="fas fa-credit-card"></i>
+                    <div>Thẻ</div>
+                </div>
+
+                <div class="payment-option @(SelectedPaymentMethod == "bank_transfer" ? "active" : "")"
+                     @onclick="@(() => SelectPayment("bank_transfer"))">
+                    <i class="fas fa-university"></i>
+                    <div>Chuyển khoản</div>
+                </div>
+
+                <div class="payment-option @(SelectedPaymentMethod == "e-wallet" ? "active" : "")"
+                     @onclick="@(() => SelectPayment("e-wallet"))">
+                    <i class="fas fa-wallet"></i>
+                    <div>Ví điện tử</div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Checkout button -->
+        <button class="checkout-btn"  
+                @onclick="Checkout"
+                disabled="@IsCheckoutDisabled">
+            <i class="fas fa-check-circle"></i> Thanh toán
+        </button>
+    </div>
+</div>

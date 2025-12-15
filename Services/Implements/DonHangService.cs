@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using BlazorStoreManagementWebApp.Components.Pages.Client;
+using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
+using BlazorStoreManagementWebApp.Helpers;
 using BlazorStoreManagementWebApp.Models;
 using BlazorStoreManagementWebApp.Models.Entities;
 using BlazorStoreManagementWebApp.Services.Interfaces;
-using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
 using Microsoft.EntityFrameworkCore;
-using BlazorStoreManagementWebApp.Helpers;
 
 namespace BlazorStoreManagementWebApp.Services.Implements
 {
@@ -62,27 +63,55 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         }
 
         // ==================== 2. LẤY DANH SÁCH (Phân trang) ====================
-        public async Task<PagedResult<DonHangDTO>> GetAll(int page, int pageSize, DonHangFilterDTO filter)
+        public async Task<PagedResult<DonHangDTO>> GetAll(int page, int pageSize, string keyword, string status = "")
         {
-            // Bước 1: Gọi hàm lọc ở trên
-            var query = ApplyFilter(filter);
+            // 1. Tạo Query: Nối bảng Đơn hàng (DonHangs) với Khách hàng (KhachHangs)
+            var query = from o in _context.DonHangs
+                        join c in _context.KhachHangs on o.CustomerId equals c.CustomerId into custGroup
+                        from cust in custGroup.DefaultIfEmpty() // Left Join
+                        select new
+                        {
+                            Order = o,
+                            CustomerName = cust != null ? cust.Name : "Khách vãng lai",
+                            Phone = cust != null ? cust.Phone : "",
+                            Status = o.Status ?? "pending"
+                        };
 
-            // Bước 2: Đếm tổng số bản ghi thỏa mãn điều kiện lọc
+            // 2. Lọc theo Từ khóa (Keyword)
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(x => x.Order.OrderId.ToString().Contains(keyword)
+                                      || x.CustomerName.Contains(keyword));
+            }
+
+            // 3. Lọc theo Trạng thái (Status) - Sửa lỗi thiếu biến filter ở đây
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(x => x.Status == status);
+            }
+
+            // 4. Đếm tổng số bản ghi
             var total = await query.CountAsync();
 
-            // Bước 3: Phân trang và lấy dữ liệu
-            var list = await query
-                .OrderByDescending(x => x.OrderDate) // Đơn mới nhất lên đầu
+            // 5. Phân trang & Lấy dữ liệu
+            var data = await query
+                .OrderByDescending(x => x.Order.OrderDate)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Include(x => x.Items)      // Quan trọng: Lấy kèm chi tiết đơn hàng
-                .Include(x => x.Payments)   // Quan trọng: Lấy kèm lịch sử thanh toán
+                .Select(x => new DonHangDTO
+                {
+                    OrderId = x.Order.OrderId,
+                    CustomerName = x.CustomerName,
+                    Phone = x.Phone,
+                    OrderDate = x.Order.OrderDate,
+                    TotalAmount = x.Order.TotalAmount,
+                    Status = x.Status
+                })
                 .ToListAsync();
 
-            // Bước 4: Map sang DTO và trả về
             return new PagedResult<DonHangDTO>
             {
-                Data = _mapper.Map<List<DonHangDTO>>(list),
+                Data = data,
                 Total = total,
                 Page = page,
                 PageSize = pageSize
@@ -107,14 +136,23 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             var dto = _mapper.Map<DonHangDTO>(e);
             dto.CustomerName = e.Customer?.Name ?? "";
             dto.UserName = e.User?.FullName ?? "";
+            dto.Phone = e.Customer?.Phone ?? "";
             return dto;
         }
 
         // ==================== 4. TẠO MỚI (Create) ====================
-        public async Task<DonHangDTO> CreateStaff(CreateDonHangDTO dto)
+        public async Task<DonHangDTO> Create(CreateDonHangDTO dto, string userType = "staff")
         {
             using var tran = await _context.Database.BeginTransactionAsync();
 
+            var statusOrder = "pending";
+            if(userType == "client")
+            {
+                statusOrder = "pending";
+            } else if (userType == "staff")
+            {
+                statusOrder = "paid";
+            }
             try
             {
                 // 1) Map Order
@@ -126,7 +164,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                     TotalAmount = dto.TotalAmount ?? 0,
                     DiscountAmount = dto.DiscountAmount,
                     OrderDate = DateTime.Now,
-                    Status = "paid",
+                    Status = statusOrder,
                     Items = dto.Items?.Select(i => new ChiTietDonHang
                     {
                         ProductId = i.ProductId,
@@ -140,12 +178,16 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 _context.DonHangs.Add(orderEntity);
                 await _context.SaveChangesAsync();   // <-- sinh OrderId
 
+                await DeductStock(orderEntity);
+
+                await HandleRewardPoints(dto, orderEntity);
+
                 // 3) Insert Payments nếu có
                 if (dto.Payments != null)
                 {
                     foreach (var p in dto.Payments)
                     {
-                        var payment = new ThanhToan
+                        var payment = new Models.Entities.ThanhToan
                         {
                             OrderId = orderEntity.OrderId,
                             Amount = p.Amount,
@@ -171,6 +213,139 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 throw new Exception("SQL Error: " + msg);
             }
         }
+
+        private async Task DeductStock(DonHang order)
+        {
+            foreach (var item in order.Items)
+            {
+                var tonkho = await _context.TonKhos
+                    .FirstOrDefaultAsync(x => x.ProductId == item.ProductId);
+
+                if (tonkho == null || tonkho.Quantity < item.Quantity)
+                    throw new Exception("Không đủ tồn kho");
+
+                tonkho.Quantity -= item.Quantity;
+                tonkho.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task HandleRewardPoints(CreateDonHangDTO dto, DonHang order)
+        {
+            if (dto.CustomerId == null) return;
+
+            var customer = await _context.KhachHangs.FindAsync(dto.CustomerId);
+            if (customer == null) return;
+
+            // 1️⃣ Trừ điểm đã sử dụng
+            if (dto.rewardPoints.HasValue && dto.rewardPoints.Value > 0)
+            {
+                customer.RewardPoints -= dto.rewardPoints.Value;
+
+                if (customer.RewardPoints < 0)
+                    customer.RewardPoints = 0;
+            }
+
+            // 2️⃣ Cộng điểm sau thanh toán
+            // Quy ước: 5% tổng tiền thực trả, tối đa 1.500 điểm
+            var rewardEarned = (int)(order.TotalAmount * 0.05m);
+            rewardEarned = Math.Min(rewardEarned, 1500);
+
+            customer.RewardPoints += rewardEarned;
+
+            await _context.SaveChangesAsync();
+        }
+        // ==================== 4. TẠO MỚI (Create) ====================
+        public Task<List<DonHangDTO>> GetTodayOrders()
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+            var orders = _context.DonHangs
+                .Where(o => o.OrderDate >= today && o.OrderDate < tomorrow)
+                .Include(o => o.Customer)
+                .Include(o => o.User)
+                .Include(o => o.Items)
+                .AsNoTracking();
+            return orders
+                .Select(o => _mapper.Map<DonHangDTO>(o))
+                .ToListAsync();
+        }
+
+        public async Task<long> TinhTongDoanhThu(string mode, int month, int year)
+        {
+            try
+            {
+                decimal totalDecimal = 0m;
+
+                if (mode == "month")
+                {
+                    var start = new DateTime(year, month, 1);
+                    var end = start.AddMonths(1);
+
+                    totalDecimal = await _context.DonHangs
+                        .Where(x => x.Status == "paid" && x.OrderDate >= start && x.OrderDate < end)
+                        .SumAsync(x => x.TotalAmount ?? 0m);
+                }
+                else if (mode == "year")
+                {
+                    var start = new DateTime(year, 1, 1);
+                    var end = start.AddYears(1);
+
+                    totalDecimal = await _context.DonHangs
+                        .Where(x => x.Status == "paid" && x.OrderDate >= start && x.OrderDate < end)
+                        .SumAsync(x => x.TotalAmount ?? 0m);
+                }
+
+                // Convert decimal total to long (round to nearest)
+                return Convert.ToInt64(totalDecimal);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi tính tổng doanh thu: " + ex.Message);
+            }
+        }
+
+        public List<long> GetRevenueByMonth(int month, int year)
+        {
+            int days = DateTime.DaysInMonth(year, month);
+            List<long> result = new();
+
+            for (int day = 1; day <= days; day++)
+            {
+                var start = new DateTime(year, month, day);
+                var end = start.AddDays(1);
+
+                long total = (long) _context.DonHangs
+                    .Where(o => o.OrderDate >= start && o.OrderDate < end)
+                    .Sum(o => o.TotalAmount ?? 0);
+
+                result.Add(total);
+            }
+
+            return result;
+        }
+
+        public List<long> GetRevenueByYear(int year)
+        {
+            List<long> result = new();
+
+            for (int month = 1; month <= 12; month++)
+            {
+                var start = new DateTime(year, month, 1);
+                var end = start.AddMonths(1);
+
+                long total = (long) _context.DonHangs
+                    .Where(o => o.OrderDate >= start && o.OrderDate < end)
+                    .Sum(o => o.TotalAmount ?? 0);
+
+                result.Add(total);
+            }
+
+            return result;
+        }
+
+        
 
     }
 }

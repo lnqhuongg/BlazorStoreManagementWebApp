@@ -61,6 +61,4 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             return _mapper.Map<TonKhoDTO>(tonkho);
         }
     }
-
-
 }

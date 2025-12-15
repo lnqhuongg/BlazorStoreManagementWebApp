@@ -3,7 +3,10 @@
 @using BlazorStoreManagementWebApp.DTOs.Admin.NhaCungCap
 @attribute [StreamRendering]
 @rendermode InteractiveServer
+@using Components.Layout.Admin;
+@layout MainLayout
 
+<!-- HEADER -->
 <div class="content-header">
     <h2>
         <i class="fas fa-truck-moving"></i>
@@ -11,77 +14,84 @@
     </h2>
 </div>
 
+<!-- ACTION BAR -->
 <div class="action-bar">
-    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+    <button class="btn-add" @onclick="() => NhaCungCapFormRef?.OpenCreate()">
         <i class="fas fa-plus"></i>
         Thêm mới
     </button>
-    
+
     <div class="search-group w-100">
-        <input type="text" placeholder="Tìm tên nhà cung cấp..." class="form-control">
-        <button class="btn-search">
+        <input @bind="Keyword" type="text" placeholder="Tìm kiếm..." class="form-control">
+        <button class="btn-search" @onclick="Search">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
     </div>
 </div>
 
+<!-- TABLE -->
 <div class="table-container">
     <table class="table">
         <thead>
             <tr>
-                <th>Mã NCC</th>
+                <th>ID</th>
                 <th>Tên nhà cung cấp</th>
-                <th>Liên hệ</th>
+                <th>SĐT</th>
+                <th>Email</th>
                 <th>Địa chỉ</th>
-                <th class="text-center">Trạng thái</th>
+                <th>Trạng thái</th>
                 <th class="text-center">Tùy chỉnh</th>
             </tr>
         </thead>
         <tbody>
-            @* Giả lập dữ liệu *@
-            <tr>
-                <td>#NCC001</td>
-                <td>Công ty ABC</td>
-                <td>
-                    <div><i class="fas fa-phone small text-muted"></i> 0909123456</div>
-                    <div><i class="fas fa-envelope small text-muted"></i> abc@gmail.com</div>
-                </td>
-                <td>Hà Nội</td>
-                <td class="text-center"><span class="status-badge status-active">Hoạt động</span></td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-action btn-delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-            <tr>
-                <td>#NCC002</td>
-                <td>Công ty XYZ</td>
-                <td>
-                    <div><i class="fas fa-phone small text-muted"></i> 0912123456</div>
-                </td>
-                <td>TP HCM</td>
-                <td class="text-center"><span class="status-badge status-inactive" style="background-color: #fee2e2; color: #991b1b;">Tạm ngưng</span></td>
-                <td class="text-center">
-                    <button class="btn-action btn-edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-action btn-delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
+            @if (SupplierData?.Data == null || !SupplierData.Data.Any())
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                        Không có dữ liệu
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in SupplierData.Data)
+                {
+                    <tr>
+                        <td>@item.SupplierId</td>
+                        <td>@item.Name</td>
+                        <td>@item.Phone</td>
+                        <td>@item.Email</td>
+                        <td>@item.Address</td>
+                        <td class="text-center">
+                            <span class="status-badge @(item.Status == 1 ? "status-active" : "status-inactive")">
+                                @(item.Status == 1 ? "Hoạt động" : "Ngừng hợp tác")
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-action btn-edit"
+                                    @onclick="() => NhaCungCapFormRef?.OpenUpdate(item)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
         </tbody>
     </table>
 </div>
-<PaginationAdmin />
 
-<NhaCungCapForm />
+@if (SupplierData?.Data != null && SupplierData.Data.Any())
+{
+    <PaginationAdmin Total="SupplierData.Total"
+                     Page="@Page"
+                     PageChanged="ChangePage"
+                     PageSize="@PageSize" />
+}
+
+<NhaCungCapForm @ref="NhaCungCapFormRef" OnSuccess="LoadData" />
 
 @code {
-    // Code C# gọi Service lấy list nhà cung cấp sẽ đặt ở đây
+    // phần logic đã chuyển sang file NhaCungCap.razor.cs
 }

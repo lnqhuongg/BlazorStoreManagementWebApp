@@ -1,0 +1,29 @@
+﻿.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.pagination-area {
+    margin-bottom: 45px;
+    margin-top: 45px
+}
+
+.pagination-area
+.pagination li a {
+    background: #F0F0E9;
+    border: 0 none;
+    border-radius: 0;
+    color: #696763;
+    margin-right: 5px;
+    padding: 4px 12px;
+}
+
+.pagination-area
+.pagination li a:hover,
+.pagination-area
+.pagination li .active {
+    background: #FE980F;
+    color: #fff
+}

@@ -1,4 +1,11 @@
-﻿﻿@* Navbar client *@
+﻿@using BlazorStoreManagementWebApp.Services.Interfaces
+@inject IAuthService IAuthService
+@inject IKhachHangService IKhachHangService
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject NavigationManager Navigation
+@implements IDisposable
+
+@* Navbar client *@
 <header id="header">
 	<!--header-->
 	<div class="header_top">
@@ -8,8 +15,8 @@
 				<div class="col-sm-6">
 					<div class="contactinfo">
 						<ul class="nav nav-pills">
-							<li><a href="#"><i class="fa fa-phone"></i> 0963778828</a></li>
-							<li><a href="#"><i class="fa fa-envelope"></i> trungbekerteo001@gmail.com</a></li>
+							<li><a href="#"><i class="fa fa-phone"></i> @Phone</a></li>
+							<li><a href="#"><i class="fa fa-envelope"></i> @Email</a></li>
 						</ul>
 					</div>
 				</div>
@@ -22,57 +29,146 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-4">
-						<div class="logo pull-left">
-							<a href="/"><img src="images/home/logo.png" alt="" /></a>
-						</div>
+					<div class="logo pull-left">
+						<a href="/"><img src="images/home/logo.png" alt="" /></a>
 					</div>
+				</div>
 				<div class="col-sm-8">
 					<div class="shop-menu pull-right">
 						<ul class="nav navbar-nav">
-								<li class="dropdown">
-									<a style="cursor:pointer" class="dropdown-toggle" data-toggle="dropdown">
-										<i class="fa fa-user"></i> Tài khoản <span class="caret"></span>
+							@if (IsLoggedIn)
+							{
+								<li class="dropdown @(isDropdownOpen ? "show" : "")">
+									<a href="#" style="cursor:pointer"
+									   class="dropdown-toggle"
+									   @onclick="ToggleDropdown"
+									   @onclick:preventDefault="true"
+									   aria-expanded="@(isDropdownOpen ? "true" : "false")">
+										<i class="fa fa-user"></i> @FullName <span class="caret"></span>
 									</a>
-									<ul class="dropdown-menu">
+									<ul class="dropdown-menu @(isDropdownOpen ? "show" : "")">
 										<li><a style="cursor:pointer" href="/thongtintaikhoan">Update thông tin cá nhân</a></li>
-										<li><a style="cursor:pointer" href="/order">Lích sử mua hàng</a></li>
+										<li><a style="cursor:pointer" href="/order">Lịch sử mua hàng</a></li>
 									</ul>
 								</li>
-								<li><a style="cursor:pointer" href="/giohang"><i class="fa fa-crosshairs"></i> Giỏ hàng</a></li>						
+								<li><a style="cursor:pointer" href="/giohang"><i class="fa fa-crosshairs"></i> Giỏ hàng</a></li>
+								<li><a style="cursor:pointer" @onclick="Logout"><i class="fa fa-sign-out"></i> Đăng xuất</a></li>
+							}
+							else
+							{
 								<li><a style="cursor:pointer" href="/dangnhap"> Đăng nhập</a></li>
+								<li><a style="cursor:pointer" href="/dangky"> Đăng ký</a></li>
+							}
 						</ul>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div><!--/header-middle-->
-
-	<div class="header-bottom">
-		<!--header-bottom-->
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-9">
-					<div class="navbar-header">
-					</div>
-					<div class="mainmenu pull-left">
-						<ul class="nav navbar-nav collapse navbar-collapse">
-							<li><a class="active" style="cursor:pointer" href="/">Home</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<form>
-						<div class="search_box pull-right">
-							<input type="text" placeholder="Search" name="searchTerm"/>
-							<button class="btn btn-warning" type="submit">Tìm kiếm</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div><!--/header-bottom-->
 </header><!--/header-->
-
 @code {
+	private string FullName = "User";
+	private string Phone = "";
+	private string Email = "";
+	private bool IsLoggedIn = false;
 
+	// local dropdown state (Blazor-controlled to avoid depending on Bootstrap JS)
+	private bool isDropdownOpen = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await LoadUserInfo();
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Subscribe to location changes
+		Navigation.LocationChanged += OnLocationChanged;
+	}
+
+	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+	{
+		// Reload user info mỗi lần chuyển trang
+		_ = Task.Run(async () =>
+		{
+			await LoadUserInfo();
+		});
+	}
+
+	private async Task LoadUserInfo()
+	{
+		try
+		{
+			var idKH = await SessionStorage.GetItemAsync<int>("clientId");
+
+			if (idKH > 0)
+			{
+				IsLoggedIn = true;
+				var client = await IKhachHangService.GetById(idKH);
+				if (client != null)
+				{
+					FullName = client.Name;
+					Phone = client.Phone;
+					Email = client.Email;
+				}
+				else
+				{
+					var fullName = await SessionStorage.GetItemAsync<string>("clientName");
+					if (!string.IsNullOrEmpty(fullName))
+					{
+						FullName = fullName;
+					}
+				}
+			}
+			else
+			{
+				IsLoggedIn = false;
+				FullName = "User";
+				Phone = "";
+				Email = "";
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error loading user info: {ex.Message}");
+		}
+		finally
+		{
+			// ensure dropdown is closed when loading user info
+			isDropdownOpen = false;
+			await InvokeAsync(StateHasChanged);
+		}
+	}
+
+	private void ToggleDropdown()
+	{
+		isDropdownOpen = !isDropdownOpen;
+	}
+
+	private async Task Logout()
+	{
+		await SessionStorage.RemoveItemAsync("clientId");
+		await SessionStorage.RemoveItemAsync("clientName");
+		await SessionStorage.RemoveItemAsync("clientRole");
+
+		// Clear cart on logout
+		await SessionStorage.RemoveItemAsync("cart");
+
+		IsLoggedIn = false;
+		FullName = "User";
+		Phone = "";
+		Email = "";
+		isDropdownOpen = false;
+		await InvokeAsync(StateHasChanged);
+
+		Navigation.NavigateTo("/dangnhap", forceLoad: true);
+	}
+
+	public void Dispose()
+	{
+		Navigation.LocationChanged -= OnLocationChanged;
+	}
 }

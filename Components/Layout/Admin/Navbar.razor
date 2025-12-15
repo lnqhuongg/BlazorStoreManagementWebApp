@@ -1,8 +1,65 @@
-﻿<nav class="navbar navbar-admin">
-    <div class="container-fluid">
-        <span class="navbar-brand">
-            <i class="fas fa-layer-group"></i>
-            Admin Dashboard
-        </span>
+﻿@using BlazorStoreManagementWebApp.Services.Interfaces
+@inject IAuthService IAuthService
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject NavigationManager Navigation
+
+<nav class="custom-navbar">
+    <div class="navbar-content">
+        <!-- Left side: Title -->
+        <h1 class="navbar-title">
+            <i class="fas fa-store"></i>
+            <span>Quản lý Cửa hàng bán lẻ</span>
+        </h1>
+
+        <!-- Right side: User dropdown -->
+        <div class="user-profile-dropdown">
+            <button class="user-profile-btn">
+                <span class="user-name">@FullName</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="user-dropdown-menu">
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-user"></i>
+                    Thông tin cá nhân
+                </a>
+                <button class="dropdown-item" @onclick="Logout"> <i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </div>
+        </div>
     </div>
 </nav>
+
+@code {
+    private string FullName = "Admin User";
+
+    // Move SessionStorage calls to OnAfterRenderAsync to avoid JSInterop during prerendering
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            var fullName = await SessionStorage.GetItemAsync<string>("adminName");
+            if (!string.IsNullOrEmpty(fullName))
+            {
+                FullName = fullName;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            // If JS interop not available or any error, fail silently to avoid crashing prerender
+            Console.WriteLine($"Navbar: could not read session storage: {ex.Message}");
+        }
+    }
+
+    private async Task Logout()
+    {
+        await SessionStorage.RemoveItemAsync("adminId");
+        await SessionStorage.RemoveItemAsync("adminName");
+        await SessionStorage.RemoveItemAsync("adminRole");
+
+        Navigation.NavigateTo("/admin/dangnhap", forceLoad: true);
+    }
+
+}

@@ -1,8 +1,14 @@
 ﻿@page "/admin/donhang"
+@using BlazorStoreManagementWebApp.DTOs.Admin.DonHang
 @using BlazorStoreManagementWebApp.Components.Forms.Admin
+@using BlazorStoreManagementWebApp.Components.UI.Pagination
+
 @attribute [StreamRendering]
 @rendermode InteractiveServer
+@using Components.Layout.Admin;
+@layout MainLayout
 
+<!-- HEADER -->
 <div class="content-header">
     <h2>
         <i class="fas fa-shopping-cart"></i>
@@ -10,73 +16,106 @@
     </h2>
 </div>
 
+<!-- ACTION BAR -->
 <div class="action-bar">
-    <button class="btn-add" style="opacity: 0.5; cursor: not-allowed;" title="Chức năng đang phát triển">
-        <i class="fas fa-plus"></i>
-        Tạo đơn
-    </button>
-    
     <div class="search-group w-100">
-        <input type="text" placeholder="Tìm mã đơn, tên khách hàng..." class="form-control">
-        <button class="btn-search">
+        <input type="text" 
+               @bind="Keyword" 
+               placeholder="Nhập mã đơn hoặc tên khách..." 
+               class="form-control">
+        <button class="btn-search" @onclick="HandleSearch">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
     </div>
+
+    <select class="form-control ms-2" style="width: auto;" @onchange="HandleStatusFilter">
+        <option value="">-- Tất cả trạng thái --</option>
+        <option value="pending">Chờ thanh toán </option>
+        <option value="paid">Đã thanh toán </option>
+        <option value="canceled">Đã hủy </option>
+    </select>
 </div>
 
+<!-- TABLE -->
 <div class="table-container">
     <table class="table">
         <thead>
             <tr>
-                <th>Mã đơn</th>
+                <th class="text-center">#ID</th>
                 <th>Khách hàng</th>
                 <th>Ngày đặt</th>
-                <th class="text-end">Tổng tiền</th>
-                <th class="text-center">Thanh toán</th>
-                <th class="text-center">Hành động</th>
+                <th>Tổng tiền</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center">Tùy chỉnh</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>#ORD001</td>
-                <td>Nguyễn Văn A</td>
-                <td>16/10/2025</td>
-                <td class="text-end" style="font-weight: 600; color: #059669;">380,243 đ</td>
-                <td class="text-center">
-                    <span class="status-badge" style="background-color: #d1fae5; color: #065f46;">Đã thanh toán</span>
-                </td>
-                <td class="text-center">
-                    <button class="btn-action" style="color: #3b82f6;" data-bs-toggle="modal" data-bs-target="#orderDetailModal">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </td>
-            </tr>
-             <tr>
-                <td>#ORD002</td>
-                <td>Khách hàng 8</td>
-                <td>16/10/2025</td>
-                <td class="text-end" style="font-weight: 600; color: #059669;">1,500,000 đ</td>
-                <td class="text-center">
-                    <span class="status-badge" style="background-color: #fee2e2; color: #991b1b;">Chờ thanh toán</span>
-                </td>
-                <td class="text-center">
-                    <button class="btn-action" style="color: #3b82f6;" data-bs-toggle="modal" data-bs-target="#orderDetailModal">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </td>
-            </tr>
+            @if (DonHangs != null && DonHangs.Any())
+            {
+                @foreach (var item in DonHangs)
+                {
+                    <tr>
+                        <td class="text-center fw-bold">@item.OrderId</td>
+                        <td>
+                            <div class="fw-semibold">@item.CustomerName</div>
+                            <small class="text-muted">@item.Phone</small>
+                        </td>
+                        <td>@item.OrderDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-success fw-bold">
+                            @string.Format("{0:N0} đ", item.TotalAmount)
+                        </td>
+                        <td class="text-center">
+                            <span class="status-badge 
+                                @(item.Status == "paid" ? "status-active" : 
+                                item.Status == "canceled" ? "status-inactive" : "status-pending")">
+                                @(item.Status == "paid" ? "Đã thanh toán" : 
+                                item.Status == "canceled" ? "Đã hủy" : "Chờ thanh toán")
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-action btn-edit"
+                                    @onclick="() => OpenModal(item.OrderId)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            
+                        <!-- PRINT PDF -->
+                        <button class="btn-action btn-pdf"
+                                @onclick="() => PreviewPdf(item)">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                        Không có dữ liệu
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>
-<PaginationAdmin />
 
-<ChiTietDonHangForm />
+@if (TotalItems > 0)
+{
+    <PaginationAdmin Total="TotalItems"
+                     Page="CurrentPage"
+                     PageSize="PageSize"
+                     PageChanged="ChangePage" />
+}
 
-@code {
+<ChiTietDonHangForm @ref="donHangForm" OnSaved="LoadData" />
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 6867e964f24525594fa1248e7d1be26dcbc4fbcd
 @if (ShowPdfModal)
 {
     <div style="position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 2000;"></div>
@@ -89,11 +128,18 @@
             <button class="btn btn-close btn-secondary" @onclick="ClosePreview"></button>
         </div>
 
+<<<<<<< HEAD
         <iframe src="data:application/pdf;base64,@Base64Pdf#toolbar=0" id="pdfPreviewFrame" style="width:100%; height:80vh; border:none; flex: 1;"></iframe>
+=======
+        <iframe src="data:application/pdf;base64,@Base64Pdf #toolbar=0" " id="pdfPreviewFrame" style="width:100%; height:80vh; border:none; flex: 1;"></iframe>
+>>>>>>> 6867e964f24525594fa1248e7d1be26dcbc4fbcd
 
         <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: flex-end;">
             <button class="btn btn-primary" @onclick="PrintPdf">Xuất file</button>
         </div>
     </div>
+<<<<<<< HEAD
 >>>>>>> 5dbbff6 (co thong bao roi)
+=======
+>>>>>>> 6867e964f24525594fa1248e7d1be26dcbc4fbcd
 }

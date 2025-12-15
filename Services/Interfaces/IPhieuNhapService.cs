@@ -17,6 +17,9 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
 
         IQueryable<PhieuNhap> FilterAndSearch(IQueryable<PhieuNhap> query, PhieuNhapFilter input);
 
+        long TinhTongTienNhap(string mode, int month, int year);
+        List<long> GetCapitalByMonth(int month, int year);
+        List<long> GetCapitalByYear(int year);
 
     }
 

@@ -96,10 +96,12 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
                 if (IsEditMode)
                 {
                     await LoaiSanPhamService.Update(categoryDTO.CategoryId, categoryDTO);
+                    await JS.InvokeAsync<object>("showToast", "success", "Sửa loại sản phẩm thành công!");
                 }
                 else
                 {
                     await LoaiSanPhamService.Create(categoryDTO);
+                    await JS.InvokeAsync<object>("showToast", "success", "Thêm loại sản phẩm mới thành công!");
                 }
 
                 await JS.InvokeVoidAsync("hideBootstrapModal", "CategoryModal");

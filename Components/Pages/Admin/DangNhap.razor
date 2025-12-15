@@ -1,6 +1,10 @@
 ﻿@page "/admin/dangnhap"
-@using Components.Layout.Admin;
+@using BlazorStoreManagementWebApp.Components.Layout.Admin
 @layout AdminLoginLayout
+@inject BlazorStoreManagementWebApp.Services.Interfaces.IAuthService AuthService
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <div class="login-container">
     <div class="login-header">
@@ -8,27 +12,110 @@
         <p>Hệ thống quản lý Cửa hàng bán lẻ</p>
     </div>
 
-    <form class="login-body">
+    <form @onkeydown="HandleKeyDown" class="login-body">
         <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email"
-                   id="email"
-                   name="email"
+            <label for="username">Tên đăng nhập</label>
+            <input type="text"
+                   id="username"
+                   style="width: 100%"
                    placeholder="Nhập email của bạn"
-                   required>
+                   class="@(UsernameError != null ? "is-invalid" : "")"
+                   @bind="Username" @bind:event="oninput" />
+            @if (UsernameError != null)
+            {
+                <div class="text-danger small">@UsernameError</div>
+            }
         </div>
 
         <div class="form-group">
             <label for="password">Mật khẩu</label>
-            <input type="password"
-                   id="password"
-                   name="password"
-                   placeholder="Nhập mật khẩu"
-                   required>
+            <div class="input-group">
+                <input type="@passwordType"
+                       id="password"
+                       class="@(PasswordError != null ? "is-invalid" : "")"
+                       placeholder="Nhập mật khẩu"
+                       @bind="Password" @bind:event="oninput" />
+                <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility">
+                    <i class="@icon"></i>
+                </button>
+            </div>
+            @if (PasswordError != null)
+            {
+                <div class="text-danger small">@PasswordError</div>
+            }
         </div>
 
-        <button type="submit" class="login-btn">
+        <button type="button" class="login-btn" @onclick="LoginAsync">
             <i class="fas fa-sign-in-alt"></i> Đăng Nhập
         </button>
     </form>
 </div>
+
+@code {
+    private string Username = "";
+    private string Password = "";
+
+    private string? UsernameError;
+    private string? PasswordError;
+
+    private bool showPassword = false;
+    private string passwordType => showPassword ? "text" : "password";
+    private string icon => showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
+
+    private bool Validate()
+    {
+        UsernameError = string.IsNullOrWhiteSpace(Username) ? "Vui lòng nhập tên đăng nhập." : null;
+        PasswordError = string.IsNullOrWhiteSpace(Password) ? "Vui lòng nhập mật khẩu." : null;
+        return UsernameError == null && PasswordError == null;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await LoginAsync();
+    }
+
+    private async Task LoginAsync()
+    {
+        if (!Validate()) return;
+
+        var dto = new BlazorStoreManagementWebApp.DTOs.Authentication.DangNhapDTO { Username = Username, Password = Password };
+        var result = await AuthService.CheckLoginAdmin(dto);
+
+        if (result.Type != "success")
+        {
+            // Chờ toast error hoàn tất (không cần chờ lâu, chỉ để hiển thị)
+            try
+            {
+                await JS.InvokeAsync<object>("showToast", "error", result.Message);
+            }
+            catch { } // Ignore if JS not ready
+            return;
+        }
+
+        var user = result.Data;
+        // SAVE SESSION
+        await SessionStorage.SetItemAsync("adminId", user.UserId);
+        await SessionStorage.SetItemAsync("adminName", user.FullName);
+        await SessionStorage.SetItemAsync("adminRole", user.Role);
+
+        // Show success toast and WAIT for it to complete
+        try
+        {
+            await JS.InvokeAsync<object>("showToast", "success", "Đăng nhập thành công!");
+        }
+        catch { } // Ignore if JS not ready
+
+        // Redirect (toast đã hiển thị xong rồi)
+        string url = user.Role?.ToLower() == "staff"
+            ? "/admin/banhang"
+            : "/admin/thongke";
+
+        Navigation.NavigateTo(url);
+    }
+}

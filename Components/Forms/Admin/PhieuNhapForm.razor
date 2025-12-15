@@ -1,76 +1,222 @@
-<div class="modal fade" id="addPhieuNhapModal" tabindex="-1" aria-labelledby="addPhieuNhapLabel" aria-hidden="true">
+<div class="modal fade" id="PhieuNhapModal" tabindex="-1" aria-labelledby="phieuNhapLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
+
             <!-- Header -->
-            <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none;">
-                <h1 class="modal-title fs-5" id="addPhieuNhapLabel" style="color: white; font-weight: 700;">
-                    <i class="fas fa-file-import" style="margin-right: 0.5rem;"></i>
-                    Thêm mới phiếu nhập
+            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
+                <h1 class="modal-title fs-5" id="phieuNhapLabel" style="color: white; font-weight: 700;">
+                    <i class="fas fa-@(IsAddMode ? "plus-circle" : "eye")" style="margin-right: 0.5rem;"></i>
+                    @ModalTitle
                 </h1>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Body -->
             <div class="modal-body" style="padding: 2rem;">
+
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" style="font-weight: 600; color: #b45309;">
-                            Nhà cung cấp <span style="color: #ef4444;">*</span>
-                        </label>
-                        <select class="form-select" style="border: 2px solid #fef3c7; border-radius: 8px; padding: 0.75rem 1rem;">
-                            <option value="">-- Chọn nhà cung cấp --</option>
-                            <option value="1">Nhà cung cấp A</option>
-                            <option value="2">Nhà cung cấp B</option>
-                            <option value="3">Nhà cung cấp C</option>
-                        </select>
+
+                    <!-- LEFT -->
+                    <div class="col-md-4">
+                        <h6 class="mb-3" style="color: #065f46; font-weight: 700;">Thông tin phiếu nhập</h6>
+
+                        <div class="mb-3">
+                            <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
+                                Nhà cung cấp <span style="color: #ef4444;">*</span>
+                            </label>
+                            @if (IsAddMode)
+                            {
+                                <select class="form-select"
+                                        style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;"
+                                        @onchange="SupplierChanged">
+                                    <option value="0">-- Chọn nhà cung cấp --</option>
+                                    @foreach (var s in suppliers)
+                                    {
+                                        <option value="@s.SupplierId">@s.Name</option>
+                                    }
+                                </select>
+                                @if (Errors.ContainsKey("Supplier"))
+                                {
+                                    <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                        @Errors["Supplier"]
+                                    </span>
+                                }
+                            }
+                            else
+                            {
+                                <select disabled="@IsViewMode" class="form-select"
+                                        style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;"
+                                        @onchange="SupplierChanged">
+                                    <option value="@selectedSupplier.SupplierId">@selectedSupplier.Name</option>
+                                </select>
+                            }
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" style="font-weight: 600; color: #b45309;">
-                            Ngày nhập <span style="color: #ef4444;">*</span>
-                        </label>
-                        <input type="date" class="form-control" style="border: 2px solid #fef3c7; border-radius: 8px; padding: 0.75rem 1rem;" />
+
+                    <!-- RIGHT -->
+                    <div class="col-md-8">
+
+                        @if (IsAddMode)
+                        {
+                            <h6 class="mb-3" style="color: #065f46; font-weight: 700;">
+                                Thêm sản phẩm
+                            </h6>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-5">
+                                    <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
+                                        Sản phẩm <span style="color: #ef4444;">*</span>
+                                    </label>
+                                    <select class="form-select"
+                                            style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;"
+                                            @bind="selectedProductId">
+                                        <option value="0">-- Chọn sản phẩm --</option>
+                                        @foreach (var p in products)
+                                        {
+                                            <option value="@p.ProductID">@p.ProductName</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
+                                        Số lượng <span style="color: #ef4444;">*</span>
+                                    </label>
+                                    <input disabled="@IsViewMode" @bind="quantity" type="number" min="1" class="form-control" style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
+                                    @if (Errors.ContainsKey("Quantity"))
+                                    {
+                                        <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                                            <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                            @Errors["Quantity"]
+                                        </span>
+                                    }
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
+                                        Đơn giá <span style="color: #ef4444;">*</span>
+                                    </label>
+                                    <input disabled="@IsViewMode" @bind="price" type="number" min="0" class="form-control" style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
+                                    @if (Errors.ContainsKey("Price"))
+                                    {
+                                        <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                                            <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                            @Errors["Price"]
+                                        </span>
+                                    }
+                                </div>
+
+                                <div class="col-md-1 d-flex align-items-end">
+                                    <button class="btn" @onclick="() => AddProduct()"
+                                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; font-weight: 600; border-radius: 8px; padding: 0.75rem;">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            @if (Errors.ContainsKey("AddProduct"))
+                            {
+                                <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                    @Errors["AddProduct"]
+                                </span>
+                            }
+                        }
+
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" style="font-weight: 600; color: #b45309;">
-                            Tổng tiền (tự tính) <span style="color: #ef4444;">*</span>
-                        </label>
-                        <input type="number" class="form-control" placeholder="0 VND" style="border: 2px solid #fef3c7; border-radius: 8px; padding: 0.75rem 1rem;" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label" style="font-weight: 600; color: #b45309;">
-                            Trạng thái <span style="color: #ef4444;">*</span>
-                        </label>
-                        <select class="form-select" style="border: 2px solid #fef3c7; border-radius: 8px; padding: 0.75rem 1rem;">
-                            <option value="">-- Chọn trạng thái --</option>
-                            <option value="Completed">Hoàn thành</option>
-                            <option value="Pending">Chờ duyệt</option>
-                            <option value="Cancelled">Hủy</option>
-                        </select>
-                    </div>
+                <hr class="my-4" />
+
+                <!-- TABLE -->
+                <h6 class="mb-3" style="color: #065f46; font-weight: 700;">Danh sách sản phẩm</h6>
+
+                @if (Errors.ContainsKey("Details"))
+                {
+                    <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                        @Errors["Details"]
+                    </span>
+                }
+
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="table">
+                        <thead class="table-light" style="position: sticky; top: 0; z-index: 5;">
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th class="text-center">SL</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end">Thành tiền</th>
+                                @if (IsAddMode)
+                                {
+                                    <th class="text-center"></th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in details)
+                            {
+                                <tr>
+                                    <td>@item.Product.ProductName</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end">@item.Price.ToString("N0")</td>
+                                    <td class="text-end">@((item.Quantity * item.Price).ToString("N0"))</td>
+                                    @if (IsAddMode)
+                                    {
+                                        <td class="text-center">
+                                            <button class="btn btn-danger btn-sm"
+                                                    @onclick="() => RemoveImportDetail(item.Product.ProductID)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
 
-                <!-- Nếu cần thêm chi tiết nhập hàng (import_details), thêm table con ở đây -->
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1.5rem;">
-                <button type="button" class="btn" data-bs-dismiss="modal"
-                        style="background-color: #e5e7eb; color: #374151; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
-                    Hủy
-                </button>
-                <button type="button" class="btn btn-add"
-                        style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
-                    <i class="fas fa-check"></i>
-                    Thêm mới
-                </button>
+            <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: 700; color: #065f46;">
+                    Tổng tiền:
+                    <span style="color: #059669; font-weight: 700;">@TotalAmount.ToString("N0") VND</span>
+                </div>
+
+                <div>
+                    @if (IsAddMode)
+                    {
+                        <button type="button" 
+                                class="btn" 
+                                data-bs-dismiss="modal" 
+                                style="background-color: #e5e7eb; color: #374151; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                            Hủy
+                        </button>
+                        <button type="button" 
+                                class="btn" 
+                                style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;" 
+                                @onclick="() => Save()">
+                            <i class="fas fa-check"></i> Lưu
+                        </button>
+                    }
+                </div>
             </div>
+
         </div>
     </div>
 </div>
 
-@code {
-
-}
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast @(ShowToast ? "show" : "") bg-success" role="alert">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" @onclick="HideToast"></button>
+        </div>
+        <div class="toast-body text-white">
+            @ToastMessage
+        </div>
+    </div>
+</div>

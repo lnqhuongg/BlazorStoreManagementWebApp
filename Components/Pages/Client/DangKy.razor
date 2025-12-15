@@ -1,45 +1,118 @@
 ﻿@page "/dangky"
+@using Components.Layout.Client;
+@layout MainLayout
 
-<section id="">
-	<!--form-->
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-8 col-sm-offset-1">
-				<div class="login-form">
-					<!--login form-->
-					<h2>A new star is approaching!</h2>
-					<form>
+<section>
+    <div class="container">
+        <div class="row" style="padding: 50px 0px;">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="login-form">
+                    <h2>Đăng ký tài khoản</h2>
+                    <form @onkeydown="HandleKeyDown">
+                        @* họ tên *@
+                        <div class="form-group">
+                            <label for="name">Họ tên</label>
+                            <input type="text"
+                                   id="name"
+                                   class="form-control @(NameError != null ? "is-invalid" : "")"
+                                   placeholder="Nhập họ tên..."
+                                   @bind="Name" @bind:event="oninput" />
+                            @if (NameError != null)
+                            {
+                                <div class="text-danger small mt-1">@NameError</div>
+                            }
+                        </div>
+
+                        @* email *@
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="text"
+                                   id="email"
+                                   class="form-control @(EmailError != null ? "is-invalid" : "")"
+                                   placeholder="Nhập email..." 
+                                   @bind="Email" @bind:event="oninput" />
+                            @if (EmailError != null)
+                            {
+                                <div class="text-danger small mt-1">@EmailError</div>
+                            }
+                        </div>
+
+                        @* số điện thoại *@
+                        <div class="form-group">
+                            <label for="phone">Số điện thoại</label>
+                            <input type="text"
+                                   id="phone"
+                                   class="form-control @(PhoneError != null ? "is-invalid" : "")"
+                                   placeholder="Nhập số điện thoại..." 
+                                   @bind="Phone" @bind:event="oninput" />
+                            @if (PhoneError != null)
+                            {
+                                <div class="text-danger small mt-1">@PhoneError</div>
+                            }
+                        </div>
+
+                        @* địa chỉ *@
+                        <div class="form-group">
+                            <label for="address">Địa chỉ</label>
+                            <input type="text"
+                                   id="address"
+                                   class="form-control @(AddressError != null ? "is-invalid" : "")"
+                                   placeholder="Nhập địa chỉ..." 
+                                   @bind="Address" @bind:event="oninput" />
+                            @if (AddressError != null)
+                            {
+                                <div class="text-danger small mt-1">@AddressError</div>
+                            }
+                        </div>
+
+						@* mật khẩu *@
+                        <div class="form-group">
+                            <label for="password">Mật khẩu</label>
+                            <div class="input-group">
+                                <input type="@passwordType"
+                                       id="password"
+                                       class="form-control @(PasswordError != null ? "is-invalid" : "")"
+                                       placeholder="Nhập mật khẩu..."
+                                       @bind="Password" @bind:event="oninput"  />
+                                <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility">
+                                    <i class="@icon"></i>
+                                </button>
+                            </div>
+                            @if (PasswordError != null)
+                            {
+                                <div class="text-danger small mt-1">@PasswordError</div>
+                            }
+                        </div>
+
+                        @* xác nhận mật khẩu *@
 						<div class="form-group">
-							<label>Username</label>
-							<input class="form-control" />
-						</div>
-						<div class="form-group">
-							<label>Email</label>
-							<input class="form-control" />
-						</div>
-						<div class="form-group">
-							<label>Password</label>
-							<input class="form-control" />
-						</div>
-						<div class="form-group">
-							<label>Confirm Password</label>
-							<input class="form-control" />
-						</div>
-						<div style="display:flex; justify-content:space-between; align-items:center;">
-							<button class="btn btn-warning" style="margin-bottom: 30px;">Đăng ký</button>
+                            <label for="confirm_password">Xác nhận mật khẩu</label>
+                            <div class="input-group">
+                                <input type="@confirmPasswordType"
+                                       id="confirm_password"
+                                       class="form-control @(ConfirmPasswordError != null ? "is-invalid" : "")"
+                                       placeholder="Xác nhận mật khẩu"
+                                       @bind="ConfirmPassword" @bind:event="oninput" />
+                                <button type="button" class="btn btn-outline-secondary" @onclick="ToggleConfirmedPasswordVisibility">
+                                    <i class="@confirmIcon"></i>
+                                </button>
+							</div>
+                            @if (ConfirmPasswordError != null)
+                            {
+                                <div class="text-danger small mt-1">@ConfirmPasswordError</div>
+                            } 
+                        </div>
 
-							<ul class="list-inline" style="margin-bottom:0;">
-								<li><a href="/dangnhap">Đã có tài khoản? Đăng nhập ngay</a></li>
-							</ul>
-						</div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-login" @onclick="SignUpAsync">Đăng ký</button>
 
-					</form>
-				</div><!--/login form-->
-			</div>
-		</div>
-	</div>
-</section><!--/form-->
-
-@code {
-
-}
+                            <ul class="links-group">
+                                <li><a href="/dangnhap">Bạn đã có tài khoản?</a></li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
