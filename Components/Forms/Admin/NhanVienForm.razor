@@ -20,7 +20,12 @@
                             <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                 Tên đăng nhập <span style="color: #ef4444;">*</span>
                             </label>
-                            <InputText @bind-Value="Model.Username" class="form-control" placeholder="Nhập tên đăng nhập..." style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                            <InputText @bind-Value="Model.Username" 
+                                        class="form-control" 
+                                        placeholder="Nhập tên đăng nhập..." 
+                                        style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" 
+                                        readonly="@IsEditMode" 
+                                        disabled="@IsEditMode" />
                             @if (!string.IsNullOrEmpty(UsernameError))
                             {
                                 <span class="text-danger" style="font-size: 13px; font-weight: 500;">
