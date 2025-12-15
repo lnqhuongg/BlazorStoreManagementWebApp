@@ -365,9 +365,9 @@ body {
     background-color: #fecaca;
     color: #7c2d12;
 }
-.status-pending  {
-    background-color: #e7ee23;
-    color: #efe305;
+.status-pending {
+    background-color: #e3a821;
+    color: #333;
 }
 /* ========== ACTION BUTTONS ========== */
 .btn-action {

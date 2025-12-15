@@ -11,14 +11,14 @@
                 </div>
                 <div class="mainmenu pull-left">
                     <ul class="nav navbar-nav collapse navbar-collapse">
-                        <li><a class="active" style="cursor:pointer" href="/">Home</a></li>
+                        <li><a class="active" style="cursor:pointer" href="/">Trang chủ</a></li>
                     </ul>
                 </div>
             </div>
             <div class="col-sm-3" style="display: flex; justify-content: space-between; gap: 1rem;">
                 <input type="text"
                        class="form-control"
-                       placeholder="Search"
+                       placeholder="Tên sản phẩm"
                        @bind="Keyword" />
 
                 <button class="btn btn-warning" @onclick="ApplyFilter">
@@ -35,7 +35,7 @@
         <div class="row">
             <div class="col-sm-3">
                 <div class="left-sidebar">
-                    <h2>Category</h2>
+                    <h2 style="padding: 3px 0px;">Loại sản phẩm</h2>
                     <div class="panel-group category-products" id="accordian">
                         @foreach (var ct in categoryList)
                         {
@@ -86,7 +86,7 @@
                                    @bind="MaxPrice" />
                         </div>
                         <div class="col-md-1">
-                            <button class="btn btn-danger" @onclick="ApplyFilter">
+                            <button class="btn btn-success" @onclick="ApplyFilter">
                                 Lọc
                             </button>
                         </div>
@@ -100,7 +100,7 @@
                 </div><!--filter-->
 
                 <div class="features_items">
-                    <h2 class="title text-center">Features Items</h2>
+                    <h2 class="title text-center" style="padding: 3px 0px;">Sản phẩm tại cửa hàng</h2>
 
                     @if (SanPhamData?.Data != null && SanPhamData.Data.Count != 0)
                     {
@@ -111,7 +111,7 @@
                                     <div class="single-products">
                                         <div class="productinfo text-center">
                                             <a>
-                                                <img src="/images/products/coca.jpg" width="185" height="235" />
+                                                <img src="@sp.ImageUrl" width="185" height="235" />
                                                 <h2 class="product-name">@sp.ProductName</h2>
                                                 <p>@sp.Price.ToString("N0") VND</p>
                                             </a>
