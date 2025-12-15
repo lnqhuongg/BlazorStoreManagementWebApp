@@ -141,10 +141,18 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         }
 
         // ==================== 4. TẠO MỚI (Create) ====================
-        public async Task<DonHangDTO> CreateStaff(CreateDonHangDTO dto)
+        public async Task<DonHangDTO> Create(CreateDonHangDTO dto, string userType = "staff")
         {
             using var tran = await _context.Database.BeginTransactionAsync();
 
+            var statusOrder = "pending";
+            if(userType == "client")
+            {
+                statusOrder = "pending";
+            } else if (userType == "staff")
+            {
+                statusOrder = "paid";
+            }
             try
             {
                 // 1) Map Order
@@ -156,7 +164,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                     TotalAmount = dto.TotalAmount ?? 0,
                     DiscountAmount = dto.DiscountAmount,
                     OrderDate = DateTime.Now,
-                    Status = "paid",
+                    Status = statusOrder,
                     Items = dto.Items?.Select(i => new ChiTietDonHang
                     {
                         ProductId = i.ProductId,
@@ -248,7 +256,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
 
             await _context.SaveChangesAsync();
         }
-
+        // ==================== 4. TẠO MỚI (Create) ====================
         public Task<List<DonHangDTO>> GetTodayOrders()
         {
             var today = DateTime.Today;

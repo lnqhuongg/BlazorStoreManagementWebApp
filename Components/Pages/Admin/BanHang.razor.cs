@@ -444,7 +444,7 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
 
             try
             {
-                var result = await donHangService.CreateStaff(dto);
+                var result = await donHangService.Create(dto);
 
                 // reset sau checkout
                 Cart.Clear();
