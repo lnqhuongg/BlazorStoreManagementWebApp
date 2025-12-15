@@ -28,7 +28,6 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             ClearErrors();
             StateHasChanged();
             await JS.InvokeVoidAsync("showBootstrapModal", "NhanVienModal");
-           
         }
 
         public async Task OpenUpdate(NhanVienDTO dto)
@@ -46,7 +45,6 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             ClearErrors();
             StateHasChanged();
             await JS.InvokeVoidAsync("showBootstrapModal", "NhanVienModal");
-            
         }
 
         private void ClearErrors()
@@ -132,12 +130,10 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
                 if (IsEditMode)
                 {
                     await NhanVienService.Update(Model.UserId, Model);
-                    await JS.InvokeAsync<object>("showToast", "success", "Cập nhật nhân viên thành công!");
                 }
                 else
                 {
                     await NhanVienService.Create(Model);
-                    await JS.InvokeAsync<object>("showToast", "success", "Thêm nhân viên mới thành công!");
                 }
 
                 await JS.InvokeVoidAsync("hideBootstrapModal", "NhanVienModal");

@@ -95,7 +95,6 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             this.NCCData = NCCData;
             StateHasChanged(); // Đảm bảo UI cập nhật tiêu đề
             await JS.InvokeVoidAsync("showBootstrapModal", "addProductModal");
-            await JS.InvokeAsync<object>("showToast", "success", "Thêm sản phẩm mới thành công!");
         }
 
         public async Task OpenUpdate(SanPhamDTO dto, List<LoaiSanPhamDTO> LSPData, List<NhaCungCapDTO> NCCData)
@@ -111,7 +110,6 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             productDTO = dto;
             StateHasChanged(); // Đảm bảo UI cập nhật tiêu đề
             await JS.InvokeVoidAsync("showBootstrapModal", "addProductModal");
-            await JS.InvokeAsync<object>("showToast", "success", "Cập nhật sản phẩm thành công!");
         }
         public async Task OpenView(SanPhamDTO dto, List<LoaiSanPhamDTO> LSPData, List<NhaCungCapDTO> NCCData)
         {
@@ -216,12 +214,10 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             if (Mode == 1)
             {
                 await SanPhamService.Update(productDTO.ProductID, requestDTO);
-                await JS.InvokeAsync<object>("showToast", "success", "Cập nhật sản phẩm thành công!");
             }
             else if(Mode == 2)
             {
                 await SanPhamService.Create(requestDTO);
-                await JS.InvokeAsync<object>("showToast", "success", "Thêm sản phẩm mới thành công!");
             }
 
             await JS.InvokeVoidAsync("hideBootstrapModal", "addProductModal");
