@@ -1,8 +1,7 @@
 ﻿@attribute [StreamRendering]
 @rendermode InteractiveServer
 @page "/admin/magiamgia"
-@using Components.Layout.Admin;
-@using BlazorStoreManagementWebApp.Components.Forms.Admin
+@using Components.Layout.Admin
 @layout MainLayout
 
 <!-- HEADER -->
@@ -14,59 +13,67 @@
 </div>
 
 <!-- ACTION BAR -->
+<!-- ACTION BAR -->
 <div class="action-bar">
+    <!-- Thêm mới -->
     <button class="btn-add" @onclick="() => MaGiamGiaFormRef.OpenCreate()">
         <i class="fas fa-plus"></i>
         Thêm mới
     </button>
 
+    <!-- Search -->
     <div class="search-group w-100">
-        <input @bind="Keyword" 
-               @bind:event="oninput" 
+        <input @bind="Keyword"
                @onkeydown="OnSearchKeyDown"
-               type="text" 
-               placeholder="Tìm kiếm mã hoặc mô tả..." 
-               class="form-control" />
+               type="text"
+               placeholder="Tìm kiếm mã giảm giá..."
+               class="form-control">
+
         <button class="btn-search" @onclick="Search">
             <i class="fas fa-search"></i>
             Tìm kiếm
         </button>
     </div>
 
-    <select @bind="DiscountType" 
-            @bind:event="oninput" 
+    <!-- Filter loại giảm -->
+    <select @bind="DiscountType"
+            @bind:event="oninput"
             @onchange="FilterChanged"
-            class="form-control ms-2" 
+            class="form-control ms-2"
             style="width: auto;">
-        <option value="">-- Tất cả loại giảm --</option>
+        <option value="">-- Tất cả loại --</option>
         <option value="percent">Phần trăm</option>
-        <option value="fixed">Số tiền</option>
+        <option value="fixed">Giảm giá</option>
     </select>
 </div>
 
+
+
 <!-- TABLE -->
 <div class="table-container">
-    <table class="table">
+    <table class="table table-hover align-middle">
         <thead>
             <tr>
                 <th>Mã</th>
                 <th>Mô tả</th>
-                <th>Loại giảm</th>
-                <th>Giá trị</th>
-                <th>Ngày bắt đầu</th>
-                <th>Ngày kết thúc</th>
-                <th>Giới hạn</th>
-                <th>Đã dùng</th>
+                <th class="text-center">Loại</th>
+                <th class="text-end">Giá trị</th>
+                <th class="text-center">Bắt đầu</th>
+                <th class="text-center">Kết thúc</th>
+                <th class="text-end">Đơn tối thiểu</th>
+                <th class="text-center">Giới hạn</th>
+                <th class="text-center">Đã dùng</th>
                 <th class="text-center">Trạng thái</th>
                 <th class="text-center">Tùy chỉnh</th>
             </tr>
         </thead>
+
         <tbody>
             @if (PromoData?.Data == null || !PromoData.Data.Any())
             {
                 <tr>
-                    <td colspan="10" class="text-center text-muted py-4">
-                        <i class="fas fa-box-open fa-2x mb-2"></i><br />
+                    <td colspan="11" class="text-center text-muted py-4">
+                        <i class="fas fa-ticket-alt fa-2x mb-2"></i><br />
                         Không có dữ liệu
                     </td>
                 </tr>
@@ -75,20 +82,51 @@
             {
                 @foreach (var item in PromoData.Data)
                 {
-                    <tr>
-                        <td>@item.PromoCode</td>
+                    <tr @key="item.PromoId">
+                        <td><strong>@item.PromoCode</strong></td>
                         <td>@item.Description</td>
-                        <td>@(item.DiscountType == "percent" ? "Phần trăm" : "Số tiền")</td>
-                        <td>@item.DiscountValue</td>
-                        <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
-                        <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
-                        <td>@item.UsageLimit</td>
-                        <td>@item.UsedCount</td>
+
                         <td class="text-center">
-                            <span class="status-badge @(item.Status == "active" ? "status-active" : "status-inactive")">
+                            @(item.DiscountType == "percent" ? "Phần trăm" : "Giảm giá")
+                        </td>
+
+                        <td class="text-end">
+                            @if (item.DiscountType == "percent")
+                            {
+                                @($"{item.DiscountValue}%")
+                            }
+                            else
+                            {
+                                @item.DiscountValue.ToString("N0")
+                            }
+                        </td>
+
+                        <td class="text-center">
+                            @item.StartDate.ToString("dd/MM/yyyy")
+                        </td>
+
+                        <td class="text-center">
+                            @item.EndDate.ToString("dd/MM/yyyy")
+                        </td>
+
+                        <td class="text-end">
+                            @item.MinOrderAmount.ToString("N0")
+                        </td>
+
+                        <td class="text-center">
+                            @item.UsageLimit
+                        </td>
+
+                        <td class="text-center">
+                            @item.UsedCount
+                        </td>
+
+                        <td class="text-center">
+                            <span class="badge @(item.Status == "active" ? "bg-success" : "bg-secondary")">
                                 @(item.Status == "active" ? "Hoạt động" : "Tạm ngưng")
                             </span>
                         </td>
+
                         <td class="text-center">
                             <button class="btn-action btn-edit"
                                     @onclick="() => MaGiamGiaFormRef.OpenUpdate(item)">
@@ -101,6 +139,7 @@
         </tbody>
     </table>
 </div>
+
 
 @if (PromoData?.Data != null && PromoData.Data.Any())
 {

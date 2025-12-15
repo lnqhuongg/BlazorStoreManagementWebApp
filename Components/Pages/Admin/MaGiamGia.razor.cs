@@ -22,11 +22,16 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
             await LoadData();
         }
 
-        private async Task LoadData()
+        protected async Task LoadData()
         {
-            PromoData = await MaGiamGiaService.GetAll(Page, PageSize, Keyword, DiscountType);
-            StateHasChanged();
+            PromoData = await MaGiamGiaService.GetAll(
+                Page,
+                PageSize,
+                Keyword,
+                DiscountType
+            );
         }
+
 
         private async Task Search()
         {
