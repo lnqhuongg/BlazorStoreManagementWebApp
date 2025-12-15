@@ -28,7 +28,11 @@
         </button>
     </div>
 
-    <select @bind="Filter.Role" class="form-control ms-2" style="width: auto;">
+    <select @bind="Filter.Role"
+            @bind:event="oninput"
+            @onchange="FilterChanged"
+            class="form-control ms-2" 
+            style="width: auto;">
         <option value="">-- Tất cả chức vụ --</option>
         <option value="admin">Quản trị viên</option>
         <option value="staff">Nhân viên</option>

@@ -130,10 +130,19 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             existing.Role = dto.Role;
             existing.Status = dto.Status;
 
+            // ĐỔI MẬT KHẨU THẬT - Phần quan trọng nhất!
+            if (!string.IsNullOrEmpty(dto.NewPassword))
+            {
+                // Hash mật khẩu mới bằng BCrypt (an toàn nhất)
+                existing.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword.Trim());
+            }
+            // Nếu NewPassword rỗng hoặc null → không đổi mật khẩu
+
             await _context.SaveChangesAsync();
 
             var resultDto = _mapper.Map<NhanVienDTO>(existing);
             resultDto.Password = "";
+            resultDto.NewPassword = null;
             return resultDto;
         }
 
