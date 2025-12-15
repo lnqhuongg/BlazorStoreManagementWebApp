@@ -52,17 +52,31 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
 
             bool isValid = true;
 
-            // 1. Validate cơ bản (trống, độ dài, ký tự đặc biệt)
+            // 1. Validate cơ bản (trống, độ dài, ký tự đặc biệt, không bắt đầu bằng số)
             if (string.IsNullOrWhiteSpace(categoryDTO.CategoryName))
             {
                 NameErrorMessage = "Tên loại sản phẩm không được để trống!";
                 isValid = false;
             }
-            else if (!Regex.IsMatch(categoryDTO.CategoryName, @"^[a-zA-Z0-9ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸÝ\s]+$"))
+            else if (categoryDTO.CategoryName.Length < 2)
+            {
+                NameErrorMessage = "Tên loại sản phẩm phải có ít nhất 2 ký tự!";
+                isValid = false;
+            }
+            else if (char.IsDigit(categoryDTO.CategoryName.Trim()[0]))
+            {
+                NameErrorMessage = "Tên loại sản phẩm không được bắt đầu bằng số!";
+                isValid = false;
+            }
+            else if (!Regex.IsMatch(
+                categoryDTO.CategoryName,
+                @"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯăđĩũơưạảấầẩẫậắằẳẵặẹẻẽềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ\s0-9]+$"
+            ))
             {
                 NameErrorMessage = "Tên loại sản phẩm không được chứa ký tự đặc biệt!";
                 isValid = false;
             }
+
 
             // check trùng tên (viết ở service nha)
             if (isValid)
