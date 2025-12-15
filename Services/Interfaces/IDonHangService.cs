@@ -26,6 +26,8 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
         public List<long> GetRevenueByMonth(int month, int year);
 
         public List<long> GetRevenueByYear(int year);
+
+        Task<DonHangDTO> UpdateOrderStatus(int orderId, string status);  
     }
 
 }

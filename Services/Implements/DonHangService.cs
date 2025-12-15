@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
+using BlazorStoreManagementWebApp.DTOs.Admin.SanPham;
+using BlazorStoreManagementWebApp.Helpers;
 using BlazorStoreManagementWebApp.Models;
 using BlazorStoreManagementWebApp.Models.Entities;
 using BlazorStoreManagementWebApp.Services.Interfaces;
-using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
 using Microsoft.EntityFrameworkCore;
-using BlazorStoreManagementWebApp.Helpers;
 
 namespace BlazorStoreManagementWebApp.Services.Implements
 {
@@ -314,7 +315,22 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             return result;
         }
 
-        
+        public async Task<DonHangDTO> UpdateOrderStatus(int orderId, string status)
+        {
+            DonHangDTO donHangDTO = await GetById(orderId);
+            if (donHangDTO == null)
+            {
+                throw new Exception("Đơn hàng không tồn tại");
+            }
+            var donHangEntity = await _context.DonHangs.FindAsync(orderId);
+            if (donHangEntity == null)
+            {
+                throw new Exception("Đơn hàng không tồn tại");
+            }
+            donHangEntity.Status = status;
+            await _context.SaveChangesAsync();
+            return _mapper.Map<DonHangDTO>(donHangEntity);
+        }
 
     }
 }

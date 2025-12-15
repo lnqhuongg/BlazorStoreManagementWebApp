@@ -1,6 +1,8 @@
 using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
+using BlazorStoreManagementWebApp.Services.Implements;
 using BlazorStoreManagementWebApp.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.JSInterop;
 
 namespace BlazorStoreManagementWebApp.Components.Forms.Admin
@@ -18,10 +20,16 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
 
         public DonHangDTO donHang { get; set; } = new();
 
+        private DotNetObjectReference<ChiTietDonHangForm>? objRef;
         /// <summary>
         /// Hiển thị modal chi tiết đơn hàng
         /// </summary>
         /// <param name="orderId">ID của đơn hàng cần xem</param>
+        /// 
+        protected override void OnInitialized()
+        {
+            objRef = DotNetObjectReference.Create(this);
+        }
         public async Task Show(int orderId)
         {
             // Lấy dữ liệu chi tiết đơn hàng từ service
@@ -64,6 +72,71 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
                 .Distinct();
 
             return string.Join(", ", methods);
+        }
+
+        [JSInvokable]
+        
+        public async Task ProcessPaymentConfirmed(int orderId)
+        {
+            try
+            {
+                await _donHangService.UpdateOrderStatus(orderId, "paid");
+
+                await JS.InvokeVoidAsync("hideBootstrapModal", "ChiTietDonHangModal");
+
+                if (OnSaved.HasDelegate)
+                {
+                    await OnSaved.InvokeAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi: {ex.Message}");
+            }
+        }
+
+        // 3. Hàm kích hoạt từ nút bấm HTML
+        private async Task TriggerConfirmPayment(int orderId)
+        {
+            if (objRef != null)
+            {
+                await JS.InvokeVoidAsync("confirmPaymentOrder", orderId, objRef);
+            }
+        }
+        public void Dispose()
+        {
+            objRef?.Dispose();
+        }
+
+        private async Task TriggerCancelOrder(int orderId)
+        {
+            if (objRef != null)
+            {
+                await JS.InvokeVoidAsync("cancelOrderConfirm", orderId, objRef);
+            }
+        }
+
+        [JSInvokable]
+        public async Task ProcessCancelOrder(int orderId)
+        {
+            try
+            {
+                // Gọi Service cập nhật trạng thái sang "canceled"
+                await _donHangService.UpdateOrderStatus(orderId, "canceled");
+
+                // Đóng Modal
+                await JS.InvokeVoidAsync("hideBootstrapModal", "ChiTietDonHangModal");
+
+                // Reload dữ liệu trang cha
+                if (OnSaved.HasDelegate)
+                {
+                    await OnSaved.InvokeAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi hủy đơn hàng: {ex.Message}");
+            }
         }
     }
 }
