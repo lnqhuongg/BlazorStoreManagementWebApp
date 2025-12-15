@@ -83,6 +83,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             {
                 await KhachHangService.Update(customerDTO.CustomerId, customerDTO);
                 await JS.InvokeVoidAsync("hideBootstrapModal", "KhachHangModal");
+                await JS.InvokeAsync<object>("showToast", "success", "Cập nhật khách hàng thành công!");
                 await OnSuccess.InvokeAsync();
             }
             catch (Exception ex)
