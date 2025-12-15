@@ -188,5 +188,15 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             await _context.SaveChangesAsync();
             return _mapper.Map<KhachHangDTO>(customer);
         }
+
+        public async Task<KhachHangDTO> findByPhone(string phone)
+        {
+            var customer = await _context.KhachHangs.FirstOrDefaultAsync(c => c.Phone == phone);
+            if (customer == null)
+            {
+                return null;
+            }
+            return _mapper.Map<KhachHangDTO>(customer);
+        }
     }
 }

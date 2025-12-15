@@ -30,7 +30,14 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
 
         // kiểm tra khách hàng có tồn tại không
         Task<bool> IsCustomerExist(int customerId);
+
+        // tìm khách hàng theo số điện thoại
+        Task<KhachHangDTO> findByPhone(string phone);
+
+        // thêm điểm thưởng cho khách hàng
         Task<KhachHangDTO?> addRewardPoints(int? customerId);
+
+        // trừ điểm thưởng cho khách hàng
         Task<KhachHangDTO?> deductRewardPoints(int? customerId, int? pointsToDeduct);
     }
 

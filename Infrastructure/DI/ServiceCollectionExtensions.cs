@@ -2,7 +2,6 @@
 using BlazorStoreManagementWebApp.Services;
 using BlazorStoreManagementWebApp.Services.Implements;
 using BlazorStoreManagementWebApp.Services.Interfaces;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace StoreManagementBE.BackendServer.Infrastructure.DI
@@ -26,7 +25,6 @@ namespace StoreManagementBE.BackendServer.Infrastructure.DI
             services.AddScoped<PdfService>();
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<ITonKhoService, TonKhoService>();
-            services.AddAuthorizationCore();
             return services;
         }
     }

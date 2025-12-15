@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
+using BlazorStoreManagementWebApp.Components.Pages.Client;
+using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
+using BlazorStoreManagementWebApp.Helpers;
 using BlazorStoreManagementWebApp.Models;
 using BlazorStoreManagementWebApp.Models.Entities;
 using BlazorStoreManagementWebApp.Services.Interfaces;
-using BlazorStoreManagementWebApp.DTOs.Admin.DonHang;
 using Microsoft.EntityFrameworkCore;
-using BlazorStoreManagementWebApp.Helpers;
 
 namespace BlazorStoreManagementWebApp.Services.Implements
 {
@@ -169,12 +170,16 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 _context.DonHangs.Add(orderEntity);
                 await _context.SaveChangesAsync();   // <-- sinh OrderId
 
+                await DeductStock(orderEntity);
+
+                await HandleRewardPoints(dto, orderEntity);
+
                 // 3) Insert Payments nếu có
                 if (dto.Payments != null)
                 {
                     foreach (var p in dto.Payments)
                     {
-                        var payment = new ThanhToan
+                        var payment = new Models.Entities.ThanhToan
                         {
                             OrderId = orderEntity.OrderId,
                             Amount = p.Amount,
@@ -201,6 +206,49 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             }
         }
 
+        private async Task DeductStock(DonHang order)
+        {
+            foreach (var item in order.Items)
+            {
+                var tonkho = await _context.TonKhos
+                    .FirstOrDefaultAsync(x => x.ProductId == item.ProductId);
+
+                if (tonkho == null || tonkho.Quantity < item.Quantity)
+                    throw new Exception("Không đủ tồn kho");
+
+                tonkho.Quantity -= item.Quantity;
+                tonkho.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task HandleRewardPoints(CreateDonHangDTO dto, DonHang order)
+        {
+            if (dto.CustomerId == null) return;
+
+            var customer = await _context.KhachHangs.FindAsync(dto.CustomerId);
+            if (customer == null) return;
+
+            // 1️⃣ Trừ điểm đã sử dụng
+            if (dto.rewardPoints.HasValue && dto.rewardPoints.Value > 0)
+            {
+                customer.RewardPoints -= dto.rewardPoints.Value;
+
+                if (customer.RewardPoints < 0)
+                    customer.RewardPoints = 0;
+            }
+
+            // 2️⃣ Cộng điểm sau thanh toán
+            // Quy ước: 5% tổng tiền thực trả, tối đa 1.500 điểm
+            var rewardEarned = (int)(order.TotalAmount * 0.05m);
+            rewardEarned = Math.Min(rewardEarned, 1500);
+
+            customer.RewardPoints += rewardEarned;
+
+            await _context.SaveChangesAsync();
+        }
+
         public Task<List<DonHangDTO>> GetTodayOrders()
         {
             var today = DateTime.Today;
@@ -215,31 +263,6 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 .Select(o => _mapper.Map<DonHangDTO>(o))
                 .ToListAsync();
         }
-
-        //public long TinhTongDoanhThu(string mode, int month, int year)
-        //{
-        //    if (mode == "Month")
-        //    {
-        //        var start = new DateTime(year, month, 1);
-        //        var end = start.AddMonths(1);
-
-        //        return (long)_context.DonHangs
-        //            .Where(o => o.OrderDate >= start && o.OrderDate < end)
-        //            .Sum(o => o.TotalAmount ?? 0);
-        //    }
-        //    else if (mode == "Year")
-        //    {
-        //        var start = new DateTime(year, 1, 1);
-        //        var end = start.AddYears(1);
-
-        //        return (long)_context.DonHangs
-        //            .Where(o => o.OrderDate >= start && o.OrderDate < end)
-        //            .Sum(o => o.TotalAmount ?? 0);
-        //    }
-
-        //    // Không làm crash UI
-        //    return 0;
-        //}
 
         public async Task<long> TinhTongDoanhThu(string mode, int month, int year)
         {

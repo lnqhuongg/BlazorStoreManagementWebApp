@@ -74,10 +74,10 @@ function showToast(type, customMessage = null) {
             resolve();
         }, 1500);
 
-        // Remove toast sau 4 giây
+        // Remove toast sau 3 giây
         setTimeout(() => {
             removeToast(toast);
-        }, 4000);
+        }, 3000);
     });
 }
 
