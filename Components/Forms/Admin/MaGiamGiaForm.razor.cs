@@ -24,6 +24,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             CodeErrorMessage = "";
             StateHasChanged();
             await JS.InvokeVoidAsync("showBootstrapModal", "PromoModal");
+            await JS.InvokeAsync<object>("showToast", "success", "Thêm mã giảm giá mới thành công!");
         }
 
         public async Task OpenUpdate(MaGiamGiaDTO dto)
@@ -46,6 +47,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             CodeErrorMessage = "";
             StateHasChanged();
             await JS.InvokeVoidAsync("showBootstrapModal", "PromoModal");
+            await JS.InvokeAsync<object>("showToast", "success", "Cập nhật mã giảm giá thành công!");
         }
 
         private async Task<bool> ValidateForm()
