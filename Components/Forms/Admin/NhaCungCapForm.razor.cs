@@ -33,6 +33,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             ClearErrors();
             StateHasChanged();
             await JS.InvokeVoidAsync("showBootstrapModal", "addSupplierModal");
+            
         }
 
         public async Task OpenUpdate(NhaCungCapDTO dto)
@@ -50,6 +51,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             ClearErrors();
             StateHasChanged();
             await JS.InvokeVoidAsync("showBootstrapModal", "addSupplierModal");
+           
         }
 
         private void ClearErrors()
@@ -125,10 +127,12 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             if (IsEditMode)
             {
                 await NhaCungCapService.Update(supplierDTO.SupplierId, supplierDTO);
+                await JS.InvokeAsync<object>("showToast", "success", "Cập nhật nhà cung cấp thành công!");
             }
             else
             {
                 await NhaCungCapService.Create(supplierDTO);
+                await JS.InvokeAsync<object>("showToast", "success", "Thêm nhà cung cấp mới thành công!");
             }
 
             await JS.InvokeVoidAsync("hideBootstrapModal", "addSupplierModal");

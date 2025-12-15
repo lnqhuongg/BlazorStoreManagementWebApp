@@ -24,6 +24,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             CodeErrorMessage = "";
             StateHasChanged();
             await JS.InvokeVoidAsync("showBootstrapModal", "PromoModal");
+            
         }
 
         public async Task OpenUpdate(MaGiamGiaDTO dto)
@@ -46,6 +47,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             CodeErrorMessage = "";
             StateHasChanged();
             await JS.InvokeVoidAsync("showBootstrapModal", "PromoModal");
+            
         }
 
         private async Task<bool> ValidateForm()
@@ -93,10 +95,12 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
                 if (IsEditMode)
                 {
                     await MaGiamGiaService.Update(promoDTO.PromoId, promoDTO);
+                    await JS.InvokeAsync<object>("showToast", "success", "Cập nhật mã giảm giá thành công!");
                 }
                 else
                 {
                     await MaGiamGiaService.Create(promoDTO);
+                    await JS.InvokeAsync<object>("showToast", "success", "Thêm mã giảm giá mới thành công!");
                 }
 
                 await JS.InvokeVoidAsync("hideBootstrapModal", "PromoModal");
