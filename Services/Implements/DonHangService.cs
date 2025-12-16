@@ -309,6 +309,48 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                 throw new Exception("Lỗi tính tổng doanh thu: " + ex.Message);
             }
         }
+                // ==================== LẤY ĐƠN HÀNG CỦA KHÁCH HÀNG (DÀNH CHO CLIENT) ====================
+        public async Task<PagedResult<DonHangDTO>> GetOrdersByCustomerId(int customerId, int page = 1, int pageSize = 10, string status = "")
+        {
+            var query = _context.DonHangs
+                .Where(o => o.CustomerId == customerId)
+                .Include(o => o.Customer)
+                .Include(o => o.User)
+                .Include(o => o.Promotion)  // Quan trọng: để lấy được PromoCode
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(o => o.Status == status);
+            }
+
+            var total = await query.CountAsync();
+
+            var orders = await query
+                .OrderByDescending(o => o.OrderDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var data = _mapper.Map<List<DonHangDTO>>(orders);
+
+            // Gán thêm thông tin dễ đọc
+            foreach (var item in data)
+            {
+                var entity = orders.FirstOrDefault(o => o.OrderId == item.OrderId);
+                item.CustomerName = entity?.Customer?.Name ?? "";
+                item.UserName = entity?.User?.FullName ?? "Online";
+                item.Phone = entity?.Customer?.Phone ?? "";
+            }
+
+            return new PagedResult<DonHangDTO>
+            {
+                Data = data,
+                Total = total,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
 
         public List<long> GetRevenueByMonth(int month, int year)
         {

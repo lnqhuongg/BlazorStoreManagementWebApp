@@ -1,104 +1,255 @@
-﻿<div id="u-detail-modal" class="u-modal-overlay">
-    <div class="c-modal-detail__content">
+﻿@using BlazorStoreManagementWebApp.DTOs.Admin.DonHang
+@using BlazorStoreManagementWebApp.Services.Interfaces
+@inject IDonHangService DonHangService
+@inject IJSRuntime JS
+
+<div id="u-detail-modal-@OrderId" class="u-modal-overlay" @onclick="HandleModalClick">
+    <div class="c-modal-detail__content" @onclick:stopPropagation>
         <a href="#" class="c-modal-detail__close-btn" title="Đóng">&#10006;</a>
 
-        <h2 class="c-modal-detail__title">
-            Chi Tiết Đơn Hàng <span class="c-modal-detail__highlight">#DH1004</span>
-        </h2>
+        @if (isLoading)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-warning" role="status">
+                    <span class="visually-hidden">Đang tải...</span>
+                </div>
+                <p class="mt-2">Đang tải chi tiết đơn hàng...</p>
+            </div>
+        }
+        else if (orderDetail == null)
+        {
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i> Không tìm thấy thông tin đơn hàng.
+            </div>
+        }
+        else
+        {
+            <h2 class="c-modal-detail__title">
+                Chi Tiết Đơn Hàng <span class="c-modal-detail__highlight">#DH@orderDetail.OrderId</span>
+            </h2>
 
-        <div class="c-status-display">
-            <span class="c-status-display__label">Trạng thái:</span>
-            <span class="c-status-display__badge is-completed">Thành Công</span>
-        </div>
-
-        <div class="c-modal-detail__grid">
-
-            <div class="c-modal-detail__info-col">
-                <h3 class="c-modal-detail__section-title">Thông Tin Khách Hàng</h3>
-                <p><strong>Tên Khách Hàng:</strong> Nguyễn Văn A</p>
-                <p><strong>Địa Chỉ:</strong> 123 Đường ABC, Quận 1, TP.HCM</p>
-                <p><strong>Điện Thoại:</strong> 090xxxxxxx</p>
+            <div class="c-status-display">
+                <span class="c-status-display__label">Trạng thái:</span>
+                <span class="c-status-display__badge @GetStatusClass(orderDetail.Status)">
+                    @GetStatusText(orderDetail.Status)
+                </span>
             </div>
 
-            <div class="c-modal-detail__info-col">
-                <h3 class="c-modal-detail__section-title">Thông Tin Giao Dịch</h3>
-                <p><strong>Ngày Tạo Đơn:</strong> 16/12/2025</p>
-                <p><strong>Phương Thức TT:</strong> Thanh toán khi nhận hàng (COD)</p>
-                <p>
-                    <strong>Mã Giảm Giá:</strong> <span class="c-modal-detail__discount-code">
-                        SALE20K (Giảm 20.000
-                        VNĐ)
+            <div class="c-modal-detail__grid">
+                <div class="c-modal-detail__info-col">
+                    <h3 class="c-modal-detail__section-title">Thông Tin Khách Hàng</h3>
+                    <p><strong>Tên Khách Hàng:</strong> @orderDetail.CustomerName</p>
+                    <p><strong>Điện Thoại:</strong> @(string.IsNullOrEmpty(orderDetail.Phone) ? "Chưa cập nhật" : orderDetail.Phone)</p>
+                </div>
+
+                <div class="c-modal-detail__info-col">
+                    <h3 class="c-modal-detail__section-title">Thông Tin Giao Dịch</h3>
+                    <p><strong>Ngày Tạo Đơn:</strong> @orderDetail.OrderDate?.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Phương Thức TT:</strong> @GetPaymentMethodText(orderDetail.PaymentMethod)</p>
+                    @if (!string.IsNullOrEmpty(orderDetail.PromoCode))
+                    {
+                        <p>
+                            <strong>Mã Giảm Giá:</strong>
+                            <span class="c-modal-detail__discount-code">
+                                @orderDetail.PromoCode
+                                (Giảm @string.Format("{0:N0}", orderDetail.DiscountAmount) VNĐ)
+                            </span>
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <div class="c-modal-detail__product-container">
+                <h3 class="c-modal-detail__section-title">Danh Sách Sản Phẩm</h3>
+                <div class="c-modal-detail__product-scroll">
+                    <table class="c-product-table">
+                        <thead>
+                            <tr>
+                                <th>Tên Sản Phẩm</th>
+                                <th>SL</th>
+                                <th>Đơn Giá</th>
+                                <th>Thành Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (orderDetail.Items != null && orderDetail.Items.Any())
+                            {
+                                @foreach (var item in orderDetail.Items)
+                                {
+                                    <tr>
+                                        <td>@item.ProductName</td>
+                                        <td>@item.Quantity</td>
+                                        <td>@string.Format("{0:N0}", item.Price) VNĐ</td>
+                                        <td>@string.Format("{0:N0}", item.Subtotal) VNĐ</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">
+                                        Không có sản phẩm trong đơn hàng
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="c-modal-detail__footer">
+                <div class="c-modal-detail__summary">
+                    <strong>Tổng cộng:</strong>
+                    <span class="c-modal-detail__final-total">
+                        @string.Format("{0:N0}", orderDetail.TotalAmount) VNĐ
                     </span>
-                </p>
+                    @if (orderDetail.DiscountAmount > 0)
+                    {
+                        <span> (Đã trừ @string.Format("{0:N0}", orderDetail.DiscountAmount) VNĐ giảm giá)</span>
+                    }
+                </div>
+                <div class="d-flex gap-2">
+                    @if (CanCancelOrder(orderDetail.Status))
+                    {
+                        <button class="c-modal-detail__btn c-modal-detail__btn--cancel" 
+                                @onclick="ShowCancelConfirmation">
+                            ❌ Hủy Đơn Hàng
+                        </button>
+                    }
+                    <button class="c-modal-detail__btn c-modal-detail__btn--print" 
+                            @onclick="PrintOrder">
+                        🖨️ In Đơn Hàng
+                    </button>
+                </div>
             </div>
-        </div>
-
-        <div class="c-modal-detail__product-container">
-            <h3 class="c-modal-detail__section-title">Danh Sách Sản Phẩm</h3>
-            <div class="c-modal-detail__product-scroll">
-                <table class="c-product-table">
-                    <thead>
-                        <tr>
-                            <th>Tên Sản Phẩm</th>
-                            <th>SL</th>
-                            <th>Đơn Giá</th>
-                            <th>Thành Tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Áo Thun Unisex</td>
-                            <td>2</td>
-                            <td>150.000 VNĐ</td>
-                            <td>300.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Quần Jeans Cao Cấp</td>
-                            <td>1</td>
-                            <td>700.000 VNĐ</td>
-                            <td>700.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Đôi Giày Sneaker</td>
-                            <td>1</td>
-                            <td>250.000 VNĐ</td>
-                            <td>250.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Sản Phẩm Khác 1</td>
-                            <td>1</td>
-                            <td>50.000 VNĐ</td>
-                            <td>50.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Sản Phẩm Khác 2</td>
-                            <td>1</td>
-                            <td>50.000 VNĐ</td>
-                            <td>50.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Sản Phẩm Khác 3</td>
-                            <td>1</td>
-                            <td>50.000 VNĐ</td>
-                            <td>50.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Sản Phẩm Khác 4</td>
-                            <td>1</td>
-                            <td>50.000 VNĐ</td>
-                            <td>50.000 VNĐ</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="c-modal-detail__footer">
-            <div class="c-modal-detail__summary">
-                <strong>Tổng cộng:</strong> <span class="c-modal-detail__final-total">1.230.000 VNĐ</span> (Đã trừ
-                20.000 VNĐ giảm giá)
-            </div>
-            <button class="c-modal-detail__btn c-modal-detail__btn--print">🖨️ In Đơn Hàng</button>
-        </div>
+        }
     </div>
 </div>
+
+@code {
+    [Parameter] public int OrderId { get; set; }
+    [Parameter] public EventCallback OnOrderCancelled { get; set; }
+
+    private DonHangDTO? orderDetail;
+    private bool isLoading = false;
+
+    // Method này được gọi từ parent component khi click vào nút xem
+    public async Task LoadOrderDetail()
+    {
+        await LoadData();
+    }
+
+    private async Task HandleModalClick(MouseEventArgs e)
+    {
+        // Load data khi modal được mở (click vào overlay)
+        if (orderDetail == null && !isLoading)
+        {
+            await LoadData();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            orderDetail = await DonHangService.GetById(OrderId);
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("showToast", "error", "Lỗi tải chi tiết: " + ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShowCancelConfirmation()
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", 
+            "Bạn có chắc chắn muốn hủy đơn hàng #DH" + OrderId + " không?");
+
+        if (confirmed)
+        {
+            await CancelOrder();
+        }
+    }
+
+    private async Task CancelOrder()
+    {
+        try
+        {
+            await DonHangService.UpdateOrderStatus(OrderId, "cancelled");
+            await JS.InvokeVoidAsync("showToast", "success", "Đã hủy đơn hàng thành công!");
+            
+            // Đóng modal
+            await JS.InvokeVoidAsync("eval", "window.location.hash = ''");
+            
+            // Notify parent component
+            await OnOrderCancelled.InvokeAsync();
+            
+            // Reload data để cập nhật trạng thái
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("showToast", "error", "Lỗi hủy đơn: " + ex.Message);
+        }
+    }
+
+    private async Task PrintOrder()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("window.print");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("console.error", "Print error: " + ex.Message);
+        }
+    }
+
+    private bool CanCancelOrder(string? status)
+    {
+        return status == "pending" || status == "paid";
+    }
+
+    private string GetStatusClass(string? status)
+    {
+        return status switch
+        {
+            "paid" or "completed" => "is-completed",
+            "pending" or "shipping" => "is-pending",
+            "cancelled" => "is-cancelled",
+            _ => "is-pending"
+        };
+    }
+
+    private string GetStatusText(string? status)
+    {
+        return status switch
+        {
+            "pending" => "Chờ Xử Lý",
+            "paid" => "Đã Thanh Toán",
+            "shipping" => "Đang Vận Chuyển",
+            "completed" => "Thành Công",
+            "cancelled" => "Đã Hủy",
+            _ => "Không xác định"
+        };
+    }
+
+    private string GetPaymentMethodText(string? method)
+    {
+        return method switch
+        {
+            "cash" => "Thanh toán khi nhận hàng (COD)",
+            "bank_transfer" => "Chuyển khoản ngân hàng",
+            "e-wallet" => "Ví điện tử",
+            _ => "Thanh toán khi nhận hàng"
+        };
+    }
+}

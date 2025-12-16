@@ -28,6 +28,8 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
         public List<long> GetRevenueByYear(int year);
 
         Task<DonHangDTO> UpdateOrderStatus(int orderId, string status);  
+        // 6. Lấy đơn hàng theo CustomerId với phân trang và lọc trạng thái
+        Task<PagedResult<DonHangDTO>> GetOrdersByCustomerId(int customerId, int page = 1, int pageSize = 10, string status = "");
     }
 
 }

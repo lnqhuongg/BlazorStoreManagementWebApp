@@ -1,54 +1,232 @@
 ﻿@page "/lichsumuahang"
 @using Components.Layout.Client;
+@using BlazorStoreManagementWebApp.DTOs.Admin.DonHang
+@using BlazorStoreManagementWebApp.Services.Interfaces
+@using BlazorStoreManagementWebApp.Components.Pages.Client;
 @layout MainLayout
+@inject IDonHangService DonHangService
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <div class="o-app-container">
     <h1 class="c-main-header__title">🧡 Lịch Sử Giao Dịch Khách Hàng 🧡</h1>
 
-    <div class="c-order-list">
-
-        <div class="c-order-list__item c-order-list__header">
-            <div class="c-order-list__col--id">Mã Đơn Hàng</div>
-            <div class="c-order-list__col--date">Ngày Đặt</div>
-            <div class="c-order-list__col--total">Tổng Tiền</div>
-            <div class="c-order-list__col--status">Trạng Thái</div>
-            <div class="c-order-list__col--actions">Thao Tác</div>
-        </div>
-
-        <div class="c-order-list__item c-order-list__row">
-            <div class="c-order-list__col--id">#DH1004</div>
-            <div class="c-order-list__col--date">16/12/2025</div>
-            <div class="c-order-list__col--total c-order-list__amount--highlight">1.250.000 VNĐ</div>
-            <div class="c-order-list__col--status is-completed">Thành Công</div>
-            <div class="c-order-list__col--actions">
-                <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
-                   title="Xem Chi Tiết">&#128065;</a>
-                <a href="#" class="c-action-btn__icon c-action-btn__icon--cancel" title="Hủy Đơn Hàng">&#10006;</a>
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-warning" role="status">
+                <span class="visually-hidden">Đang tải...</span>
             </div>
+            <p class="mt-2">Đang tải dữ liệu...</p>
         </div>
-
-        <div class="c-order-list__item c-order-list__row">
-            <div class="c-order-list__col--id">#DH1005</div>
-            <div class="c-order-list__col--date">12/12/2025</div>
-            <div class="c-order-list__col--total">320.000 VNĐ</div>
-            <div class="c-order-list__col--status is-pending">Đang Vận Chuyển</div>
-            <div class="c-order-list__col--actions">
-                <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
-                   title="Xem Chi Tiết">&#128065;</a>
-                <a href="#" class="c-action-btn__icon c-action-btn__icon--cancel" title="Hủy Đơn Hàng">&#10006;</a>
+    }
+    else if (orders == null || !orders.Any())
+    {
+        <div class="alert alert-info text-center">
+            <i class="fa fa-info-circle"></i> Bạn chưa có đơn hàng nào.
+        </div>
+    }
+    else
+    {
+        <div class="c-order-list">
+            <div class="c-order-list__item c-order-list__header">
+                <div class="c-order-list__col--id">Mã Đơn Hàng</div>
+                <div class="c-order-list__col--date">Ngày Đặt</div>
+                <div class="c-order-list__col--total">Tổng Tiền</div>
+                <div class="c-order-list__col--status">Trạng Thái</div>
+                <div class="c-order-list__col--actions">Thao Tác</div>
             </div>
+
+            @foreach (var order in orders)
+            {
+                <div class="c-order-list__item c-order-list__row">
+                    <div class="c-order-list__col--id">#DH@order.OrderId</div>
+                    <div class="c-order-list__col--date">@order.OrderDate?.ToString("dd/MM/yyyy")</div>
+                    <div class="c-order-list__col--total @(order.TotalAmount > 1000000 ? "c-order-list__amount--highlight" : "")">
+                        @string.Format("{0:N0}", order.TotalAmount) VNĐ
+                    </div>
+                    <div class="c-order-list__col--status @GetStatusClass(order.Status)">
+                        @GetStatusText(order.Status)
+                    </div>
+                    <div class="c-order-list__col--actions">
+                        <a href="#u-detail-modal-@order.OrderId" 
+                           class="c-action-btn__icon c-action-btn__icon--view"
+                           title="Xem Chi Tiết"
+                           @onclick="async () => await LoadOrderDetail(order.OrderId)">&#128065;</a>
+                        
+                        @if (CanCancelOrder(order.Status))
+                        {
+                            <a href="#" 
+                               class="c-action-btn__icon c-action-btn__icon--cancel" 
+                               title="Hủy Đơn Hàng"
+                               @onclick="() => ShowCancelConfirm(order.OrderId)"
+                               @onclick:preventDefault>&#10006;</a>
+                        }
+                    </div>
+                </div>
+
+                <!-- Modal Chi Tiết - Sử dụng component riêng -->
+                <ChiTietDH @ref="chiTietComponents[order.OrderId]"
+                           OrderId="@order.OrderId" 
+                           OnOrderCancelled="HandleOrderCancelled" />
+            }
         </div>
 
-        <div class="c-order-list__item c-order-list__row">
-            <div class="c-order-list__col--id">#DH1006</div>
-            <div class="c-order-list__col--date">05/12/2025</div>
-            <div class="c-order-list__col--total">80.000 VNĐ</div>
-            <div class="c-order-list__col--status is-cancelled">Đã Hủy</div>
-            <div class="c-order-list__col--actions">
-                <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
-                   title="Xem Chi Tiết">&#128065;</a>
+        <!-- Phân trang -->
+        @if (totalPages > 1)
+        {
+            <div class="pagination-container mt-4">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" @onclick="() => ChangePage(currentPage - 1)" href="#">Trước</a>
+                        </li>
+
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            var page = i;
+                            <li class="page-item @(currentPage == page ? "active" : "")">
+                                <a class="page-link" @onclick="() => ChangePage(page)" href="#">@(page)</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                            <a class="page-link" @onclick="() => ChangePage(currentPage + 1)" href="#">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-        </div>
-
-    </div>
+        }
+    }
 </div>
+
+@code {
+    private List<DonHangDTO>? orders;
+    private Dictionary<int, ChiTietDH> chiTietComponents = new();
+    private bool isLoading = true;
+    private int customerId;
+    
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalRecords = 0;
+    private int totalPages => (int)Math.Ceiling((double)totalRecords / pageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Lấy customerId từ session
+            var clientIdObj = await SessionStorage.GetItemAsync<int?>("clientId");
+            
+            if (clientIdObj == null || clientIdObj.Value == 0)
+            {
+                await JS.InvokeVoidAsync("showToast", "error", "Vui lòng đăng nhập để xem lịch sử mua hàng");
+                Navigation.NavigateTo("/dangnhap");
+                return;
+            }
+
+            customerId = clientIdObj.Value;
+            await LoadOrders();
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("showToast", "error", "Lỗi: " + ex.Message);
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadOrders()
+    {
+        try
+        {
+            isLoading = true;
+            var result = await DonHangService.GetOrdersByCustomerId(customerId, currentPage, pageSize);
+            
+            orders = result.Data;
+            totalRecords = result.Total;
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("showToast", "error", "Lỗi tải dữ liệu: " + ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadOrderDetail(int orderId)
+    {
+        if (chiTietComponents.TryGetValue(orderId, out var component))
+        {
+            await component.LoadOrderDetail();
+        }
+    }
+
+    private async Task ChangePage(int page)
+    {
+        if (page < 1 || page > totalPages) return;
+        
+        currentPage = page;
+        await LoadOrders();
+    }
+
+    private async Task ShowCancelConfirm(int orderId)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn hủy đơn hàng này?");
+        
+        if (confirmed)
+        {
+            await CancelOrder(orderId);
+        }
+    }
+
+    private async Task CancelOrder(int orderId)
+    {
+        try
+        {
+            await DonHangService.UpdateOrderStatus(orderId, "cancelled");
+            await JS.InvokeVoidAsync("showToast", "success", "Đã hủy đơn hàng thành công");
+            await LoadOrders(); // Reload danh sách
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("showToast", "error", "Lỗi hủy đơn: " + ex.Message);
+        }
+    }
+
+    private async Task HandleOrderCancelled()
+    {
+        await LoadOrders();
+    }
+
+    private bool CanCancelOrder(string? status)
+    {
+        return status == "pending" || status == "paid";
+    }
+
+    private string GetStatusClass(string? status)
+    {
+        return status switch
+        {
+            "paid" or "completed" => "is-completed",
+            "pending" or "shipping" => "is-pending",
+            "cancelled" => "is-cancelled",
+            _ => "is-pending"
+        };
+    }
+
+    private string GetStatusText(string? status)
+    {
+        return status switch
+        {
+            "pending" => "Chờ Xử Lý",
+            "paid" => "Đã Thanh Toán",
+            "shipping" => "Đang Vận Chuyển",
+            "completed" => "Thành Công",
+            "cancelled" => "Đã Hủy",
+            _ => "Không xác định"
+        };
+    }
+}
