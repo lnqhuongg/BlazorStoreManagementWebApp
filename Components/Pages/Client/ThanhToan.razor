@@ -1,193 +1,147 @@
 ﻿@page "/thanhtoan"
 @using Components.Layout.Client;
+@using BlazorStoreManagementWebApp.Components.Forms.Client;
 @layout MainLayout
 
-<section id="cart_items">
-	<div class="container">
-		<div class="breadcrumbs">
-			<ol class="breadcrumb">
-				<li><a href="/">Home</a></li>
-				<li class="active">Thanh toán</li>
-			</ol>
-		</div><!--/breadcrums-->
+<div class="container-checkout">
+    <!-- Left Section -->
+    <div class="payment-info">
+        <h1 class="section-title">THÔNG TIN THANH TOÁN</h1>
 
+        <form id="checkoutForm">
+            <div class="form-group">
+                <label class="form-label">Họ và tên người nhận <span class="required">*</span></label>
+                <input type="text" class="form-input" @bind="Client.Name" required>
+            </div>
 
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại <span class="required">*</span></label>
+                    <input type="tel" class="form-input" @bind="Client.Phone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Địa chỉ email <span class="required">*</span></label>
+                    <input type="email" class="form-input" @bind="Client.Email" required>
+                </div>
+            </div>
 
-		<div class="review-payment">
-			<h2>Review giỏ hàng & Thanh toán</h2>
-		</div>
+            <div class="form-group">
+                <label class="form-label">Địa chỉ tài khoản</label>
+                <input type="text" class="form-input"
+                       @bind="Client.Address" required>
+            </div>
 
-		<div class="table-responsive cart_info">
-			<table class="table table-condensed">
-				<thead>
-					<tr class="cart_menu">
-						<td class="image">Item</td>
-						<td class="name">Tên sản phẩm</td>
-						<td class="price">Đơn giá</td>
-						<td class="quantity">Số lượng</td>
-						<td class="total">Tổng tiền</td>
-						<td></td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td class="cart_product">
-							<a href=""><img src="images/cart/one.png" alt="" width="150" height="150"></a>
-						</td>
-						<td class="cart_price">
-							<p>Product 001</p>
-						</td>
-						<td class="cart_price">
-							<p>100.000 VND</p>
-						</td>
-						<td>
-							<p>1</p>
-						</td>
-						<td class="cart_total">
-							<p class="cart_total_price">200.000 VND</p>
-						</td>
-					</tr>
-					<tr>
-						<td class="cart_product">
-							<a href=""><img src="images/cart/one.png" alt="" width="150" height="150"></a>
-						</td>
-						<td class="cart_price">
-							<p>Product 001</p>
-						</td>
-						<td class="cart_price">
-							<p>100.000 VND</p>
-						</td>
-						<td>
-							<p>1</p>
-						</td>
-						<td class="cart_total">
-							<p class="cart_total_price">200.000 VND</p>
-						</td>
-					</tr>
+            <!-- Moved coupon button and reward points to left section below confirm button -->
+            <div class="action-section">
+                <button type="button" class="modal-trigger" @onclick="() => DiscountModalRef.OpenModal()">
+                    🎟️ Chọn mã giảm giá
+                </button>
 
+                <div class="reward-points">
+                    <div class="reward-checkbox">
+                        <input type="checkbox" id="useRewardPoints" 
+                            @onchange="@(e =>
+                            {
+                                UseRewardPoints = (bool)e.Value;
+                                ToggleRewardPoints();
+                            })"/>
+                        <label for="useRewardPoints">
+                            Sử dụng <span class="reward-value">@Client.RewardPoints điểm thưởng</span> (= (@Client.RewardPoints).ToString("N0")đ)
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
-					<tr>
-						<td colspan="4">&nbsp;</td>
-						<td colspan="2">
-							<table class="table table-condensed total-result">
-								<tr>
-									<td>Tổng tiền trước khi giảm</td>
-									<td>400.000 VND</td>
-								</tr>
-								<tr>
-									<td>Giá đã giảm</td>
-									<td>10%</td>
-								</tr>
-								<tr class="shipping-cost">
-									<td>Phí vận chuyển</td>
-									<td>Free</td>
-								</tr>
-								<tr>
-									<td>Thành tiền</td>
-									<td><span>360.000 VND</span></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-		<form id="checkout-form" action="#" method="post">
-			<div class="row">
-				<!-- CỘT TRÁI: THÔNG TIN GIAO HÀNG -->
-				<div class="col-sm-6">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<strong>Thông tin giao hàng</strong>
-						</div>
-						<div class="panel-body">
+    <!-- Right Section -->
+    <div class="order-summary">
+        <h2 class="summary-title">ĐƠN HÀNG CỦA BẠN</h2>
 
-							<div class="radio">
-								<label>
-									<input type="radio" name="shipping_address_option" value="default" checked>
-									Giao hàng tại địa chỉ mặc định
-								</label>
-							</div>
+        <div class="products-header">
+            <span>SẢN PHẨM</span>
+            <span>TẠM TÍNH</span>
+        </div>
 
-							<div class="radio" style="margin-bottom:15px;">
-								<label>
-									<input type="radio" name="shipping_address_option" value="new">
-									Giao hàng đến địa chỉ mới
-								</label>
-							</div>
+        <div class="products-list">
+            @if (Cart.Any())
+            {
+                @foreach (var item in Cart)
+                {
+                    <div class="product-item">
+                        <span class="product-name">@item.ProductName</span>
+                        <span class="product-quantity"> x @item.Quantity</span>
+                        <span class="product-price">
+                            @((item.Price * item.Quantity).ToString("N0"))đ
+                        </span>
+                    </div>
+                }
+            }
+        </div>
 
-							<div id="new-shipping-address">
-								<div class="form-group">
-									<label for="shipping_fullname">Họ và tên</label>
-									<input type="text" class="form-control" id="shipping_fullname" name="shipping_fullname"
-										   placeholder="Nhập họ và tên người nhận" disabled>
-								</div>
+        <div class="divider"></div>
 
-								<div class="form-group">
-									<label for="shipping_phone">Số điện thoại</label>
-									<input type="text" class="form-control" id="shipping_phone" name="shipping_phone"
-										   placeholder="Nhập số điện thoại liên hệ" disabled>
-								</div>
+        <div class="summary-row">
+            <span class="summary-label">Tạm tính</span>
+            <span class="summary-value" id="subtotalValue">@Subtotal.ToString("N0")đ</span>
+        </div>
 
-								<div class="form-group">
-									<label for="shipping_address">Địa chỉ nhận hàng</label>
-									<textarea class="form-control" id="shipping_address" name="shipping_address"
-											  placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"
-											  rows="3" disabled></textarea>
-								</div>
-							</div>
+        @if (SelectedPromo != null)
+        {
+            <div class="summary-row discount-row">
+                <span class="summary-label">
+                    Mã giảm giá (@SelectedPromo.PromoCode)
+                </span>
+                <span class="summary-value text-danger">
+                    -@DiscountAmount.ToString("N0")đ
+                </span>
+            </div>
+        }
 
-						</div>
-					</div>
-				</div>
+        @if (UseRewardPoints && RewardDiscountAmount > 0)
+        {
+            <div class="summary-row discount-row">
+                <span class="summary-label">
+                    Điểm thưởng sử dụng
+                </span>
+                <span class="summary-value text-danger">
+                    -@RewardDiscountAmount.ToString("N0")đ
+                </span>
+            </div>
+        }
 
-				<!-- CỘT PHẢI: PHƯƠNG THỨC THANH TOÁN + NÚT -->
-				<div class="col-sm-6">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<strong>Phương thức thanh toán</strong>
-						</div>
-						<div class="panel-body payment-options">
+        <!-- Made total row more prominent with larger, bold text -->
+        <div class="summary-row total-row">
+            <span class="summary-label">Tổng tiền</span>
+            <span class="summary-value" id="totalValue">@Total.ToString("N0")đ</span>
+        </div>
 
-							<div class="radio" style="margin-top: 30px;">
-								<label>
-									<input type="radio" name="payment_method" value="cash" checked>
-									Thanh toán khi nhận hàng (COD)
-								</label>
-								<p class="help-block">Thanh toán tiền mặt cho shipper khi nhận được hàng.</p>
-							</div>
+        <!-- Payment methods -->
+        <div class="payment-methods">
+            <div class="payment-method  
+                 @(SelectedPaymentMethod == "cash" ? "selected" : "")"
+                 @onclick="@(() => SelectPayment("cash"))">
+                <input type="radio" id="bankTransfer" name="payment" value="bank" checked>
+                <label for="bankTransfer">Chuyển khoản ngân hàng</label>
+            </div>
 
-							<div class="radio">
-								<label>
-									<input type="radio" name="payment_method" value="bank">
-									Thanh toán qua ngân hàng
-								</label>
-								<p class="help-block">Thanh toán qua ứng dụng ngân hàng hoặc cổng thanh toán.</p>
-							</div>
+            <div class="payment-method
+                 @(SelectedPaymentMethod == "e-wallet" ? "selected" : "")"
+                 @onclick="@(() => SelectPayment("e-wallet"))">
+                <input type="radio" id="momo" name="payment" value="momo">
+                <label for="momo">Ví điện tử Momo</label>
+            </div>
 
-							<div class="radio">
-								<label>
-									<input type="radio" name="payment_method" value="momo">
-									Thanh toán bằng ví MoMo
-								</label>
-								<p class="help-block">Thanh toán siêu tốc qua ví MoMo.</p>
-							</div>
+            <div class="payment-method
+                 @(SelectedPaymentMethod == "bank_transfer" ? "selected" : "")"
+                 @onclick="@(() => SelectPayment("bank_transfer"))">
+                <input type="radio" id="cod" name="payment" value="cod">
+                <label for="cod">Trả tiền mặt khi nhận hàng</label>
+            </div>
+        </div>
 
-							<button type="submit"
-									class="btn btn-primary check_out"
-									style="margin-top:20px;">
-								Xác nhận thanh toán
-							</button>
+        <button class="order-btn" @onclick="Checkout">ĐẶT HÀNG</button>
+    </div>
+</div>
 
-						</div>
-					</div>
-				</div>
-
-			</div>
-		</form>
-	</div>
-</section> <!--/#cart_items-->
-
-@code {
-
-}
+<DiscountModal @ref="DiscountModalRef" Subtotal="Subtotal" OnSelected="ApplyDiscount"></DiscountModal>

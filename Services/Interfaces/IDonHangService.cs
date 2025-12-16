@@ -16,7 +16,7 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
         Task<DonHangDTO?> GetById(int orderId);
 
         // 4. Tạo mới đơn hàng (Giống Create bên LoaiSanPham)
-        Task<DonHangDTO> Create(CreateDonHangDTO dto, string userType = "staff");
+        Task<DonHangDTO> Create(CreateDonHangDTO dto, string userType = "staff", string paymentMethod = "cash");
 
         Task<List<DonHangDTO>> GetTodayOrders();
 

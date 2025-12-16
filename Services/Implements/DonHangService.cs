@@ -141,14 +141,17 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         }
 
         // ==================== 4. TẠO MỚI (Create) ====================
-        public async Task<DonHangDTO> Create(CreateDonHangDTO dto, string userType = "staff")
+        public async Task<DonHangDTO> Create(CreateDonHangDTO dto, string userType = "staff", string paymentMethod = "cash")
         {
             using var tran = await _context.Database.BeginTransactionAsync();
 
             var statusOrder = "pending";
             if(userType == "client")
             {
-                statusOrder = "pending";
+                if(paymentMethod == "cash")
+                    statusOrder = "pending";
+                else if (paymentMethod == "bank_transfer" || paymentMethod == "e-wallet")
+                    statusOrder = "paid";
             } else if (userType == "staff")
             {
                 statusOrder = "paid";

@@ -1,0 +1,30 @@
+﻿<div class="modal @(IsOpen ? "active" : "")" id="couponModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Chọn mã giảm giá</h3>
+            <button class="modal-close" @onclick="CloseModal">&times;</button>
+        </div>
+
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="couponSearch" placeholder="Tìm kiếm mã giảm giá..." @bind="SearchText" @bind:event="oninput" />
+        </div>
+
+        <div class="coupon-list" id="couponList">
+            @foreach (var promo in FilteredPromos)
+            {
+                var canUse = Subtotal >= promo.MinOrderAmount;
+                <div class="coupon-item @(canUse ? "" : "disabled")" @onclick="() => SelectPromo(promo)">
+                    <div class="coupon-code">@promo.PromoCode</div>
+                    <div class="coupon-desc">
+                        @promo.Description</div>
+                    <div class="coupon-desc" style="display: flex; justify-content: space-between; font-size: 13.5px;">
+                        <span>@DisplayDiscountDate(promo)</span>
+                        <span>@DisplayDiscountUsage(promo)</span>
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</div>

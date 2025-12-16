@@ -9,7 +9,6 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
     {
         [Inject] ISanPhamService SanPhamService { get; set; } = default!;
         [Inject] Blazored.SessionStorage.ISessionStorageService SessionStorage { get; set; } = default!;
-
         [Inject] IJSRuntime JS { get; set; } = default!;
 
         // Giỏ hàng trong session
@@ -29,13 +28,9 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
             public string ImageUrl { get; set; } = string.Empty;
             public decimal Price { get; set; }
             public int Quantity { get; set; }
-
-            public decimal Subtotal => Price * Quantity;
         }
 
         protected List<CartItemViewModel> Cart { get; set; } = new();
-
-
         protected override async Task OnInitializedAsync()
         {
             await LoadCartFromSession();
