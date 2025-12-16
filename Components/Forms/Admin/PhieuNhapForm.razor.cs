@@ -33,7 +33,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
         private decimal price = 0;
         private decimal TotalAmount => details.Sum(d => d.Quantity * d.Price);
 
-
+        private bool isPriceDisabled = false;
 
         // này để báo lôĩ message validate
         private Dictionary<string, string> Errors = new([]);
@@ -115,12 +115,44 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             StateHasChanged();
         }
 
+        private void OnProductChanged(ChangeEventArgs e)
+        {
+            // Parse giá trị từ dropdown
+            if (int.TryParse(e.Value?.ToString(), out int newId))
+            {
+                selectedProductId = newId;
+
+                // Kiểm tra xem sản phẩm này đã có trong danh sách chi tiết chưa
+                var existingItem = details.FirstOrDefault(d => d.Product.ProductID == selectedProductId);
+
+                if (existingItem != null)
+                {
+                    // NẾU CÓ RỒI:
+                    // 1. Lấy giá của dòng đã tồn tại đắp vào ô nhập
+                    price = existingItem.Price;
+
+                    // 2. Khóa ô nhập giá lại (không cho sửa giá khác)
+                    isPriceDisabled = true;
+                }
+                else
+                {
+                    // NẾU CHƯA CÓ:
+                    // 1. Reset giá về 0 (hoặc giữ nguyên nếu muốn)
+                    price = 0;
+
+                    // 2. Mở khóa ô nhập giá
+                    isPriceDisabled = false;
+                }
+            }
+        }
+
         // them 1 sp vao details
         private void AddProduct()
         {
             Errors.Remove("Supplier");
             Errors.Remove("AddProduct");  // clear lỗi cũ
             Console.WriteLine("supplier id: " + selectedSupplierId);
+
             if (selectedSupplierId == 0)
             {
                 Errors["Supplier"] = "Vui lòng chọn nhà cung cấp trước.";
@@ -141,27 +173,76 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
                 Errors["Price"] = "Giá phải lớn hơn 0.";
                 return;
             }
+            const int MAX_QUANTITY = 10000;
+            if (quantity > MAX_QUANTITY)
+            {
+                Errors["Quantity"] = $"Số lượng quá lớn (Tối đa {MAX_QUANTITY:N0}).";
+                return;
+            }
+            const decimal MAX_PRICE = 100_000_000_000;
+            if (price > MAX_PRICE)
+            {
+                Errors["Price"] = "Đơn giá không hợp lệ (Quá lớn).";
+                return;
+            }
+
+            // Nếu Quantity * Price vượt quá khả năng lưu trữ của decimal hoặc logic nghiệp vụ
+            try
+            {
+                decimal subTotal = (decimal)quantity * price;
+                const decimal MAX_TOTAL_PER_ITEM = 10_000_000;
+
+                if (subTotal > MAX_TOTAL_PER_ITEM)
+                {
+                    Errors["AddProduct"] = "Tổng tiền sản phẩm này quá lớn, vui lòng kiểm tra lại.";
+                    return;
+                }
+            }
+            catch (OverflowException)
+            {
+                Errors["AddProduct"] = "Số liệu quá lớn gây tràn số hệ thống.";
+                return;
+            }
 
             var product = products.FirstOrDefault(x => x.ProductID == selectedProductId);
+
             if (product == null)
             {
                 Errors["AddProduct"] = "Sản phẩm không hợp lệ.";
                 return;
             }
 
-            ChiTietPhieuNhapDTO ctpnDTO = new ChiTietPhieuNhapDTO();
-            ctpnDTO.Product = product;
-            ctpnDTO.Quantity = quantity;
-            ctpnDTO.Price = price;
-            ctpnDTO.Subtotal = quantity * price;
+            var existingItem = details.FirstOrDefault(d => d.Product.ProductID == selectedProductId);
 
-            details.Add(ctpnDTO);
-            // reset form
+            if (existingItem != null)
+            {
+                // Cộng dồn số lượng
+                existingItem.Quantity += quantity;
+                existingItem.Subtotal = existingItem.Quantity * existingItem.Price;
+
+                // Lưu ý: Lúc này Price của existingItem không thay đổi 
+                // vì ô nhập giá đã bị disable và bind đúng giá cũ.
+            }
+            else
+            {
+                // Thêm mới
+                ChiTietPhieuNhapDTO ctpnDTO = new ChiTietPhieuNhapDTO();
+                ctpnDTO.Product = product;
+                ctpnDTO.Quantity = quantity;
+                ctpnDTO.Price = price;
+                ctpnDTO.Subtotal = quantity * price;
+
+                details.Add(ctpnDTO);
+            }
+
+            // --- RESET FORM ---
             quantity = 1;
             price = 0;
             selectedProductId = 0;
-        }
 
+            // QUAN TRỌNG: Reset lại trạng thái khóa giá cho lần nhập tiếp theo
+            isPriceDisabled = false;
+        }
         // luu phieu nhap
         public async Task Save()
         {
