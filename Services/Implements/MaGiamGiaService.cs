@@ -160,17 +160,6 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             var result = await query.ToListAsync();
             return _mapper.Map<List<MaGiamGiaDTO>>(result);
         }
-        public async Task<bool> isPromoCodeExist(string promoCode, int id = 0)
-        {
-            // id = 0 -> check for create
-            // id != 0 -> check for update, ignore the current record
-            return await _context.MaGiamGias
-                .AnyAsync(x =>
-                    x.PromoCode == promoCode &&
-                    (id == 0 || x.PromoId != id)
-                );
-        }
-
 
         public async Task<MaGiamGiaDTO?> updateAfterCreatedOrder(int? promoId)
         {

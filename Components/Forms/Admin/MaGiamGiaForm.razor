@@ -1,135 +1,129 @@
-﻿@using BlazorStoreManagementWebApp.DTOs.Admin.MaGiamGia
-
-<div class="modal fade" id="PromoModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-
-            <EditForm Model="@promoDTO" OnSubmit="@HandleSubmit">
-
-                <!-- HEADER -->
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-@(IsEditMode ? "edit" : "plus-circle")"></i>
+﻿<div class="modal fade" id="PromoModal" tabindex="-1" aria-labelledby="PromoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
+            <EditForm Model="@promoDTO" OnValidSubmit="@HandleSubmit">
+                <!-- Header -->
+                <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
+                    <h1 class="modal-title fs-5" style="color: white; font-weight: 700;">
+                        <i class="fas fa-@(IsEditMode ? "edit" : "plus-circle")" style="margin-right: 0.5rem;"></i>
                         @(IsEditMode ? "Chỉnh sửa mã giảm giá" : "Thêm mới mã giảm giá")
-                    </h5>
-                    <button type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"></button>
+                    </h1>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
-                <!-- BODY -->
-                <div class="modal-body">
-                    <div class="row">
-
-                        <!-- Mã giảm giá -->
-                        <div class="col-md-6 mb-3">
-                            <label>Mã giảm giá *</label>
-                            <InputText class="@($"form-control {(string.IsNullOrEmpty(PromoCodeError) ? "" : "is-invalid")}")"
-                                       @bind-Value="promoDTO.PromoCode" />
-                            <small class="text-danger">@PromoCodeError</small>
-                        </div>
-
-                        <!-- Mô tả -->
-                        <div class="col-md-6 mb-3">
-                            <label>Mô tả *</label>
-                            <InputText class="@($"form-control {(string.IsNullOrEmpty(DescriptionError) ? "" : "is-invalid")}")"
-                                       @bind-Value="promoDTO.Description" />
-                            <small class="text-danger">@DescriptionError</small>
-                        </div>
-                        >
-
-                        <!-- Loại giảm -->
-                        <div class="col-md-6 mb-3">
-                            <label>Loại giảm *</label>
-                            <InputSelect class="@($"form-select {(string.IsNullOrEmpty(DiscountTypeError) ? "" : "is-invalid")}")"
-                                         @bind-Value="promoDTO.DiscountType">
-                                <option value="">-- Chọn loại --</option>
-                                <option value="percent">Phần trăm</option>
-                                <option value="fixed">Giảm giá</option>
-                            </InputSelect>
-                            <small class="text-danger">@DiscountTypeError</small>
-                        </div>
-
-                        <!-- Giá trị -->
-                        <div class="col-md-6 mb-3">
-                            <label>Giá trị *</label>
-                            <InputNumber class="@($"form-control {(string.IsNullOrEmpty(DiscountValueError) ? "" : "is-invalid")}")"
-                                         @bind-Value="promoDTO.DiscountValue"
-                                         disabled="@string.IsNullOrEmpty(promoDTO.DiscountType)" />
-                            <small class="text-danger">@DiscountValueError</small>
-                        </div>
-
-                        <!-- Ngày bắt đầu -->
-                        <div class="col-md-6 mb-3">
-                            <label>Ngày bắt đầu *</label>
-                            <InputDate class="@($"form-control {(string.IsNullOrEmpty(StartDateError) ? "" : "is-invalid")}")"
-                                       @bind-Value="promoDTO.StartDate" />
-                            <small class="text-danger">@StartDateError</small>
-                        </div>
-
-                        <!-- Ngày kết thúc -->
-                        <div class="col-md-6 mb-3">
-                            <label>Ngày kết thúc *</label>
-                            <InputDate class="@($"form-control {(string.IsNullOrEmpty(EndDateError) ? "" : "is-invalid")}")"
-                                       @bind-Value="promoDTO.EndDate" />
-                            <small class="text-danger">@EndDateError</small>
-                        </div>
-
-                        <!-- Đơn tối thiểu -->
-                        <div class="col-md-6 mb-3">
-                            <label>Giá trị đơn tối thiểu</label>
-                            <InputNumber class="@($"form-control {(string.IsNullOrEmpty(MinOrderAmountError) ? "" : "is-invalid")}")"
-                                         @bind-Value="promoDTO.MinOrderAmount" />
-                            <small class="text-danger">@MinOrderAmountError</small>
-                        </div>
-
-                        <!-- Giới hạn -->
-                        <div class="col-md-6 mb-3">
-                            <label>Giới hạn sử dụng *</label>
-                            <InputNumber class="@($"form-control {(string.IsNullOrEmpty(UsageLimitError) ? "" : "is-invalid")}")"
-                                         @bind-Value="promoDTO.UsageLimit" />
-                            <small class="text-danger">@UsageLimitError</small>
-                        </div>
-
-                        <!-- Đã dùng -->
-                        @if (IsEditMode)
+                <!-- Modal Body -->
+                <div class="modal-body" style="padding: 2rem;">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Mã giảm giá <span style="color: #ef4444;">*</span>
+                        </label>
+                        <InputText @bind-Value="promoDTO.PromoCode"
+                                   class="form-control"
+                                   placeholder="Nhập mã giảm giá..."
+                                   style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                        @if (!string.IsNullOrEmpty(CodeErrorMessage))
                         {
-                            <div class="col-md-6 mb-3">
-                                <label>Đã dùng</label>
-                                <InputNumber class="form-control"
-                                             @bind-Value="promoDTO.UsedCount"
-                                             disabled />
-                            </div>
+                            <span class="text-danger" style="font-size: 13px; font-weight: 500;">
+                                <i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                @CodeErrorMessage
+                            </span>
                         }
-
-                        <!-- Trạng thái -->
-                        <div class="col-md-6 mb-3">
-                            <label>Trạng thái *</label>
-                            <InputSelect class="@($"form-select {(string.IsNullOrEmpty(StatusError) ? "" : "is-invalid")}")"
-                                         @bind-Value="promoDTO.Status">
-                                <option value="">-- Chọn trạng thái --</option>
-                                <option value="active">Hoạt động</option>
-                                <option value="inactive">Tạm ngưng</option>
-                            </InputSelect>
-                            <small class="text-danger">@StatusError</small>
-                        </div>
-
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Mô tả
+                        </label>
+                        <InputText @bind-Value="promoDTO.Description"
+                                   class="form-control"
+                                   placeholder="Nhập mô tả (không bắt buộc)..."
+                                   style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Loại giảm <span style="color: #ef4444;">*</span>
+                        </label>
+                        <InputSelect @bind-Value="promoDTO.DiscountType"
+                                     class="form-select"
+                                     style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <option value="percent">Phần trăm</option>
+                            <option value="fixed">Số tiền</option>
+                        </InputSelect>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Giá trị giảm <span style="color: #ef4444;">*</span>
+                        </label>
+                        <InputNumber @bind-Value="promoDTO.DiscountValue"
+                                     class="form-control"
+                                     placeholder="Nhập giá trị giảm..."
+                                     style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Ngày bắt đầu <span style="color: #ef4444;">*</span>
+                        </label>
+                        <InputDate @bind-Value="promoDTO.StartDate"
+                                   class="form-control"
+                                   style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Ngày kết thúc <span style="color: #ef4444;">*</span>
+                        </label>
+                        <InputDate @bind-Value="promoDTO.EndDate"
+                                   class="form-control"
+                                   style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Giá trị đơn tối thiểu
+                        </label>
+                        <InputNumber @bind-Value="promoDTO.MinOrderAmount"
+                                     class="form-control"
+                                     placeholder="Nhập giá trị đơn tối thiểu..."
+                                     style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Giới hạn sử dụng <span style="color: #ef4444;">*</span>
+                        </label>
+                        <InputNumber @bind-Value="promoDTO.UsageLimit"
+                                     class="form-control"
+                                     placeholder="Nhập giới hạn sử dụng..."
+                                     style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Đã dùng
+                        </label>
+                        <InputNumber @bind-Value="promoDTO.UsedCount"
+                                     class="form-control"
+                                     placeholder="Số lần đã dùng..."
+                                     style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #065f46;">
+                            Trạng thái <span style="color: #ef4444;">*</span>
+                        </label>
+                        <InputSelect @bind-Value="promoDTO.Status"
+                                     class="form-select"
+                                     style="border: 2px solid #d1fae5; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <option value="active">Hoạt động</option>
+                            <option value="inactive">Tạm ngưng</option>
+                        </InputSelect>
                     </div>
                 </div>
-
-                <!-- FOOTER -->
-                <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
+                <!-- Modal Footer -->
+                <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1.5rem;">
+                    <button type="button" class="btn" data-bs-dismiss="modal"
+                            style="background-color: #e5e7eb; color: #374151; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
                         Hủy
                     </button>
-                    <button type="submit"
-                            class="btn btn-success">
+                    <button type="submit" class="btn btn-add"
+                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-check"></i>
                         @(IsEditMode ? "Cập nhật" : "Thêm mới")
                     </button>
                 </div>
-
             </EditForm>
         </div>
     </div>

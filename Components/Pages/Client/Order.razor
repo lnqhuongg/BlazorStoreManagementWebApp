@@ -1,0 +1,56 @@
+﻿@page "/order"
+@using Components.Layout.Client;
+@layout MainLayout
+
+<div class="container">
+    <div class="breadcrumbs">
+        <ol class="breadcrumb">
+            <li><a >Home</a></li>
+            <li class="active">Lịch sử mua hàng</li>
+        </ol>
+    </div>
+    <h3>List Orders</h3>
+
+    <table class="table" id="myTable">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Order Id</th>
+                <th scope="col">Mã giảm giá</th>
+                <th scope="col">Ngày Order</th>
+                <th scope="col">Order Status</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Order 001</td>
+                <td>Coupon 001</td>
+                <td>02/09/1945</td>
+                <td>
+                    <span class="text text-primary">Đang chờ xác nhận</span>
+                </td>
+                <td>
+                    <a class="btn btn-danger btn-sm ">Cancel Order</a>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Order 002</td>
+                <td>Coupon 001</td>
+                <td>03/09/1945</td>
+                <td>
+                    <span class="text text-success">Đã xác nhận</span>
+                </td>
+                <td>
+                    <a class="btn btn-warning btn-sm" href="/chitietorder">View Order</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@code {
+
+}
