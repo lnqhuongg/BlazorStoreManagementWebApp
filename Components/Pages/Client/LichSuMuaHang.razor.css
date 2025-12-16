@@ -1,20 +1,5 @@
-﻿/* ===================================== */
-/* 00. KHU VỰC CHUNG (GLOBAL/LAYOUT) */
-/* (Tất cả các giá trị màu đã được thay bằng mã Hex trực tiếp) */
-/* ===================================== */
-
-/* Định nghĩa các giá trị màu trực tiếp */
-/* --primary-color: #ffaa44; */
-/* --secondary-color: #555555; */
-/* --background-light: #f5f5f5; */
-/* --text-dark: #333333; */
-/* --border-color: #dddddd; */
-/* --completed-color: #38c172; */
-/* --pending-color: #f6993f; */
-/* --cancelled-color: #e3342f; */
-/* --cancelled-color-light: #ff7f7f; */
-/* --cancelled-background: #ffe3e3; */
-
+﻿body {
+}
 /* Ghi đè style mặc định của thẻ body trong Blazor */
 ::deep body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

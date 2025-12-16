@@ -1,12 +1,4 @@
-﻿/* ===================================== */
-/* 02. MODAL CHI TIẾT ĐƠN HÀNG (c-modal-detail) */
-/* (Tất cả các giá trị màu đã được thay bằng mã Hex trực tiếp) */
-/* ===================================== */
-
-/* Định nghĩa các giá trị màu trực tiếp */
-/* Primary: #ffaa44 (Cam nhạt), Secondary: #555555 (Xám đậm), Border: #dddddd, Cancel: #e3342f (Đỏ) */
-
-.u-modal-overlay {
+﻿.u-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;

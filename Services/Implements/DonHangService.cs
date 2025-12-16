@@ -149,9 +149,9 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             var statusOrder = "pending";
             if(userType == "client")
             {
-                if(paymentMethod == "cash")
+                if(paymentMethod == "cash" || paymentMethod == "e-wallet")
                     statusOrder = "pending";
-                else if (paymentMethod == "bank_transfer" || paymentMethod == "e-wallet")
+                else if (paymentMethod == "bank_transfer")
                     statusOrder = "paid";
             } else if (userType == "staff")
             {

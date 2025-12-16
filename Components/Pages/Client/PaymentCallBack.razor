@@ -1,0 +1,281 @@
+﻿@page "/payment-result"
+@inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject IJSRuntime JS
+@inject BlazorStoreManagementWebApp.Services.Interfaces.IDonHangService DonHangService
+
+<div class="container py-5">
+    <div class="payment-result-card">
+        @if (isLoading)
+        {
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Đang xử lý...</span>
+                </div>
+                <h3 class="mt-3">Đang xử lý kết quả thanh toán...</h3>
+            </div>
+        }
+        else if (isSuccess)
+        {
+            <div class="text-center">
+                <div class="success-icon mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="#28a745" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg>
+                </div>
+                <h2 class="text-success mb-4">Thanh toán thành công!</h2>
+
+                <div class="payment-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Mã đơn hàng:</span>
+                        <span class="detail-value">#@orderId</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Số tiền:</span>
+                        <span class="detail-value">@amount.ToString("N0") VNĐ</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(transId))
+                    {
+                        <div class="detail-row">
+                            <span class="detail-label">Mã giao dịch MoMo:</span>
+                            <span class="detail-value">@transId</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-primary btn-lg" @onclick="GoToOrders">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-receipt me-2" viewBox="0 0 16 16">
+                            <path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .801.13l.5 1A.5.5 0 0 1 15 2v12a.5.5 0 0 1-.053.224l-.5 1a.5.5 0 0 1-.8.13L13 14.707l-.646.647a.5.5 0 0 1-.708 0L11 14.707l-.646.647a.5.5 0 0 1-.708 0L9 14.707l-.646.647a.5.5 0 0 1-.708 0L7 14.707l-.646.647a.5.5 0 0 1-.708 0L5 14.707l-.646.647a.5.5 0 0 1-.708 0L3 14.707l-.646.647a.5.5 0 0 1-.801-.13l-.5-1A.5.5 0 0 1 1 14V2a.5.5 0 0 1 .053-.224l.5-1a.5.5 0 0 1 .367-.27zm.217 1.338L2 2.118v11.764l.137.274.51-.51a.5.5 0 0 1 .707 0l.646.647.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.646.646.646-.646a.5.5 0 0 1 .708 0l.509.509.137-.274V2.118l-.137-.274-.51.51a.5.5 0 0 1-.707 0L12 1.707l-.646.647a.5.5 0 0 1-.708 0L10 1.707l-.646.647a.5.5 0 0 1-.708 0L8 1.707l-.646.647a.5.5 0 0 1-.708 0L6 1.707l-.646.647a.5.5 0 0 1-.708 0L4 1.707l-.646.647a.5.5 0 0 1-.708 0l-.509-.51z" />
+                            <path d="M3 4.5a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 1 1 0 1h-6a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5zm8-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5z" />
+                        </svg>
+                        Xem đơn hàng
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg ms-3" @onclick="GoToHome">
+                        Về trang chủ
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center">
+                <div class="error-icon mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="#dc3545" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" />
+                    </svg>
+                </div>
+                <h2 class="text-danger mb-4">Thanh toán thất bại!</h2>
+                <p class="error-message">@errorMessage</p>
+
+                @if (!string.IsNullOrEmpty(orderId))
+                {
+                    <p class="text-muted">Mã đơn hàng: #@orderId</p>
+                }
+
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-primary btn-lg" @onclick="RetryPayment">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-clockwise me-2" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
+                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
+                        </svg>
+                        Thử lại
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg ms-3" @onclick="GoToHome">
+                        Về trang chủ
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .payment-result-card {
+        max-width: 700px;
+        margin: 50px auto;
+        padding: 50px 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        background: white;
+    }
+
+    .payment-details {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px 0;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .detail-label {
+        font-weight: 500;
+        color: #6c757d;
+        font-size: 16px;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        color: #212529;
+        font-size: 18px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .error-message {
+        font-size: 18px;
+        color: #6c757d;
+        margin: 20px 0;
+    }
+
+    @@media (max-width: 576px) {
+        .payment-result-card {
+            padding: 30px 20px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+
+            .action-buttons button {
+                width: 100%;
+                margin: 5px 0 !important;
+            }
+    }
+</style>
+
+@code {
+    private bool isLoading = true;
+    private bool isSuccess = false;
+    private string orderId = "";
+    private decimal amount = 0;
+    private string transId = "";
+    private string errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Lấy query parameters từ URL
+            var uri = new Uri(NavigationManager.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+            // Lấy các tham số từ MoMo
+            string resultCode = query["resultCode"] ?? query["errorCode"] ?? "";
+            orderId = query["orderId"] ?? "";
+            string amountStr = query["amount"] ?? "";
+            transId = query["transId"] ?? "";
+            string message = query["message"] ?? "";
+
+            // Parse amount
+            if (!string.IsNullOrEmpty(amountStr) && decimal.TryParse(amountStr, out decimal parsedAmount))
+            {
+                amount = parsedAmount;
+            }
+            else
+            {
+                // Nếu không có amount trong query, lấy từ session
+                var pendingAmount = await SessionStorage.GetItemAsync<decimal>("pendingOrderAmount");
+                amount = pendingAmount;
+            }
+
+            // Kiểm tra kết quả thanh toán
+            if (resultCode == "0")
+            {
+                // THANH TOÁN THÀNH CÔNG
+                isSuccess = true;
+
+                // Xóa session
+                await SessionStorage.RemoveItemAsync("cart");
+                await SessionStorage.RemoveItemAsync("pendingOrderId");
+                await SessionStorage.RemoveItemAsync("pendingOrderAmount");
+
+                // Hiển thị thông báo
+                await JS.InvokeVoidAsync("showToast", "success", "Thanh toán thành công!");
+            }
+            else
+            {
+                // THANH TOÁN THẤT BẠI
+                isSuccess = false;
+
+                // Tạo thông báo lỗi chi tiết
+                errorMessage = GetErrorMessage(resultCode, message);
+
+                // Nếu có orderId, cập nhật trạng thái đơn hàng
+                if (!string.IsNullOrEmpty(orderId) && int.TryParse(orderId, out int orderIdInt))
+                {
+                    try
+                    {
+                        await DonHangService.UpdateOrderStatus(orderIdInt, "PaymentFailed");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error updating order status: {ex.Message}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            isSuccess = false;
+            errorMessage = $"Có lỗi xảy ra khi xử lý kết quả: {ex.Message}";
+            Console.WriteLine($"Error in PaymentResult: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetErrorMessage(string errorCode, string message)
+    {
+        // Map error code từ MoMo thành thông báo dễ hiểu
+        return errorCode switch
+        {
+            "1006" => "Giao dịch bị từ chối bởi người dùng",
+            "1001" => "Giao dịch thất bại do lỗi hệ thống",
+            "1002" => "Giao dịch bị từ chối do vượt quá hạn mức",
+            "1003" => "Số dư tài khoản không đủ",
+            "1004" => "Số tiền vượt quá hạn mức giao dịch",
+            "1005" => "URL hoặc QR code đã hết hạn",
+            "1017" => "Tài khoản MoMo chưa được kích hoạt",
+            "2001" => "Giao dịch thất bại do lỗi hệ thống",
+            "9000" => "Giao dịch đã được xác nhận trước đó",
+            _ => !string.IsNullOrEmpty(message)
+                ? $"Mã lỗi {errorCode}: {message}"
+                : $"Giao dịch thất bại với mã lỗi: {errorCode}"
+        };
+    }
+
+    private void GoToOrders()
+    {
+        NavigationManager.NavigateTo("/orders");
+    }
+
+    private void GoToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void RetryPayment()
+    {
+        NavigationManager.NavigateTo("/thanhtoan");
+    }
+}

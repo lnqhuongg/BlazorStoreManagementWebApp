@@ -1,12 +1,18 @@
-using Blazored.SessionStorage;
+﻿using Blazored.SessionStorage;
 using BlazorStoreManagementWebApp.Components;
 using BlazorStoreManagementWebApp.Mappings;
 using BlazorStoreManagementWebApp.Models;
 using Microsoft.EntityFrameworkCore;
 using StoreManagementBE.BackendServer.Infrastructure.DI;
 using QuestPDF.Infrastructure;
+using BlazorStoreManagementWebApp.Models.Momo;
+using BlazorStoreManagementWebApp.Services.Momo;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Ket noi MOMO
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+builder.Services.AddScoped<IMomoService, MomoService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
@@ -30,6 +36,11 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 // them service session storage
 builder.Services.AddBlazoredSessionStorage();
+
+builder.Services.AddControllers(); // QUAN TRỌNG
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -47,5 +58,7 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapControllers();
 
 app.Run();
