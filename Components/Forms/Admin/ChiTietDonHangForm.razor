@@ -54,22 +54,22 @@
                             </span>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <strong>Nhân viên:</strong> 
                             @(string.IsNullOrEmpty(donHang.UserName) ? "Không xác định" : donHang.UserName)
                         </div>
                     </div>
                 </div>
 
-                <hr class="my-4" />
+                <hr class="my-2" />
 
                 <!-- DANH SÁCH SẢN PHẨM -->
                 <h6 class="mb-3" style="color: #065f46; font-weight: 700; text-transform: uppercase;">
                     DANH SÁCH SẢN PHẨM
                 </h6>
 
-                <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
-                    <table class="table table-hover mb-0">
+                <div style="height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px;">
+                    <table class="table">
                         <thead class="table-light" style="position: sticky; top: 0; z-index: 5;">
                             <tr>
                                 <th class="text-center">#</th>
@@ -112,6 +112,25 @@
                  style="border-top: 1px solid #e5e7eb; padding: 1.5rem;">
 
                 <div>
+                    @if (donHang.DiscountAmount > 0)
+                    {
+                        <div class="mb-2 text-start">
+                            <strong>
+                                Mã giảm giá
+                                @(donHang.Promotion != null ? $"({donHang.Promotion.PromoCode})" : ""):
+                            </strong>
+                            <span style="color: #ef4444; font-weight: 700;">
+                                -@string.Format("{0:N0} đ", donHang.DiscountAmount)
+                            </span>
+                        </div>
+                    }
+
+                    <div class="text-start">
+                        <strong style="font-size: 1.2rem; color: #065f46;">TỔNG CỘNG:</strong>
+                        <span style="font-size: 1.4rem; color: #dc2626; font-weight: 700; margin-left: 10px;">
+                            @string.Format("{0:N0} đ", donHang.TotalAmount)
+                        </span>
+                    </div>
                 </div>
 
                 <div class="d-flex gap-2">
