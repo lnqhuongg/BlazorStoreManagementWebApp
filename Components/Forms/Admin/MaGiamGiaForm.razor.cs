@@ -25,6 +25,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
         protected string UsageLimitError { get; set; } = "";
         protected string StatusError { get; set; } = "";
         protected string DescriptionError { get; set; } = "";
+
         public string ModalTitle => IsEditMode ? "Chỉnh sửa mã giảm giá" : "Thêm mới mã giảm giá";
 
         public async Task OpenCreate()
@@ -76,7 +77,8 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             EndDateError =
             MinOrderAmountError =
             UsageLimitError =
-            StatusError = "";
+            StatusError =
+            DescriptionError = "";
         }
 
         private bool Validate()
@@ -105,6 +107,13 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             if (promoDTO.DiscountValue <= 0)
             {
                 DiscountValueError = "Giá trị giảm phải lớn hơn 0.";
+                ok = false;
+            }
+
+            // ===== VALIDATE PHẦN TRĂM <= 100 =====
+            if (promoDTO.DiscountType == "percent" && promoDTO.DiscountValue > 100)
+            {
+                DiscountValueError = "Giảm theo phần trăm không được vượt quá 100%.";
                 ok = false;
             }
 
@@ -150,7 +159,6 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
 
             return ok;
         }
-
 
         protected async Task HandleSubmit()
         {
