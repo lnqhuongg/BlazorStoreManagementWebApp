@@ -11,6 +11,8 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
     {
         [Inject]
         public IDonHangService _donHangService { get; set; } = default!;
+        [Inject]
+        public ITonKhoService _tonKhoService { get; set; } = default!;
 
         [Inject]
         private IJSRuntime JS { get; set; } = default!;
@@ -62,11 +64,12 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
                 return "Chưa thanh toán";
 
             var methods = donHang.Payments
-                .Select(p => p.PaymentMethod switch
+                .Select(p => p.PaymentMethod.ToLower() switch
                 {
-                    "Cash"     => "Tiền mặt",
-                    "Card"     => "Thẻ tín dụng / Thẻ ghi nợ",
-                    "Transfer" => "Chuyển khoản",
+                    "cash"     => "Tiền mặt",
+                    "e-wallet"     => "Thẻ tín dụng / Thẻ ghi nợ",
+                    "bank-transfer" => "Chuyển khoản",
+                    "card" => "Thẻ tín dụng / Thẻ ghi nợ",
                     _          => p.PaymentMethod ?? "Không xác định"
                 })
                 .Distinct();
@@ -121,13 +124,30 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
         {
             try
             {
-                // Gọi Service cập nhật trạng thái sang "canceled"
+                // 1. Cập nhật trạng thái đơn hàng sang "canceled"
                 await _donHangService.UpdateOrderStatus(orderId, "canceled");
 
-                // Đóng Modal
+                // 2. HOÀN TRẢ SỐ LƯỢNG VÀO KHO
+                if (donHang.Items != null && donHang.Items.Any())
+                {
+                    foreach (var item in donHang.Items)
+                    {
+                        // Kiểm tra Product để tránh lỗi null
+                        if (item.Product != null && item.Quantity > 0)
+                        {
+                            // Lưu ý logic: 
+                            // Hàm deduct là "Trừ kho". 
+                            // Để "Cộng kho" (trả hàng), ta truyền số lượng ÂM (-item.Quantity).
+                            // Ví dụ: Kho đang 90. Trừ đi (-10) => 90 - (-10) = 100.
+                            await _tonKhoService.deductQuantityOfCreatedOrder(item.Product.ProductID, -item.Quantity);
+                        }
+                    }
+                }
+
+                // 3. Đóng Modal
                 await JS.InvokeVoidAsync("hideBootstrapModal", "ChiTietDonHangModal");
 
-                // Reload dữ liệu trang cha
+                // 4. Reload dữ liệu trang cha
                 if (OnSaved.HasDelegate)
                 {
                     await OnSaved.InvokeAsync();
