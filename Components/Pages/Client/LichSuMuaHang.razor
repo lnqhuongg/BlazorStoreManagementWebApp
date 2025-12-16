@@ -1,0 +1,54 @@
+﻿@page "/lichsumuahang"
+@using Components.Layout.Client;
+@layout MainLayout
+
+<div class="o-app-container">
+    <h1 class="c-main-header__title">🧡 Lịch Sử Giao Dịch Khách Hàng 🧡</h1>
+
+    <div class="c-order-list">
+
+        <div class="c-order-list__item c-order-list__header">
+            <div class="c-order-list__col--id">Mã Đơn Hàng</div>
+            <div class="c-order-list__col--date">Ngày Đặt</div>
+            <div class="c-order-list__col--total">Tổng Tiền</div>
+            <div class="c-order-list__col--status">Trạng Thái</div>
+            <div class="c-order-list__col--actions">Thao Tác</div>
+        </div>
+
+        <div class="c-order-list__item c-order-list__row">
+            <div class="c-order-list__col--id">#DH1004</div>
+            <div class="c-order-list__col--date">16/12/2025</div>
+            <div class="c-order-list__col--total c-order-list__amount--highlight">1.250.000 VNĐ</div>
+            <div class="c-order-list__col--status is-completed">Thành Công</div>
+            <div class="c-order-list__col--actions">
+                <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
+                   title="Xem Chi Tiết">&#128065;</a>
+                <a href="#" class="c-action-btn__icon c-action-btn__icon--cancel" title="Hủy Đơn Hàng">&#10006;</a>
+            </div>
+        </div>
+
+        <div class="c-order-list__item c-order-list__row">
+            <div class="c-order-list__col--id">#DH1005</div>
+            <div class="c-order-list__col--date">12/12/2025</div>
+            <div class="c-order-list__col--total">320.000 VNĐ</div>
+            <div class="c-order-list__col--status is-pending">Đang Vận Chuyển</div>
+            <div class="c-order-list__col--actions">
+                <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
+                   title="Xem Chi Tiết">&#128065;</a>
+                <a href="#" class="c-action-btn__icon c-action-btn__icon--cancel" title="Hủy Đơn Hàng">&#10006;</a>
+            </div>
+        </div>
+
+        <div class="c-order-list__item c-order-list__row">
+            <div class="c-order-list__col--id">#DH1006</div>
+            <div class="c-order-list__col--date">05/12/2025</div>
+            <div class="c-order-list__col--total">80.000 VNĐ</div>
+            <div class="c-order-list__col--status is-cancelled">Đã Hủy</div>
+            <div class="c-order-list__col--actions">
+                <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
+                   title="Xem Chi Tiết">&#128065;</a>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Components\Forms\Client\ChiTietDH.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Components\UI\ProductCard\" />
     <Folder Include="DTOs\Admin\NhaCungCap\" />
   </ItemGroup>
