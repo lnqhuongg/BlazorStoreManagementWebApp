@@ -1,73 +1,337 @@
 ﻿@page "/thongtintaikhoan"
-@using Components.Layout.Client;
+@using Components.Layout.Client
+@using BlazorStoreManagementWebApp.DTOs.Admin.KhachHang
+@using BlazorStoreManagementWebApp.Services.Interfaces
 @layout MainLayout
+@inject IKhachHangService KhachHangService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
 
-
-<div class="account-management-main-container-unique">
-    <div class="account-navigation-tabs-wrapper-special">
-        <button class="account-tab-navigation-button-detailed active-state" onclick="switchTab('info')">Thông Tin Cá Nhân</button>
-        <button class="account-tab-navigation-button-detailed" onclick="switchTab('password')">Đổi Mật Khẩu</button>
+@if (isLoading)
+{
+    <div style="text-align: center; padding: 100px;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <p style="margin-top: 10px;">Đang tải thông tin...</p>
     </div>
-
-    <div id="info" class="account-tab-content-section-complex active-state">
-        <h2 class="account-section-title-heading-custom">Thông Tin Cá Nhân</h2>
-
-        <div class="account-info-display-panel-special">
-            <div class="account-info-single-item-wrapper">
-                <div class="account-info-label-description">Ngày tạo</div>
-                <div class="account-info-value-display-text">15/01/2024</div>
-            </div>
-            <div class="account-info-single-item-wrapper">
-                <div class="account-info-label-description">Điểm thưởng</div>
-                <div class="account-info-value-display-text">250 điểm</div>
-            </div>
+}
+else if (customer == null)
+{
+    <div class="container" style="padding: 50px 0;">
+        <div class="alert alert-danger text-center">
+            <strong>Lỗi!</strong> Không thể tải thông tin tài khoản. Vui lòng đăng nhập lại.
+            <br />
+            <button type="button" class="btn btn-danger" style="margin-top: 10px;" @onclick="RedirectToLogin">
+                Đăng nhập
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="account-management-main-container-unique">
+        <div class="account-navigation-tabs-wrapper-special">
+            <button class="account-tab-navigation-button-detailed @(activeTab == "info" ? "active-state" : "")" 
+                    @onclick='() => SwitchTab("info")'>
+                Thông Tin Cá Nhân
+            </button>
+            <button class="account-tab-navigation-button-detailed @(activeTab == "password" ? "active-state" : "")" 
+                    @onclick='() => SwitchTab("password")'>
+                Đổi Mật Khẩu
+            </button>
         </div>
 
-        <form onsubmit="updateInfo(event)">
-            <div class="account-form-input-group-advanced">
-                <label class="account-form-label-text-custom">Họ và tên</label>
-                <input type="text" class="account-input-field-element-unique" value="Nguyễn Văn A" required>
+        <div id="info" class="account-tab-content-section-complex @(activeTab == "info" ? "active-state" : "")">
+            <h2 class="account-section-title-heading-custom">Thông Tin Cá Nhân</h2>
+
+            @if (!string.IsNullOrEmpty(infoMessage))
+            {
+                <div class="alert @(infoMessageType == "success" ? "alert-success" : "alert-danger")" style="margin-bottom: 20px;">
+                    @infoMessage
+                </div>
+            }
+
+            <div class="account-info-display-panel-special">
+                <div class="account-info-single-item-wrapper">
+                    <div class="account-info-label-description">Ngày tạo</div>
+                    <div class="account-info-value-display-text">@(customer.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</div>
+                </div>
+                <div class="account-info-single-item-wrapper">
+                    <div class="account-info-label-description">Điểm thưởng</div>
+                    <div class="account-info-value-display-text">@customer.RewardPoints điểm</div>
+                </div>
             </div>
 
-            <div class="account-form-input-group-advanced">
-                <label class="account-form-label-text-custom">Email</label>
-                <input type="email" class="account-input-field-element-unique" value="nguyenvana@example.com" required>
-            </div>
+            <form @onsubmit="UpdateInfo" @onsubmit:preventDefault="true">
+                <div class="account-form-input-group-advanced">
+                    <label class="account-form-label-text-custom">Họ và tên</label>
+                    <input type="text" class="account-input-field-element-unique" @bind="customer.Name" required>
+                </div>
 
-            <div class="account-form-input-group-advanced">
-                <label class="account-form-label-text-custom">Số điện thoại</label>
-                <input type="tel" class="account-input-field-element-unique" value="0123456789" required>
-            </div>
+                <div class="account-form-input-group-advanced">
+                    <label class="account-form-label-text-custom">Email</label>
+                    <input type="email" class="account-input-field-element-unique" value="@customer.Email" disabled>
+                </div>
 
-            <div class="account-form-input-group-advanced">
-                <label class="account-form-label-text-custom">Địa chỉ</label>
-                <textarea class="account-textarea-field-element-unique" required>123 Đường ABC, Quận 1, TP.HCM</textarea>
-            </div>
+                <div class="account-form-input-group-advanced">
+                    <label class="account-form-label-text-custom">Số điện thoại</label>
+                    <input type="tel" class="account-input-field-element-unique" @bind="customer.Phone" required>
+                </div>
 
-            <button type="submit" class="account-action-submit-button-extended">Cập Nhật</button>
-        </form>
+                <div class="account-form-input-group-advanced">
+                    <label class="account-form-label-text-custom">Địa chỉ</label>
+                    <textarea class="account-textarea-field-element-unique" @bind="customer.Address" required>@customer.Address</textarea>
+                </div>
+
+                <button type="submit" class="account-action-submit-button-extended" disabled="@isUpdating">
+                    @if (isUpdating)
+                    {
+                        <span>Đang cập nhật...</span>
+                    }
+                    else
+                    {
+                        <span>Cập Nhật</span>
+                    }
+                </button>
+            </form>
+        </div>
+
+        <div id="password" class="account-tab-content-section-complex @(activeTab == "password" ? "active-state" : "")">
+            <h2 class="account-section-title-heading-custom">Đổi Mật Khẩu</h2>
+
+            @if (!string.IsNullOrEmpty(passwordMessage))
+            {
+                <div class="alert @(passwordMessageType == "success" ? "alert-success" : "alert-danger")" style="margin-bottom: 20px;">
+                    @passwordMessage
+                </div>
+            }
+
+            <form @onsubmit="ChangePassword" @onsubmit:preventDefault="true">
+                <div class="account-form-input-group-advanced">
+                    <label class="account-form-label-text-custom">Mật khẩu hiện tại</label>
+                    <input type="password" class="account-input-field-element-unique" @bind="currentPassword" required>
+                    @if (!string.IsNullOrEmpty(currentPasswordError))
+                    {
+                        <small style="color: red;">@currentPasswordError</small>
+                    }
+                </div>
+
+                <div class="account-form-input-group-advanced">
+                    <label class="account-form-label-text-custom">Mật khẩu mới</label>
+                    <input type="password" class="account-input-field-element-unique" @bind="newPassword" required>
+                </div>
+
+                <div class="account-form-input-group-advanced">
+                    <label class="account-form-label-text-custom">Xác nhận mật khẩu mới</label>
+                    <input type="password" class="account-input-field-element-unique" @bind="confirmPassword" required>
+                </div>
+
+                <button type="submit" class="account-action-submit-button-extended" disabled="@isChangingPassword">
+                    @if (isChangingPassword)
+                    {
+                        <span>Đang đổi mật khẩu...</span>
+                    }
+                    else
+                    {
+                        <span>Đổi Mật Khẩu</span>
+                    }
+                </button>
+            </form>
+        </div>
     </div>
+}
 
-    <div id="password" class="account-tab-content-section-complex">
-        <h2 class="account-section-title-heading-custom">Đổi Mật Khẩu</h2>
+@code {
+    private string activeTab = "info";
+    private KhachHangDTO? customer;
+    private string currentPassword = string.Empty;
+    private string newPassword = string.Empty;
+    private string confirmPassword = string.Empty;
+    private string currentPasswordError = string.Empty;
 
-        <form onsubmit="changePassword(event)">
-            <div class="account-form-input-group-advanced">
-                <label class="account-form-label-text-custom">Mật khẩu hiện tại</label>
-                <input type="password" class="account-input-field-element-unique" required>
-            </div>
+    private bool isLoading = true;
+    private bool isUpdating = false;
+    private bool isChangingPassword = false;
 
-            <div class="account-form-input-group-advanced">
-                <label class="account-form-label-text-custom">Mật khẩu mới</label>
-                <input type="password" class="account-input-field-element-unique" required>
-            </div>
+    private string infoMessage = string.Empty;
+    private string infoMessageType = "success";
+    private string passwordMessage = string.Empty;
+    private string passwordMessageType = "success";
 
-            <div class="account-form-input-group-advanced">
-                <label class="account-form-label-text-custom">Xác nhận mật khẩu mới</label>
-                <input type="password" class="account-input-field-element-unique" required>
-            </div>
+    private int currentUserId = 0;
 
-            <button type="submit" class="account-action-submit-button-extended">Đổi Mật Khẩu</button>
-        </form>
-    </div>
-</div>
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomerInfo();
+    }
+
+    private async Task LoadCustomerInfo()
+    {
+        try
+        {
+            isLoading = true;
+
+            // Lấy clientId từ session
+            var clientId = await SessionStorage.GetItemAsync<int?>("clientId");
+
+            if (clientId == null || clientId == 0)
+            {
+                NavigationManager.NavigateTo("/dangnhap");
+                return;
+            }
+
+            currentUserId = clientId.Value;
+            customer = await KhachHangService.GetById(currentUserId);
+
+            if (customer == null)
+            {
+                await ShowToast("error", "Không tìm thấy thông tin tài khoản.");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ShowToast("error", "Có lỗi xảy ra khi tải thông tin tài khoản.");
+            await JSRuntime.InvokeVoidAsync("console.error", ex.Message);
+            customer = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SwitchTab(string tab)
+    {
+        activeTab = tab;
+        infoMessage = string.Empty;
+        passwordMessage = string.Empty;
+        currentPasswordError = string.Empty;
+    }
+
+    private async Task UpdateInfo()
+    {
+        if (customer == null || currentUserId == 0) return;
+
+        try
+        {
+            isUpdating = true;
+            infoMessage = string.Empty;
+
+            var updatedCustomer = await KhachHangService.Update(currentUserId, customer);
+
+            if (updatedCustomer != null)
+            {
+                customer = updatedCustomer;
+                infoMessage = "Cập nhật thông tin thành công!";
+                infoMessageType = "success";
+                await ShowToast("success", "Cập nhật thông tin thành công!");
+            }
+            else
+            {
+                infoMessage = "Không thể cập nhật thông tin. Vui lòng thử lại.";
+                infoMessageType = "danger";
+                await ShowToast("error", "Không thể cập nhật thông tin.");
+            }
+        }
+        catch (Exception ex)
+        {
+            infoMessage = $"Lỗi: {ex.Message}";
+            infoMessageType = "danger";
+            await ShowToast("error", ex.Message);
+        }
+        finally
+        {
+            isUpdating = false;
+        }
+    }
+
+    private async Task ChangePassword()
+    {
+        if (currentUserId == 0) return;
+
+        try
+        {
+            isChangingPassword = true;
+            passwordMessage = string.Empty;
+            currentPasswordError = string.Empty;
+
+            // Validate
+            if (string.IsNullOrWhiteSpace(currentPassword))
+            {
+                currentPasswordError = "Vui lòng nhập mật khẩu hiện tại";
+                isChangingPassword = false;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+            {
+                passwordMessage = "Mật khẩu mới phải có ít nhất 6 ký tự";
+                passwordMessageType = "danger";
+                isChangingPassword = false;
+                return;
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                passwordMessage = "Xác nhận mật khẩu không khớp";
+                passwordMessageType = "danger";
+                isChangingPassword = false;
+                return;
+            }
+
+            // Tạo DTO
+            var resetDto = new AdminResetPasswordDTO
+            {
+                NewPassword = newPassword,
+                ConfirmNewPassword = confirmPassword
+            };
+
+            var result = await KhachHangService.AdminResetPasswordAsync(currentUserId, resetDto);
+
+            if (result != null)
+            {
+                passwordMessage = "Đổi mật khẩu thành công! Đang chuyển về trang đăng nhập...";
+                passwordMessageType = "success";
+                await ShowToast("success", "Đổi mật khẩu thành công!");
+
+                // Clear form
+                currentPassword = string.Empty;
+                newPassword = string.Empty;
+                confirmPassword = string.Empty;
+
+                // Clear session và redirect
+                await Task.Delay(2000);
+                await SessionStorage.RemoveItemAsync("clientId");
+                await SessionStorage.RemoveItemAsync("clientName");
+                await SessionStorage.RemoveItemAsync("clientRole");
+                NavigationManager.NavigateTo("/dangnhap", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            passwordMessage = $"Lỗi: {ex.Message}";
+            passwordMessageType = "danger";
+            await ShowToast("error", ex.Message);
+        }
+        finally
+        {
+            isChangingPassword = false;
+        }
+    }
+
+    private async Task ShowToast(string type, string message)
+    {
+        try
+        {
+            await JSRuntime.InvokeAsync<object>("showToast", type, message);
+        }
+        catch { }
+    }
+
+    private void RedirectToLogin()
+    {
+        NavigationManager.NavigateTo("/dangnhap");
+    }
+}

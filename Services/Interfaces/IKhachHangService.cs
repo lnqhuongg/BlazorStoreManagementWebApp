@@ -39,6 +39,8 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
 
         // trừ điểm thưởng cho khách hàng
         Task<KhachHangDTO?> deductRewardPoints(int? customerId, int? pointsToDeduct);
+        // admin reset mật khẩu khách hàng
+        Task<KhachHangDTO> AdminResetPasswordAsync(int customerId, AdminResetPasswordDTO dto);
     }
 
 }
