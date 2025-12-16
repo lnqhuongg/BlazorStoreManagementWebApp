@@ -95,7 +95,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             entity.Status = 1;
 
             // TODO: Hash password
-            // entity.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            entity.Password = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
             _context.NhanViens.Add(entity);
             await _context.SaveChangesAsync();
