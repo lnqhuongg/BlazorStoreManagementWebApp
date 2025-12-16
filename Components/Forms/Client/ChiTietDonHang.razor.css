@@ -1,0 +1,148 @@
+﻿/* ===================================== */
+/* 02. MODAL CHI TIẾT ĐƠN HÀNG (c-modal-detail) */
+/* (Tất cả các giá trị màu đã được thay bằng mã Hex trực tiếp) */
+/* ===================================== */
+
+/* Định nghĩa các giá trị màu trực tiếp */
+/* Primary: #ffaa44 (Cam nhạt), Secondary: #555555 (Xám đậm), Border: #dddddd, Cancel: #e3342f (Đỏ) */
+
+.u-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+    .u-modal-overlay:target {
+        display: flex;
+    }
+
+.c-modal-detail__content {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Nút Đóng Modal (Dấu X) */
+.c-modal-detail__close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #555555; /* Secondary Color */
+    font-size: 24px;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 1;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+    .c-modal-detail__close-btn:hover {
+        color: white;
+        background-color: #e3342f; /* Cancel Color */
+    }
+
+.c-modal-detail__title {
+    color: #555555; /* Secondary Color */
+    border-bottom: 2px solid #ffaa44; /* Primary Color */
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.c-modal-detail__highlight {
+    color: #ffaa44; /* Primary Color */
+}
+
+/* HIỂN THỊ TRẠNG THÁI TRONG MODAL */
+.c-status-display {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px dashed #dddddd; /* Border Color */
+    border-radius: 5px;
+    background-color: #f5f5f5; /* Background Light */
+}
+
+.c-status-display__label {
+    font-weight: 600;
+    color: #555555; /* Secondary Color */
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+.c-status-display__badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 15px;
+    text-align: center;
+    display: inline-block;
+}
+
+/* BỐ CỤC 2 CỘT THÔNG TIN */
+.c-modal-detail__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Chia thành 2 cột bằng nhau */
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.c-modal-detail__info-col {
+    /* chứa nội dung cột */
+}
+
+.c-modal-detail__section-title {
+    color: #ffaa44; /* Primary Color */
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    border-left: 3px solid #ffaa44; /* Primary Color */
+    padding-left: 10px;
+}
+
+.c-modal-detail__info-col p {
+    margin: 5px 0;
+    font-size: 15px;
+}
+
+.c-modal-detail__info-col strong {
+    color: #555555; /* Secondary Color */
+}
+
+.c-modal-detail__discount-code {
+    font-weight: 600;
+    color: #e3342f; /* Cancel Color */
+    background-color: #fef2f2;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+
+/* KHU VỰC CÓ SCROLL CHO DANH SÁCH SẢN PHẨM */
+.c-modal-detail__product-container {
+    flex-grow: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.c-modal-detail__product-scroll {
+    overflow-y: auto;

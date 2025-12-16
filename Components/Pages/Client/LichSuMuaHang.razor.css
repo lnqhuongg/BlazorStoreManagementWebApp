@@ -1,0 +1,190 @@
+﻿/* ===================================== */
+/* 00. KHU VỰC CHUNG (GLOBAL/LAYOUT) */
+/* (Tất cả các giá trị màu đã được thay bằng mã Hex trực tiếp) */
+/* ===================================== */
+
+/* Định nghĩa các giá trị màu trực tiếp */
+/* --primary-color: #ffaa44; */
+/* --secondary-color: #555555; */
+/* --background-light: #f5f5f5; */
+/* --text-dark: #333333; */
+/* --border-color: #dddddd; */
+/* --completed-color: #38c172; */
+/* --pending-color: #f6993f; */
+/* --cancelled-color: #e3342f; */
+/* --cancelled-color-light: #ff7f7f; */
+/* --cancelled-background: #ffe3e3; */
+
+/* Ghi đè style mặc định của thẻ body trong Blazor */
+/*::deep body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333333;*/ /* --text-dark */
+    /*margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}*/
+
+/* Ghi đè class body-history */
+.body-history {
+    background-color: #f5f5f5; /* --background-light */
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    margin: 40px 0px;
+}
+
+/* o-app-container */
+.o-app-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 1000px;
+}
+
+.c-main-header__title {
+    text-align: center;
+    color: #555555; /* --secondary-color */
+    margin-bottom: 40px;
+    font-size: 28px;
+    font-weight: 600;
+    border-bottom: 2px solid #ffaa44; /* --primary-color */
+    padding-bottom: 15px;
+}
+
+/* ===================================== */
+/* 01. THÀNH PHẦN DANH SÁCH ĐƠN HÀNG (c-order-list) */
+/* ===================================== */
+
+.c-order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.c-order-list__item {
+    padding: 15px 20px;
+    border-radius: 8px;
+    align-items: center;
+    font-size: 16px;
+    /* Sử dụng Grid để chia cột thống nhất */
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1.2fr;
+    display: grid;
+}
+
+/* Kiểu cho hàng tiêu đề */
+.c-order-list__header {
+    background-color: #555555; /* --secondary-color */
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Kiểu cho các hàng dữ liệu */
+.c-order-list__row {
+    background-color: #ffffff;
+    border: 1px solid #dddddd; /* --border-color */
+    transition: all 0.3s ease;
+}
+
+    .c-order-list__row:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        border-color: #ffaa44; /* --primary-color */
+    }
+
+/* Định dạng cột Mã Đơn Hàng */
+.c-order-list__col--id {
+    color: #ffaa44; /* --primary-color */
+    font-weight: 600;
+}
+
+/* Định dạng cột Tổng Tiền nổi bật */
+.c-order-list__amount--highlight {
+    font-weight: 700;
+    color: #555555; /* --secondary-color */
+}
+
+/* Định dạng chung cột trạng thái */
+.c-order-list__col--status {
+    padding: 5px 10px;
+    border-radius: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Trạng thái - Modifier Classes */
+::deep .is-completed {
+    background-color: #ecfdf5;
+    color: #38c172; /* --completed-color */
+    border: 1px solid #38c172; /* --completed-color */
+}
+
+::deep .is-pending {
+    background-color: #fffbeb;
+    color: #f6993f; /* --pending-color */
+    border: 1px solid #f6993f; /* --pending-color */
+}
+
+::deep .is-cancelled {
+    background-color: #fef2f2;
+    color: #e3342f; /* --cancelled-color */
+    border: 1px solid #e3342f; /* --cancelled-color */
+}
+
+/* Cột hành động và Icons */
+.c-order-list__col--actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.c-action-btn__icon {
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 50%; /* Tròn */
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555555; /* --secondary-color */
+    transition: all 0.2s;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.c-action-btn__icon--view {
+    font-size: 22px;
+}
+
+    .c-action-btn__icon--view:hover {
+        color: white;
+        background-color: #ffaa44; /* --primary-color */
+    }
+
+.c-action-btn__icon--cancel {
+    font-weight: bold;
+    color: #ff7f7f; /* --cancelled-color-light */
+    border: 1px solid #ff7f7f; /* --cancelled-color-light */
+    background-color: #ffe3e3; /* --cancelled-background */
+}
+
+    .c-action-btn__icon--cancel:hover {
+        color: white;
+        background-color: #e3342f; /* --cancelled-color */
+        border-color: #e3342f; /* --cancelled-color */
+    }
+
+
+/* Căn giữa cột */
+.c-order-list__col--date,
+.c-order-list__col--total,
+.c-order-list__col--status {
+    text-align: center;
+}
