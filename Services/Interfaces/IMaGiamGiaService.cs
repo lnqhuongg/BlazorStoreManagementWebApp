@@ -1,4 +1,5 @@
-﻿using BlazorStoreManagementWebApp.DTOs.Admin.MaGiamGia;
+﻿
+using BlazorStoreManagementWebApp.DTOs.Admin.MaGiamGia;
 using BlazorStoreManagementWebApp.Helpers;
 
 namespace BlazorStoreManagementWebApp.Services.Interfaces
@@ -13,5 +14,6 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
         Task<List<MaGiamGiaDTO>> SearchByKeyword(string keyword);
         Task<List<MaGiamGiaDTO>> GetAllActive();
         Task<MaGiamGiaDTO?> updateAfterCreatedOrder(int? promoId);
+        Task<bool> isPromoCodeExist(string promoCode, int id = 0);
     }
 }
