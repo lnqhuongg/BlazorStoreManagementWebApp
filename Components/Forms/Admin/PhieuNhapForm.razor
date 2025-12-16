@@ -70,7 +70,8 @@
                                     </label>
                                     <select class="form-select"
                                             style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;"
-                                            @bind="selectedProductId">
+                                            value="@selectedProductId"
+                                            @onchange="OnProductChanged">
                                         <option value="0">-- Chọn sản phẩm --</option>
                                         @foreach (var p in products)
                                         {
@@ -83,7 +84,7 @@
                                     <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                         Số lượng <span style="color: #ef4444;">*</span>
                                     </label>
-                                    <input disabled="@IsViewMode" @bind="quantity" type="number" min="1" class="form-control" style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
+                                    <input disabled="@IsViewMode" @bind="quantity" onkeypress="return event.charCode >= 48 && event.charCode <= 57" type="number" min="1" max="10000" class="form-control" style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
                                     @if (Errors.ContainsKey("Quantity"))
                                     {
                                         <span class="text-danger" style="font-size: 13px; font-weight: 500;">
@@ -97,7 +98,7 @@
                                     <label class="form-label" style="font-weight: 600; color: #065f46; margin-bottom: 0.75rem;">
                                         Đơn giá <span style="color: #ef4444;">*</span>
                                     </label>
-                                    <input disabled="@IsViewMode" @bind="price" type="number" min="0" class="form-control" style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
+                                    <input disabled="@(IsViewMode || isPriceDisabled)" @bind="price" type="number" onkeypress="return event.charCode >= 48 && event.charCode <= 57" min="0" max="10000000" class="form-control" style="border:2px solid #d1fae5; border-radius:8px; padding:0.75rem 1rem;" />
                                     @if (Errors.ContainsKey("Price"))
                                     {
                                         <span class="text-danger" style="font-size: 13px; font-weight: 500;">
@@ -140,7 +141,7 @@
                     </span>
                 }
 
-                <div style="max-height: 400px; overflow-y: auto;">
+                <div style="height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px;">
                     <table class="table">
                         <thead class="table-light" style="position: sticky; top: 0; z-index: 5;">
                             <tr>
