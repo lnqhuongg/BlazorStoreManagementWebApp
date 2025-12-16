@@ -7,6 +7,7 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
         Task<List<TonKhoDTO>> GetAll();
         Task<TonKhoDTO> GetByProductID(int productID);
         Task<TonKhoDTO> deductQuantityOfCreatedOrder(int productID, int quantityChange);
+        Task<TonKhoDTO> InitializeStock(int productID, int initialQuantity = 0);
     }
 
 }

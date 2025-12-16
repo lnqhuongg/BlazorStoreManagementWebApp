@@ -60,6 +60,7 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
 
             // Tổng doanh thu / vốn / lãi
             TotalRevenue = await DonHangService.TinhTongDoanhThu(SelectedMode, SelectedMonth, SelectedYear);
+            Console.WriteLine($"Total Revenue: {TotalRevenue}");
             TotalCapital = PhieuNhapService.TinhTongTienNhap(SelectedMode, SelectedMonth, SelectedYear);
             TotalProfit = TotalRevenue - TotalCapital;
 

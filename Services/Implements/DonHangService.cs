@@ -282,26 +282,42 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             {
                 decimal totalDecimal = 0m;
 
-                if (mode == "month")
-                {
-                    var start = new DateTime(year, month, 1);
-                    var end = start.AddMonths(1);
+                // 1. Chuẩn hóa đầu vào về chữ thường để tránh lỗi "Month" != "month"
+                string modeLower = mode?.ToLower().Trim() ?? "";
 
+                DateTime start = DateTime.Now;
+                DateTime end = DateTime.Now;
+                bool isValidMode = false;
+
+                if (modeLower == "month")
+                {
+                    start = new DateTime(year, month, 1);
+                    end = start.AddMonths(1);
+                    isValidMode = true;
+                }
+                else if (modeLower == "year")
+                {
+                    start = new DateTime(year, 1, 1);
+                    end = start.AddYears(1);
+                    isValidMode = true;
+                }
+
+                if (isValidMode)
+                {
+                    // 2. Lưu ý: Kiểm tra xem trong DB status là "paid", "Paid" hay "PAID"
+                    // Tốt nhất nên chuẩn hóa hoặc so sánh tương đối
                     totalDecimal = await _context.DonHangs
-                        .Where(x => x.Status == "paid" && x.OrderDate >= start && x.OrderDate < end)
+                        .Where(x => (x.Status == "paid" || x.Status == "Paid") // Check cả 2 trường hợp cho chắc
+                                    && x.OrderDate >= start
+                                    && x.OrderDate < end)
                         .SumAsync(x => x.TotalAmount ?? 0m);
                 }
-                else if (mode == "year")
+                else
                 {
-                    var start = new DateTime(year, 1, 1);
-                    var end = start.AddYears(1);
-
-                    totalDecimal = await _context.DonHangs
-                        .Where(x => x.Status == "paid" && x.OrderDate >= start && x.OrderDate < end)
-                        .SumAsync(x => x.TotalAmount ?? 0m);
+                    // Log ra để biết nếu code bị rơi vào trường hợp này
+                    Console.WriteLine($"Cảnh báo: Mode '{mode}' không hợp lệ, trả về 0.");
                 }
 
-                // Convert decimal total to long (round to nearest)
                 return Convert.ToInt64(totalDecimal);
             }
             catch (Exception ex)

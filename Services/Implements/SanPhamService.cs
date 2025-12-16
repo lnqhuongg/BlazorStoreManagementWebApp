@@ -13,13 +13,15 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IImageService _imageService;
+        private readonly ITonKhoService _tonKhoService;
         private static readonly char[] Base62Chars =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".ToCharArray();
-        public SanPhamService(ApplicationDbContext context, IMapper mapper, IImageService imageService)
+        public SanPhamService(ApplicationDbContext context, IMapper mapper, IImageService imageService, ITonKhoService tonKhoService)
         {
             _context = context;
             _mapper = mapper;
             _imageService = imageService;
+            _tonKhoService = tonKhoService;
         }
 
         public async Task<List<SanPhamDTO>> getListProducts()
@@ -165,7 +167,6 @@ namespace BlazorStoreManagementWebApp.Services.Implements
         {
             try
             {
-
                 string imageUrl = null;
 
                 // Xử lý upload ảnh nếu có
@@ -202,6 +203,7 @@ namespace BlazorStoreManagementWebApp.Services.Implements
 
                 _context.SanPhams.Add(sanpham);
                 await _context.SaveChangesAsync();
+                await _tonKhoService.InitializeStock(sanpham.ProductID, 0);
 
                 // Load lại sản phẩm với đầy đủ thông tin liên quan
                 var createdProduct = await _context.SanPhams

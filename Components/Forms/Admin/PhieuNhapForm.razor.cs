@@ -110,7 +110,8 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
         {
             selectedSupplierId = int.Parse(e.Value.ToString());
             details.Clear();
-            products = await SanPhamService.getBySupplierID(selectedSupplierId);
+            var allProducts = await SanPhamService.getBySupplierID(selectedSupplierId);
+            products = allProducts.Where(p => p.Status == 1).ToList();
             selectedProductId = 0;
 
             StateHasChanged();
