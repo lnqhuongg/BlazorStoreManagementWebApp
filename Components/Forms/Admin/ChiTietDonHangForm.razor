@@ -108,34 +108,125 @@
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer d-flex justify-content-between align-items-center"
+            <div class="modal-footer d-flex justify-content-between align-items-end"
                  style="border-top: 1px solid #e5e7eb; padding: 1.5rem;">
-                <div>
-                    @if (donHang.Promotion != null && donHang.DiscountAmount > 0)
-                    {
-                        <div class="mb-2 text-end">
-                            <strong>Mã giảm giá (@donHang.Promotion.PromoCode):</strong>
-                            <span style="color: #ef4444; font-weight: 700;">
-                                -@string.Format("{0:N0} đ", donHang.DiscountAmount)
-                            </span>
-                        </div>
-                    }
 
-                    <div class="text-end">
-                        <strong style="font-size: 1.2rem; color: #065f46;">TỔNG CỘNG:</strong>
-                        <span style="font-size: 1.4rem; color: #dc2626; font-weight: 700;">
-                            @string.Format("{0:N0} đ", donHang.TotalAmount)
-                        </span>
-                    </div>
+                <div>
                 </div>
 
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal"
-                        style="padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600;">
-                    Đóng
-                </button>
+                <div class="d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                            style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                        Đóng
+                    </button>
+
+                    @if (donHang.Status != "paid" && donHang.Status != "canceled")
+                    {
+                        <button type="button"
+                                @onclick="() => TriggerCancelOrder(donHang.OrderId)"
+                                class="btn btn-danger"
+                                style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                            <i class="fas fa-times-circle me-2"></i> Hủy đơn
+                        </button>
+
+                        <button type="button"
+                                @onclick="() => TriggerConfirmPayment(donHang.OrderId)"
+                                class="btn btn-success"
+                                style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                            <i class="fas fa-check-circle me-2"></i> Xác nhận TT
+                        </button>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    // Thêm tham số dotNetHelper vào hàm
+    function confirmPaymentOrder(orderId, dotNetHelper) {
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success ms-2",
+                cancelButton: "btn btn-danger me-2"
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: "Xác nhận thanh toán?",
+            text: "Đơn hàng sẽ được chuyển sang trạng thái 'Đã thanh toán'!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Đồng ý!",
+            cancelButtonText: "Hủy bỏ!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                // --- THAY ĐỔI QUAN TRỌNG TẠI ĐÂY ---
+                // Thay vì fetch, ta gọi ngược về hàm C# [JSInvokable]
+                // Tên hàm 'ProcessPaymentConfirmed' phải khớp với tên trong C#
+                dotNetHelper.invokeMethodAsync('ProcessPaymentConfirmed', orderId)
+                    .then(() => {
+                        // Sau khi C# chạy xong (Database đã update)
+                        swalWithBootstrapButtons.fire({
+                            title: "Thành công!",
+                            text: "Đơn hàng đã được cập nhật.",
+                            icon: "success"
+                        });
+                        // Không cần reload ở đây nếu C# đã xử lý Navigation.Refresh()
+                        // hoặc nếu bạn muốn reload tại JS thì dùng location.reload();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        swalWithBootstrapButtons.fire("Lỗi!", "Có lỗi xảy ra phía server.", "error");
+                    });
+
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                swalWithBootstrapButtons.fire({
+                    title: "Đã hủy",
+                    text: "Không có thay đổi nào được thực hiện.",
+                    icon: "error"
+                });
+            }
+        });
+    }
+    function cancelOrderConfirm(orderId, dotNetHelper) {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-danger ms-2", // Nút đồng ý màu đỏ
+                cancelButton: "btn btn-secondary me-2" // Nút hủy màu xám
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: "Hủy đơn hàng này?",
+            text: "Hành động này không thể hoàn tác! Đơn hàng sẽ bị hủy bỏ.",
+            icon: "error", // Icon dấu X đỏ
+            showCancelButton: true,
+            confirmButtonText: "Vâng, hủy đơn!",
+            cancelButtonText: "Không, quay lại!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Gọi về C# hàm ProcessCancelOrder
+                dotNetHelper.invokeMethodAsync('ProcessCancelOrder', orderId)
+                    .then(() => {
+                        swalWithBootstrapButtons.fire({
+                            title: "Đã hủy!",
+                            text: "Đơn hàng đã chuyển sang trạng thái hủy.",
+                            icon: "success"
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        swalWithBootstrapButtons.fire("Lỗi!", "Có lỗi xảy ra.", "error");
+                    });
+            }
+        });
+    }
+</script>

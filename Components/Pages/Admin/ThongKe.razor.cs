@@ -31,15 +31,21 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
 
         protected override async Task OnInitializedAsync()
         {
-            TodayOrderList = await DonHangService.GetTodayOrders();
+            await Task.CompletedTask;
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                // Load dữ liệu tháng hiện tại ngay khi mở trang
+
+                TodayOrderList = await DonHangService.GetTodayOrders();
+
+                StateHasChanged();
+
                 await ApplyFilter();
+
+                StateHasChanged();
             }
         }
 

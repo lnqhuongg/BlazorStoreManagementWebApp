@@ -112,114 +112,147 @@
     height: 300px;
 }
 
-/* Orders section */
+/* Container chính của section */
 .orders-section {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Bóng nhẹ tạo chiều sâu */
+    border: 1px solid #f0f0f0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Để bo góc không bị nội dung chèn ra ngoài */
 }
 
+/* Tiêu đề */
 .orders-title {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #111827;
-    margin-bottom: 1rem;
+    color: #1f2937;
+    padding: 1.25rem;
+    margin: 0;
+    border-bottom: 1px solid #f3f4f6;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
+/* Khu vực danh sách (Scrollable) */
 .orders-list {
-    max-height: 500px;
-    overflow-y: auto;
-}
-
-.order-item {
+    flex: 1;
+    overflow-y: auto; /* Cho phép cuộn nếu danh sách dài */
     padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    transition: all 0.3s ease;
+    background-color: #f9fafb; /* Nền xám rất nhạt cho vùng list */
 }
 
+    /* Tùy chỉnh thanh cuộn cho đẹp (Webkit browsers) */
+    .orders-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .orders-list::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 10px;
+    }
+
+/* Từng thẻ đơn hàng (Item) */
+.order-item {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+    /* Hiệu ứng khi di chuột vào đơn hàng */
     .order-item:hover {
-        background-color: #f9fafb;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-color: #6366f1; /* Viền tím nhạt khi hover */
     }
 
-    .order-item:last-child {
-        border-bottom: none;
-    }
-
+/* Phần trên: ID và Giá tiền */
 .order-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #e5e7eb;
 }
 
 .order-id {
+    font-size: 0.9rem;
     font-weight: 600;
-    color: #111827;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 2px 8px;
+    border-radius: 6px;
 }
 
 .order-amount {
+    font-size: 1rem;
     font-weight: 700;
-    color: #10b981;
+    color: #4f46e5; /* Màu tím chủ đạo hoặc màu xanh brand */
 }
-/*
+
+/* Phần dưới: Tên, Trạng thái, Giờ */
 .order-details {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9rem;
-    color: #6b7280;
-}*/
-
-.order-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    color: #6b7280;
-    gap: 1rem;
-}
-
-/* New layout structure - order-info groups name and time, status on the right */
-.order-info {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex: 1;
-}
-
-.customer-name {
-    font-weight: 500;
-    color: #1f2937;
-    min-width: 120px;
-}
-
-.order-time {
-    color: #9ca3af;
     font-size: 0.85rem;
+    color: #374151;
 }
 
+.order-details span:first-child {
+    font-weight: 500;
+    /* SỬA DÒNG NÀY: Tăng từ 100px lên 200px */
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Badge trạng thái */
 .status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.25rem;
+    padding: 4px 10px;
+    border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
 }
 
-.status-success {
+/* Màu sắc cho từng trạng thái (QUAN TRỌNG) */
+.status-paid {
     background-color: #dcfce7;
-    color: #166534;
+    color: #166534; /* Xanh lá */
 }
 
 .status-pending {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: #fef9c3;
+    color: #854d0e; /* Vàng cam */
 }
 
-.status-failed {
+.status-cancelled, .status-failed {
     background-color: #fee2e2;
-    color: #991b1b;
+    color: #991b1b; /* Đỏ */
+}
+
+.status-shipping {
+    background-color: #dbeafe;
+    color: #1e40af; /* Xanh dương */
+}
+
+/* Thời gian */
+.order-details span:last-child {
+    color: #9ca3af;
+    font-size: 0.75rem;
 }
 
 /* Responsive */

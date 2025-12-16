@@ -15,38 +15,80 @@
 <div class="dashboard-wrapper" style="display:flex; gap:1rem; flex-wrap:wrap;">
 
     <!-- Cột trái: Đơn hàng hôm nay -->
-    <div class="orders-section-column" style="flex:1 1 300px; min-width:300px; min-height:500px;">
+    <div class="orders-section-column" style="flex:1 1 300px; min-width:300px; height: 100%;">
         <div class="orders-section">
-            <h3 class="orders-title">Đơn hàng hôm nay</h3>
+            <h3 class="orders-title">
+                <i class="bi bi-receipt me-2"></i> Đơn hàng hôm nay
+            </h3>
+
             <div class="orders-list">
                 @if (TodayOrderList == null || TodayOrderList.Count == 0)
                 {
-                    <div class="order-item" style="text-align:center; padding:1rem; color:#6b7280;">
-                        Hôm nay chưa có đơn hàng
+                    <div class="order-item d-flex flex-column align-items-center justify-content-center" style="height: 100%; box-shadow: none; background: transparent;">
+                        <i class="bi bi-inbox" style="font-size: 2rem; color: #cbd5e1;"></i>
+                        <span style="color:#6b7280; font-size: 0.9rem; margin-top: 8px;">Hôm nay chưa có đơn hàng</span>
                     </div>
                 }
                 else
                 {
                     @foreach (var order in TodayOrderList)
                     {
+                        // 1. XỬ LÝ TÊN KHÁCH HÀNG
+                        // Nếu null hoặc rỗng thì gán là "Khách vãng lai"
+                        var customerName = string.IsNullOrEmpty(order.CustomerName) ? "Khách vãng lai" : order.CustomerName;
+
+                        // 2. XỬ LÝ TRẠNG THÁI (Dịch sang Tiếng Việt)
+                        // Lấy status gốc chữ thường để dùng cho logic
+                        var statusRaw = order.Status?.ToLower() ?? "";
+                        var statusVi = "";
+
+                        switch (statusRaw)
+                        {
+                            case "paid":
+                                statusVi = "Đã thanh toán";
+                                break;
+                            case "pending":
+                                statusVi = "Chờ xử lý";
+                                break;
+                            case "shipping":
+                                statusVi = "Đang giao";
+                                break;
+                            case "cancelled":
+                                statusVi = "Đã hủy";
+                                break;
+                            case "failed":
+                                statusVi = "Thất bại";
+                                break;
+                            default:
+                                statusVi = order.Status; // Nếu không khớp case nào thì hiện nguyên gốc
+                                break;
+                        }
+
                         <div class="order-item">
                             <div class="order-header">
-                                <span class="order-id">@order.OrderId</span>
-                                <span class="order-amount">₫ @order.TotalAmount</span>
-                            </div>
-                            <div class="order-details">
-                                <span>@order.CustomerName</span>
-
-                                <span class="status-badge status-@order.Status.ToLower()">
-                                    @order.Status
+                                <span class="order-id">#@order.OrderId</span>
+                                <span class="order-amount">
+                                    @(order.TotalAmount?.ToString("N0")) ₫
                                 </span>
+                            </div>
 
-                                <span>@order.OrderDate?.ToString("HH:mm")</span>
+                            <div class="order-details">
+                                <div class="d-flex flex-column">
+                                    <span title="@customerName" style="font-size: 0.9rem; font-weight: 500;">
+                                        <i class="bi bi-person text-muted me-1"></i> @customerName
+                                    </span>
+                                    <span style="font-size: 0.75rem; color: #9ca3af; margin-top:2px;">
+                                        @order.OrderDate?.ToString("HH:mm")
+                                    </span>
+                                </div>
+
+                                <span class="status-badge status-@statusRaw">
+                                    @statusVi
+                                </span>
                             </div>
                         </div>
                     }
                 }
-
             </div>
         </div>
     </div>
