@@ -87,7 +87,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
 
                 await JS.InvokeVoidAsync("hideBootstrapModal", "ChiTietDonHangModal");
 
-                if (OnSaved.HasDelegate
+                if (OnSaved.HasDelegate)
                 {
                     await OnSaved.InvokeAsync();
                 }

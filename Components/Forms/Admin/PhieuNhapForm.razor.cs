@@ -55,7 +55,8 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
             price = 0;
             phieuNhapDTO = new PhieuNhapDTO();
             // load NCC
-            suppliers = await NhaCungCapService.GetAllNCC();
+            var allSuppliers = await NhaCungCapService.GetAllNCC();
+            suppliers = allSuppliers.Where(s => s.Status == 1).ToList();
 
             products.Clear();
             selectedSupplierId = 0;
