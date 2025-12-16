@@ -68,7 +68,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
                 {
                     "cash"     => "Tiền mặt",
                     "e-wallet"     => "Thẻ tín dụng / Thẻ ghi nợ",
-                    "bank-transfer" => "Chuyển khoản",
+                    "bank_transfer" => "Chuyển khoản",
                     "card" => "Thẻ tín dụng / Thẻ ghi nợ",
                     _          => p.PaymentMethod ?? "Không xác định"
                 })
@@ -87,7 +87,7 @@ namespace BlazorStoreManagementWebApp.Components.Forms.Admin
 
                 await JS.InvokeVoidAsync("hideBootstrapModal", "ChiTietDonHangModal");
 
-                if (OnSaved.HasDelegate)
+                if (OnSaved.HasDelegate
                 {
                     await OnSaved.InvokeAsync();
                 }
