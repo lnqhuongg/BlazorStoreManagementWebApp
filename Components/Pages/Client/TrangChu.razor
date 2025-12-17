@@ -129,15 +129,15 @@
                             <h4 class="text-center text-muted">Không có sản phẩm.</h4>
                         }
                     }
-                    @if (SanPhamData?.Data != null && SanPhamData.Total > PageSize)
-                    {
-                        <PaginationClient Total="SanPhamData.Total"
-                                          Page="@Page"
-                                          PageChanged="ChangePage"
-                                          PageSize="@PageSize" />
-                    }
+                    
                 </div>
-
+                @if (SanPhamData?.Data != null && SanPhamData.Total > PageSize)
+                {
+                    <PaginationClient Total="SanPhamData.Total"
+                                      Page="@Page"
+                                      PageChanged="ChangePage"
+                                      PageSize="@PageSize" />
+                }
             </div>
         </div>
     </div>

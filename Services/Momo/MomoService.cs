@@ -19,7 +19,8 @@ namespace BlazorStoreManagementWebApp.Services.Momo
 
         public async Task<MomoCreatePaymentResponseModel> CreatePaymentMomo(ThongTinDH model)
         {
-            model.OrderId = DateTime.UtcNow.Ticks.ToString();
+            // KHÔNG GHI ĐÈ OrderId nữa - dùng OrderId từ database
+            // Chỉ format lại OrderInfo
             model.OrderInfo = "Khách hàng: " + model.FullName + ". Nội dung: " + model.OrderInfo;
 
             // Số tiền phải là string không có dấu phẩy

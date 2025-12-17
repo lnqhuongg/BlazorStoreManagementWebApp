@@ -1,18 +1,5 @@
-﻿body {
-}
-/* Ghi đè style mặc định của thẻ body trong Blazor */
-::deep body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333333; /* --text-dark */
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-}
-
-/* Ghi đè class body-history */
-::deep .body-history {
+﻿/* Ghi đè class body-history */
+.body-history {
     background-color: #f5f5f5; /* --background-light */
     padding: 40px 20px;
     min-height: 100vh;

@@ -1,122 +1,189 @@
-﻿using BlazorStoreManagementWebApp.DTOs.Payments;
-using BlazorStoreManagementWebApp.Services.Momo;
+﻿using BlazorStoreManagementWebApp.Services.Momo;
 using BlazorStoreManagementWebApp.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using BlazorStoreManagementWebApp.Models.Momo;
 
 namespace BlazorStoreManagementWebApp.Controllers
 {
-    [Route("[controller]")]
-    public class CheckoutController : Controller
+    [ApiController]
+    [Route("momo")]
+    public class CheckoutController : ControllerBase
     {
         private readonly IMomoService _momoService;
         private readonly IDonHangService _donHangService;
+        private readonly IOptions<MomoOptionModel> _momoOptions;
+        private readonly ILogger<CheckoutController> _logger;
 
-        public CheckoutController(IMomoService momoService, IDonHangService donHangService)
+        public CheckoutController(
+            IMomoService momoService,
+            IDonHangService donHangService,
+            IOptions<MomoOptionModel> momoOptions,
+            ILogger<CheckoutController> logger)
         {
             _momoService = momoService;
             _donHangService = donHangService;
+            _momoOptions = momoOptions;
+            _logger = logger;
         }
 
-        // Bước 1: Tạo đơn hàng và yêu cầu thanh toán MoMo
-        [HttpPost("CreateMomoPayment")]
-        public async Task<IActionResult> CreateMomoPayment([FromBody] ThongTinDH model)
-        {
-            try
-            {
-                // Gọi API MoMo để tạo payment
-                var response = await _momoService.CreatePaymentMomo(model);
-
-                if (response.ErrorCode == 0)
-                {
-                    // Lưu đơn hàng vào database với trạng thái "Pending"
-                    // await _donHangService.CreateOrder(model, "Pending");
-
-                    // Trả về PayUrl để frontend redirect
-                    return Ok(new
-                    {
-                        success = true,
-                        payUrl = response.PayUrl,
-                        orderId = response.OrderId,
-                        message = "Tạo link thanh toán thành công"
-                    });
-                }
-                else
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = $"Lỗi MoMo: {response.Message}"
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = $"Lỗi server: {ex.Message}"
-                });
-            }
-        }
-
+        /// <summary>
+        /// MoMo redirect về đây sau khi thanh toán
+        /// </summary>
         [HttpGet("PaymentCallBack")]
-        public IActionResult PaymentCallBack()
+        public async Task<ContentResult> PaymentCallBack(
+            [FromQuery] string partnerCode,
+            [FromQuery] string orderId,
+            [FromQuery] string requestId,
+            [FromQuery] string amount,
+            [FromQuery] string orderInfo,
+            [FromQuery] string orderType,
+            [FromQuery] string transId,
+            [FromQuery] string resultCode,
+            [FromQuery] string message,
+            [FromQuery] string payType,
+            [FromQuery] string responseTime,
+            [FromQuery] string extraData,
+            [FromQuery] string signature)
         {
             try
             {
-                // Lấy query parameters từ MoMo
-                var queryString = Request.QueryString.Value;
+                _logger.LogInformation($"PaymentCallBack - OrderId: {orderId}, ResultCode: {resultCode}");
 
-                // Redirect sang trang Blazor với query string nguyên vẹn
-                return Redirect($"/payment-result{queryString}");
+                // CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
+                if (resultCode == "0" && int.TryParse(orderId, out int orderIdInt))
+                {
+                    await _donHangService.UpdateOrderStatus(orderIdInt, "paid");
+                    _logger.LogInformation($"✅ Order {orderIdInt} marked as paid");
+                }
+                else if (resultCode != "0" && int.TryParse(orderId, out int failedOrderId))
+                {
+                    await _donHangService.UpdateOrderStatus(failedOrderId, "canceled");
+                    _logger.LogWarning($"❌ Order {failedOrderId} payment failed with code {resultCode}");
+                }
+
+                // TẠO HTML ĐỂ REDIRECT (vì Blazor Server không support redirect trực tiếp)
+                var redirectUrl = $"/payment-result?" +
+                    $"orderId={orderId}" +
+                    $"&amount={amount}" +
+                    $"&transId={transId}" +
+                    $"&resultCode={resultCode}" +
+                    $"&message={Uri.EscapeDataString(message ?? "")}";
+
+                var html = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+    <meta http-equiv='refresh' content='0;url={redirectUrl}'>
+</head>
+<body>
+    <p>Đang chuyển hướng...</p>
+    <script>
+        window.location.href = '{redirectUrl}';
+    </script>
+</body>
+</html>";
+
+                return new ContentResult
+                {
+                    ContentType = "text/html",
+                    Content = html
+                };
             }
             catch (Exception ex)
             {
-                // Nếu có lỗi, redirect về trang lỗi
-                return Redirect($"/payment-result?error={ex.Message}");
+                _logger.LogError(ex, "Error in PaymentCallBack");
+
+                var errorHtml = @"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='refresh' content='0;url=/payment-result?resultCode=999'>
+</head>
+<body>
+    <script>
+        window.location.href = '/payment-result?resultCode=999';
+    </script>
+</body>
+</html>";
+
+                return new ContentResult
+                {
+                    ContentType = "text/html",
+                    Content = errorHtml
+                };
             }
         }
 
-
-        // Bước 3: MoMo gọi API này để thông báo kết quả (IPN)
+        /// <summary>
+        /// IPN endpoint - MoMo server gọi API này (chỉ hoạt động với public domain)
+        /// </summary>
         [HttpPost("MomoNotify")]
         public async Task<IActionResult> MomoNotify()
         {
             try
             {
+                _logger.LogInformation("📩 Received MoMo IPN notification");
+
                 var collection = Request.Query;
+                var queryString = string.Join("&", collection.Select(x => $"{x.Key}={x.Value}"));
+                _logger.LogInformation($"IPN Query: {queryString}");
+
                 var response = _momoService.PaymentExecuteAsync(collection);
 
-                // Xác thực signature (đã làm trong MomoPaymentController)
+                // Verify signature
+                var rawData =
+                    $"accessKey={_momoOptions.Value.AccessKey}" +
+                    $"&amount={response.Amount}" +
+                    $"&extraData=" +
+                    $"&message={collection.FirstOrDefault(s => s.Key == "message").Value}" +
+                    $"&orderId={response.OrderId}" +
+                    $"&orderInfo={response.OrderInfo}" +
+                    $"&orderType={collection.FirstOrDefault(s => s.Key == "orderType").Value}" +
+                    $"&partnerCode={_momoOptions.Value.PartnerCode}" +
+                    $"&payType={collection.FirstOrDefault(s => s.Key == "payType").Value}" +
+                    $"&requestId={response.OrderId}" +
+                    $"&responseTime={collection.FirstOrDefault(s => s.Key == "responseTime").Value}" +
+                    $"&resultCode={response.ErrorCode}" +
+                    $"&transId={response.TransId}";
+
+                var calculatedSignature = _momoService.ComputeHmacSha256(rawData, _momoOptions.Value.SecretKey);
+                bool isSignatureValid = calculatedSignature.Equals(response.Signature, StringComparison.OrdinalIgnoreCase);
                 bool isPaymentSuccess = response.ErrorCode == "0";
 
-                if (isPaymentSuccess)
+                _logger.LogInformation($"Signature valid: {isSignatureValid}, Payment success: {isPaymentSuccess}");
+
+                if (isSignatureValid && isPaymentSuccess)
                 {
                     if (int.TryParse(response.OrderId, out int orderIdInt))
                     {
-                        // Cập nhật trạng thái đơn hàng
                         await _donHangService.UpdateOrderStatus(orderIdInt, "paid");
-
-                        // Log thành công
-                        Console.WriteLine($"Order {orderIdInt} payment completed. TransId: {response.TransId}");
+                        _logger.LogInformation($"✅ IPN: Order {orderIdInt} marked as paid");
+                        return Ok(new { message = "Success" });
                     }
                 }
-                else
+                else if (isSignatureValid && !isPaymentSuccess)
                 {
                     if (int.TryParse(response.OrderId, out int orderIdInt))
                     {
                         await _donHangService.UpdateOrderStatus(orderIdInt, "canceled");
-                        Console.WriteLine($"Order {orderIdInt} payment failed. ErrorCode: {response.ErrorCode}");
+                        _logger.LogWarning($"❌ IPN: Order {orderIdInt} payment failed");
                     }
+                    return Ok(new { message = "Payment failed" });
+                }
+                else
+                {
+                    _logger.LogError("❌ Invalid signature from MoMo IPN");
+                    return Ok(new { message = "Invalid signature" });
                 }
 
-                // Phải trả về 200 OK để MoMo biết đã nhận được thông báo
-                return Ok();
+                return Ok(new { message = "Processed" });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in MomoNotify: {ex.Message}");
-                return Ok(); // Vẫn trả về OK để MoMo không gọi lại liên tục
+                _logger.LogError(ex, "Error processing MoMo IPN");
+                return Ok(new { message = "Error occurred" });
             }
         }
     }
