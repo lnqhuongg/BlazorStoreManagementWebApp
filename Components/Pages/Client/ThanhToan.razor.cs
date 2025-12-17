@@ -269,8 +269,6 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Client
                     "success",
                     "Đặt hàng thành công!"
                 );
-
-                NavigationManager.NavigateTo("/orders");
             }
             catch (Exception ex)
             {
