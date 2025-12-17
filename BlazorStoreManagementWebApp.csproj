@@ -6,9 +6,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+
   <ItemGroup>
     <Folder Include="Components\UI\ProductCard\" />
     <Folder Include="DTOs\Admin\NhaCungCap\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Components\Pages\Client\LichSuMuaHang.razor" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +26,10 @@
 	<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 	<PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
 	<PackageReference Include="RestSharp" Version="113.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="Components\Pages\Client\LichSuMuaHang.razor.css" />
   </ItemGroup>
 
 </Project>
