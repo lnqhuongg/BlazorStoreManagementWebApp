@@ -11,9 +11,9 @@
     justify-content: center;
 }
 
-    .u-modal-overlay:target {
-        display: flex;
-    }
+.u-modal-overlay.active {
+    display: flex;
+}
 
 .c-modal-detail__content {
     background-color: #ffffff;

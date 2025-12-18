@@ -22,12 +22,10 @@ namespace BlazorStoreManagementWebApp.Services.Interfaces
 
         //long TinhTongDoanhThu(string mode, int month, int year);
         Task<long> TinhTongDoanhThu(string mode, int month, int year);
-
         public List<long> GetRevenueByMonth(int month, int year);
-
         public List<long> GetRevenueByYear(int year);
-
-        Task<DonHangDTO> UpdateOrderStatus(int orderId, string status);  
+        Task<DonHangDTO> UpdateOrderStatus(int orderId, string status);
+        Task<PagedResult<DonHangDTO>> GetByKhachHangId(int page, int pageSize, string status = "", string startday = "", string endday = "", int idKH = 0);
     }
 
 }

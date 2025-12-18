@@ -10,8 +10,7 @@ namespace BlazorStoreManagementWebApp.Components.Pages.Admin
     {
         //tiêm service vào để gọi
         [Inject] public ILoaiSanPhamService LoaiSanPhamService { get; set; }
-
-        protected PagedResult<LoaiSanPhamDTO> LoaiData = new();
+         protected PagedResult<LoaiSanPhamDTO> LoaiData = new();
         protected int Page = 1;
         protected int PageSize = 2;
         protected string Keyword = "";

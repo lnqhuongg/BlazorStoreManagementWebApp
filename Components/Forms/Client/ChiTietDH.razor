@@ -1,104 +1,90 @@
-﻿<div id="u-detail-modal" class="u-modal-overlay">
+﻿<div class="u-modal-overlay @(IsOpen ? "active" : "")">
     <div class="c-modal-detail__content">
-        <a href="#" class="c-modal-detail__close-btn" title="Đóng">&#10006;</a>
+        <button type="button" class="c-modal-detail__close-btn" title="Đóng" @onclick="CloseModal">&#10006;</button>
 
-        <h2 class="c-modal-detail__title">
-            Chi Tiết Đơn Hàng <span class="c-modal-detail__highlight">#DH1004</span>
-        </h2>
+        @if (donHang == null || donHang.OrderId == 0)
+        {
+            <h3 class="text-center">Không tìm thấy thông tin đơn hàng</h3>
+        }
+        else
+        {
+            <h2 class="c-modal-detail__title">
+                Chi Tiết Đơn Hàng <span class="c-modal-detail__highlight">#DH@donHang.OrderId</span>
+            </h2>
 
-        <div class="c-status-display">
-            <span class="c-status-display__label">Trạng thái:</span>
-            <span class="c-status-display__badge is-completed">Thành Công</span>
-        </div>
-
-        <div class="c-modal-detail__grid">
-
-            <div class="c-modal-detail__info-col">
-                <h3 class="c-modal-detail__section-title">Thông Tin Khách Hàng</h3>
-                <p><strong>Tên Khách Hàng:</strong> Nguyễn Văn A</p>
-                <p><strong>Địa Chỉ:</strong> 123 Đường ABC, Quận 1, TP.HCM</p>
-                <p><strong>Điện Thoại:</strong> 090xxxxxxx</p>
+            <div class="c-status-display">
+                <span class="c-status-display__label">Trạng thái:</span>
+                <span class="c-status-display__badge @(donHang.Status == "paid" ? "is-completed" : donHang.Status == "canceled" ? "is-cancelled" : "is-pending")">
+                    @(donHang.Status == "paid" ? "Thành Công" : donHang.Status == "canceled" ? "Đã hủy" : "Đang chờ")
+                </span>
             </div>
 
-            <div class="c-modal-detail__info-col">
-                <h3 class="c-modal-detail__section-title">Thông Tin Giao Dịch</h3>
-                <p><strong>Ngày Tạo Đơn:</strong> 16/12/2025</p>
-                <p><strong>Phương Thức TT:</strong> Thanh toán khi nhận hàng (COD)</p>
-                <p>
-                    <strong>Mã Giảm Giá:</strong> <span class="c-modal-detail__discount-code">
-                        SALE20K (Giảm 20.000
-                        VNĐ)
+            <div class="c-modal-detail__grid">
+
+                <div class="c-modal-detail__info-col">
+                    <h3 class="c-modal-detail__section-title">Thông Tin Khách Hàng</h3>
+                    <p><strong>Tên Khách Hàng:</strong> @(string.IsNullOrWhiteSpace(donHang.CustomerName) ? "Khách vãng lai" : donHang.CustomerName)</p>
+                    <p><strong>Điện Thoại:</strong> @(string.IsNullOrWhiteSpace(donHang.Phone) ? "Không có" : donHang.Phone)</p>
+                </div>
+
+                <div class="c-modal-detail__info-col">
+                    <h3 class="c-modal-detail__section-title">Thông Tin Giao Dịch</h3>
+                    <p><strong>Ngày Tạo Đơn:</strong> @(donHang.OrderDate.HasValue? donHang.OrderDate.Value.ToString("dd/MM/yyyy HH:mm") : "-")</p>
+                    <p><strong>Phương Thức TT:</strong> @DisplayPaymentMethods()</p>
+                    <p>
+                        <strong>Mã Giảm Giá:</strong>
+                        <span class="c-modal-detail__discount-code">
+                            @(donHang.Promotion != null ? $"{donHang.Promotion.PromoCode} (Giảm {donHang.DiscountAmount.ToString("N0")} VNĐ)" : "Không có")
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="c-modal-detail__product-container">
+                <h3 class="c-modal-detail__section-title">Danh Sách Sản Phẩm</h3>
+                <div class="c-modal-detail__product-scroll">
+                    <table class="c-product-table">
+                        <thead>
+                            <tr>
+                                <th>Tên Sản Phẩm</th>
+                                <th>SL</th>
+                                <th>Đơn Giá</th>
+                                <th>Thành Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (donHang.Items != null && donHang.Items.Any())
+                            {
+                                foreach (var it in donHang.Items)
+                                {
+                                    <tr>
+                                        <td>@(it.Product?.ProductName ?? "—")</td>
+                                        <td>@it.Quantity</td>
+                                        <td>@(it.Price.ToString("N0")) VNĐ</td>
+                                        <td>@(it.Subtotal.ToString("N0")) VNĐ</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Không có sản phẩm</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="c-modal-detail__footer">
+                <div class="c-modal-detail__summary">
+                    <strong>Tổng cộng:</strong>
+                    <span class="c-modal-detail__final-total">
+                        @( (donHang.TotalAmount ?? 0m).ToString("N0") ) VNĐ
                     </span>
-                </p>
+                    @(donHang.DiscountAmount > 0 ? $" (Đã trừ {donHang.DiscountAmount.ToString("N0")} VNĐ)" : "")
+                </div>
             </div>
-        </div>
-
-        <div class="c-modal-detail__product-container">
-            <h3 class="c-modal-detail__section-title">Danh Sách Sản Phẩm</h3>
-            <div class="c-modal-detail__product-scroll">
-                <table class="c-product-table">
-                    <thead>
-                        <tr>
-                            <th>Tên Sản Phẩm</th>
-                            <th>SL</th>
-                            <th>Đơn Giá</th>
-                            <th>Thành Tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Áo Thun Unisex</td>
-                            <td>2</td>
-                            <td>150.000 VNĐ</td>
-                            <td>300.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Quần Jeans Cao Cấp</td>
-                            <td>1</td>
-                            <td>700.000 VNĐ</td>
-                            <td>700.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Đôi Giày Sneaker</td>
-                            <td>1</td>
-                            <td>250.000 VNĐ</td>
-                            <td>250.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Sản Phẩm Khác 1</td>
-                            <td>1</td>
-                            <td>50.000 VNĐ</td>
-                            <td>50.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Sản Phẩm Khác 2</td>
-                            <td>1</td>
-                            <td>50.000 VNĐ</td>
-                            <td>50.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Sản Phẩm Khác 3</td>
-                            <td>1</td>
-                            <td>50.000 VNĐ</td>
-                            <td>50.000 VNĐ</td>
-                        </tr>
-                        <tr>
-                            <td>Sản Phẩm Khác 4</td>
-                            <td>1</td>
-                            <td>50.000 VNĐ</td>
-                            <td>50.000 VNĐ</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="c-modal-detail__footer">
-            <div class="c-modal-detail__summary">
-                <strong>Tổng cộng:</strong> <span class="c-modal-detail__final-total">1.230.000 VNĐ</span> (Đã trừ
-                20.000 VNĐ giảm giá)
-            </div>
-            <button class="c-modal-detail__btn c-modal-detail__btn--print">🖨️ In Đơn Hàng</button>
-        </div>
+        }
     </div>
 </div>

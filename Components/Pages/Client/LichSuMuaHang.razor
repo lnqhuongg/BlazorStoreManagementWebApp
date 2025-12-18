@@ -1,10 +1,38 @@
 ﻿@page "/lichsumuahang"
+@using BlazorStoreManagementWebApp.Components.Forms.Client
 @using Components.Layout.Client;
 @layout MainLayout
 
 <div class="body-history">
     <div class="o-app-container">
+        <div class="c-order-history-filter__container">
 
+            <div class="c-order-history-filter__group c-order-history-filter__group--status">
+                <label class="c-order-history-filter__label" for="filterStatus">Trạng thái giao dịch</label>
+                <div class="c-order-history-filter__input-wrapper">
+                    <select id="filterStatus" class="c-order-history-filter__select" @onchange="FilterByStatus">
+                        <option value="all">Tất cả đơn hàng</option>
+                        <option value="paid">Đã thanh toán</option>
+                        <option value="pending">Đang chờ xác nhận</option>
+                        <option value="canceled">Đã hủy</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="c-order-history-filter__group c-order-history-filter__group--date">
+                <label class="c-order-history-filter__label" for="filterDate">Thời gian đặt hàng</label>
+                <div class="c-order-history-filter__input-wrapper">
+                    <input type="date" id="filterDate" class="c-order-history-filter__input-date" @onchange="FilterByDate" />
+                </div>
+            </div>
+
+            <div class="c-order-history-filter__actions">
+                <button type="button" class="c-order-history-filter__btn c-order-history-filter__btn--clear" @onclick="ResetFilter">
+                    <span class="c-order-history-filter__btn-icon">&#10227;</span> Làm mới bộ lọc
+                </button>
+            </div>
+
+        </div>
         <div class="c-order-list">
 
             <div class="c-order-list__item c-order-list__header">
@@ -14,42 +42,45 @@
                 <div class="c-order-list__col--status">Trạng Thái</div>
                 <div class="c-order-list__col--actions">Thao Tác</div>
             </div>
-
-            <div class="c-order-list__item c-order-list__row">
-                <div class="c-order-list__col--id">#DH1004</div>
-                <div class="c-order-list__col--date">16/12/2025</div>
-                <div class="c-order-list__col--total c-order-list__amount--highlight">1.250.000 VNĐ</div>
-                <div class="c-order-list__col--status is-completed">Thành Công</div>
-                <div class="c-order-list__col--actions">
-                    <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
-                       title="Xem Chi Tiết">&#128065;</a>
-                    <a href="#" class="c-action-btn__icon c-action-btn__icon--cancel" title="Hủy Đơn Hàng">&#10006;</a>
+            @if (DonHangData?.Data == null || !DonHangData.Data.Any())
+            {
+                <div class="c-order-list__item c-order-list__row"> 
+                    <div class="c-order-list__col--id" colspan="5" style="text-align:center; color:gray;">
+                        Không có đơn hàng nào.
+					</div>
                 </div>
-            </div>
-
-            <div class="c-order-list__item c-order-list__row">
-                <div class="c-order-list__col--id">#DH1005</div>
-                <div class="c-order-list__col--date">12/12/2025</div>
-                <div class="c-order-list__col--total">320.000 VNĐ</div>
-                <div class="c-order-list__col--status is-pending">Đang Vận Chuyển</div>
-                <div class="c-order-list__col--actions">
-                    <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
-                       title="Xem Chi Tiết">&#128065;</a>
-                    <a href="#" class="c-action-btn__icon c-action-btn__icon--cancel" title="Hủy Đơn Hàng">&#10006;</a>
-                </div>
-            </div>
-
-            <div class="c-order-list__item c-order-list__row">
-                <div class="c-order-list__col--id">#DH1006</div>
-                <div class="c-order-list__col--date">05/12/2025</div>
-                <div class="c-order-list__col--total">80.000 VNĐ</div>
-                <div class="c-order-list__col--status is-cancelled">Đã Hủy</div>
-                <div class="c-order-list__col--actions">
-                    <a href="#u-detail-modal" class="c-action-btn__icon c-action-btn__icon--view"
-                       title="Xem Chi Tiết">&#128065;</a>
-                </div>
-            </div>
-
+            }
+            else
+            {
+                @foreach (var item in DonHangData.Data)
+                {
+                    <div class="c-order-list__item c-order-list__row">
+                        <div class="c-order-list__col--id">#@item.OrderId</div>
+                        <div class="c-order-list__col--date">@((item.OrderDate.HasValue) ? item.OrderDate.Value.ToString("dd/MM/yyyy") : "")</div>
+                        <div class="c-order-list__col--total c-order-list__amount--highlight">@((item.TotalAmount ?? 0m).ToString("N0")) đ</div>
+                        <div class="c-order-list__col--status @(item.Status == "paid" ? "is-completed" : item.Status == "pending" ? "is-pending" : "is-cancelled")">@item.Status</div>
+                        <div class="c-order-list__col--actions">
+                           <button type="button" class="c-action-btn__icon c-action-btn__icon--view"
+                                    title="Xem Chi Tiết" @onclick="() => ChiTietDHRef.OpenModal(item.OrderId)">
+                                &#128065;
+                           </button>
+                            @if (item.Status == "pending")
+                            {
+                                <button type="button" class="c-action-btn__icon c-action-btn__icon--cancel" title="Hủy Đơn Hàng" @onclick="() => CancelOrder(item.OrderId)">&#10006;</button>
+                            }
+                        </div>
+                    </div>
+				}
+            }
         </div>
+        @if (DonHangData?.Data != null && DonHangData.Total > PageSize)
+        {
+            <PaginationClient Total="DonHangData.Total"
+                              Page="@Page"
+                              PageChanged="ChangePage"
+                              PageSize="@PageSize" />
+        }
     </div>
 </div>
+
+<ChiTietDH @ref="ChiTietDHRef"></ChiTietDH>

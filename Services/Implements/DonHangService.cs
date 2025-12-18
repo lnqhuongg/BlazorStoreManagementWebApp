@@ -141,6 +141,62 @@ namespace BlazorStoreManagementWebApp.Services.Implements
             return dto;
         }
 
+        public async Task<PagedResult<DonHangDTO>> GetByKhachHangId(int page, int pageSize, string status = "", string startday = "", string endday = "", int idKH = 0)
+        {
+            // 1. Tạo Query cơ bản lọc theo ID khách hàng
+            var query = _context.DonHangs
+                .Include(x => x.Customer)
+                .Where(x => x.CustomerId == idKH)
+                .AsQueryable();
+
+            // 2. Lọc theo Trạng thái (Status)
+            if (!string.IsNullOrEmpty(status) && status != "All")
+            {
+                query = query.Where(x => x.Status == status);
+            }
+
+            // 3. Lọc theo Khoảng ngày (StartDay - EndDay)
+            if (!string.IsNullOrEmpty(startday) && DateTime.TryParse(startday, out DateTime start))
+            {
+                query = query.Where(x => x.OrderDate >= start);
+            }
+
+            if (!string.IsNullOrEmpty(endday) && DateTime.TryParse(endday, out DateTime end))
+            {
+                // Thêm .AddDays(1) để lấy hết dữ liệu của ngày kết thúc (tránh bị mất dữ liệu do giờ 00:00:00)
+                var endLimit = end.Date.AddDays(1);
+                query = query.Where(x => x.OrderDate < endLimit);
+            }
+
+            // 4. Đếm tổng số bản ghi sau khi lọc
+            var total = await query.CountAsync();
+
+            // 5. Phân trang và Mapping sang DTO
+            var data = await query
+                .OrderByDescending(x => x.OrderDate) // Đơn hàng mới nhất lên đầu
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new DonHangDTO
+                {
+                    OrderId = x.OrderId,
+                    CustomerName = x.Customer != null ? x.Customer.Name : "Khách vãng lai",
+                    Phone = x.Customer != null ? x.Customer.Phone : "",
+                    OrderDate = x.OrderDate,
+                    TotalAmount = x.TotalAmount,
+                    Status = x.Status ?? "pending"
+                })
+                .ToListAsync();
+
+            // 6. Trả về kết quả phân trang
+            return new PagedResult<DonHangDTO>
+            {
+                Data = data,
+                Total = total,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
         // ==================== 4. TẠO MỚI (Create) ====================
         public async Task<DonHangDTO> Create(CreateDonHangDTO dto, string userType = "staff", string paymentMethod = "cash")
         {

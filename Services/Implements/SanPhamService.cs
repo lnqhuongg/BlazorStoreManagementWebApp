@@ -200,7 +200,6 @@ namespace BlazorStoreManagementWebApp.Services.Implements
                     SupplierID = sp.SupplierID,
                 };
 
-
                 _context.SanPhams.Add(sanpham);
                 await _context.SaveChangesAsync();
                 await _tonKhoService.InitializeStock(sanpham.ProductID, 0);
